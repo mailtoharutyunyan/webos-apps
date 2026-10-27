@@ -8,7 +8,8 @@
         { name: 'Армения', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/armenia.m3u' },
         { name: 'Россия', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/russia.m3u' },
         { name: 'Фильмы со всего мира', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/movies.m3u' },
-        { name: 'Классика кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films.m3u' }
+        { name: 'Классика кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films.m3u' },
+        { name: '18+ · винтажное кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films-18.m3u' }
     ];
     var CATALOG_URL = 'https://iptv-org.github.io/api/countries.json';
     var CATALOG_PINNED = ['AM', 'RU'];
@@ -17,7 +18,10 @@
     var RECENT_LIMIT = 30;
     var OSD_TIMEOUT = 5000;
     var DIGIT_TIMEOUT = 1500;
-    var SEEK_STEP = 30;
+    // Seeking grows while ← → are pressed in quick succession: 10 s, 1 min, 5 min.
+    var SEEK_STEPS = [10, 10, 30, 60, 60, 300];
+    var SEEK_RESET = 900;
+    var seekRun = 0;
 
     var KEY = {
         OK: 13, BACK: 461, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
@@ -369,7 +373,7 @@
     }
 
     function noSignal() {
-        showStatus('Канал сейчас не отвечает. Переключите: ▲ ▼ или CH+ CH−.');
+        showStatus('Канал сейчас не отвечает. Переключите кнопками CH+ CH−.');
     }
 
     video.addEventListener('playing', hideStatus);
@@ -391,11 +395,17 @@
         play(playList[(position + delta + playList.length) % playList.length]);
     }
 
-    function seek(seconds) {
+    function seek(direction) {
         if (!isFinite(video.duration)) {
             return;
         }
-        video.currentTime = Math.max(0, Math.min(video.duration - 1, video.currentTime + seconds));
+        var stepSeconds = SEEK_STEPS[Math.min(seekRun, SEEK_STEPS.length - 1)];
+        seekRun++;
+        restartTimer('seekRun', SEEK_RESET, function () { seekRun = 0; });
+        video.currentTime = Math.max(0, Math.min(video.duration - 1, video.currentTime + direction * stepSeconds));
+        $('osd-step').textContent = (direction > 0 ? '+' : '−') + (stepSeconds >= 60 ? stepSeconds / 60 + ' мин' : stepSeconds + ' с');
+        $('osd-step').hidden = false;
+        restartTimer('seekLabel', 1200, function () { $('osd-step').hidden = true; });
         showOsd();
     }
 
@@ -448,23 +458,28 @@
         $('osd-fav').hidden = !isFavourite(current);
         $('osd-progress').hidden = !channel.film;
         updateProgress();
+        $('osd-state').innerHTML = channel.film ? svg(video.paused ? 'play' : 'pause') : '';
+        $('osd-state').hidden = !channel.film;
         setHints($('osd-hints'), channel.film ? [
-            [['OK'], 'Меню'],
-            [['leftright'], '30 секунд'],
-            [[video.paused ? 'play' : 'pause'], video.paused ? 'Продолжить' : 'Пауза'],
-            [['updown'], 'Другой фильм'],
+            [['OK'], video.paused ? 'Продолжить' : 'Пауза'],
+            [['leftright'], 'Перемотка (чаще — быстрее)'],
+            [['CH+', 'CH−'], 'Другой фильм'],
             [['red'], isFavourite(current) ? 'Убрать из избранного' : 'В избранное'],
-            [['back'], 'Назад']
+            [['back'], 'Меню']
         ] : [
             [['OK'], 'Меню'],
-            [['updown'], 'Канал'],
+            [['CH+', 'CH−'], 'Канал'],
             [['0–9'], 'Номер'],
             [['red'], isFavourite(current) ? 'Убрать из избранного' : 'В избранное'],
             [['yellow'], 'Предыдущий'],
             [['back'], 'Назад']
         ]);
         osd.hidden = false;
-        restartTimer('osd', OSD_TIMEOUT, function () { osd.hidden = true; });
+        restartTimer('osd', OSD_TIMEOUT, function () {
+            if (!(channel.film && video.paused)) {
+                osd.hidden = true;
+            }
+        });
     }
 
     function updateProgress() {
@@ -472,8 +487,18 @@
             $('osd-time').textContent = '';
             return;
         }
-        $('osd-bar').style.width = (video.currentTime / video.duration * 100) + '%';
-        $('osd-time').textContent = clockText(video.currentTime) + ' / ' + clockText(video.duration);
+        var played = video.currentTime / video.duration * 100;
+        var buffered = 0;
+        for (var i = 0; i < video.buffered.length; i++) {
+            if (video.buffered.start(i) <= video.currentTime) {
+                buffered = video.buffered.end(i) / video.duration * 100;
+            }
+        }
+        $('osd-bar').style.width = played + '%';
+        $('osd-buffer').style.width = buffered + '%';
+        $('osd-thumb').style.left = played + '%';
+        $('osd-time').textContent = clockText(video.currentTime) + ' / ' + clockText(video.duration) +
+            ' · осталось ' + clockText(video.duration - video.currentTime);
     }
 
     // ---------- Screens ----------
@@ -1098,10 +1123,10 @@
     // ---------- Help ----------
 
     var HELP = [
-        [['OK'], 'Меню каналов', 'Во время просмотра открывает главный экран; в меню включает канал'],
-        [['up', 'down'], 'Переключить канал', 'В меню — движение по плиткам и разделам'],
-        [['left', 'right'], 'Перемотка фильма', '±30 секунд; в меню — разделы и плитки'],
-        [['CH+', 'CH−'], 'Канал или страница', 'В меню листает на целую страницу'],
+        [['OK'], 'Меню или пауза', 'На канале открывает главный экран, в фильме — пауза; в меню включает'],
+        [['up', 'down'], 'Информация о канале', 'В меню — движение по плиткам и разделам'],
+        [['left', 'right'], 'Перемотка фильма', '10 с, при частых нажатиях 1 и 5 минут; в меню — плитки'],
+        [['CH+', 'CH−'], 'Переключить канал', 'В меню листает на целую страницу'],
         [['0–9'], 'Номер канала', 'Наберите номер, переключение через 1,5 секунды'],
         [['play', 'pause'], 'Пауза и продолжение', 'Для фильмов'],
         [['red'], 'Избранное', 'Добавить или убрать канал'],
@@ -1109,7 +1134,7 @@
         [['yellow'], 'Предыдущий канал', 'Быстро вернуться к прошлому каналу'],
         [['INFO'], 'Справка и информация', 'Эта страница; во время просмотра — данные канала'],
         [['back'], 'Назад', 'На главном экране предлагает выйти'],
-        [['Magic Remote'], 'Указка', 'Наведите на плитку и нажмите колесо; колесо листает']
+        [['Magic Remote'], 'Указка', 'Наведите и нажмите колесо; колесо листает меню, но не каналы']
     ];
 
     function openHelp() {
@@ -1197,20 +1222,24 @@
 
     function handlePlayerKey(code) {
         var film = current >= 0 && channels[current].film;
-        if (code === KEY.OK) {
-            if (statusBox.dataset.retry) {
-                loadPlaylists();
-            } else {
-                openHome();
-            }
-        } else if (code === KEY.UP || code === KEY.CH_UP) {
-            step(1);
-        } else if (code === KEY.DOWN || code === KEY.CH_DOWN) {
-            step(-1);
+        if (statusBox.dataset.retry && code === KEY.OK) {
+            loadPlaylists();
+        } else if (film && code === KEY.OK) {
+            togglePause();
+        } else if (film && (code === KEY.UP || code === KEY.DOWN)) {
+            showOsd();
         } else if (film && (code === KEY.LEFT || code === KEY.REWIND)) {
-            seek(-SEEK_STEP);
+            seek(-1);
         } else if (film && (code === KEY.RIGHT || code === KEY.FAST_FORWARD)) {
-            seek(SEEK_STEP);
+            seek(1);
+        } else if (code === KEY.OK) {
+            openHome();
+        } else if (code === KEY.CH_UP) {
+            step(1);
+        } else if (code === KEY.CH_DOWN) {
+            step(-1);
+        } else if (code === KEY.UP || code === KEY.DOWN) {
+            showOsd();
         } else if (code === KEY.PLAY || code === KEY.PAUSE || code === KEY.PLAY_PAUSE) {
             togglePause(code === KEY.PLAY ? true : code === KEY.PAUSE ? false : undefined);
         } else if (code === KEY.STOP) {
@@ -1222,7 +1251,7 @@
         } else if (code === KEY.LEFT || code === KEY.RIGHT || code === KEY.INFO) {
             showOsd();
         } else if (code === KEY.BACK) {
-            if (!osd.hidden) {
+            if (!osd.hidden && !film) {
                 osd.hidden = true;
             } else {
                 openHome();
@@ -1357,8 +1386,6 @@
             } else {
                 moveSources(down ? 1 : -1);
             }
-        } else if (screen === 'player') {
-            step(down ? -1 : 1);
         }
         event.preventDefault();
     }, { passive: false });

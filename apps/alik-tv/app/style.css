@@ -172,16 +172,66 @@ video {
 
 .osd-progress { display: flex; align-items: center; margin-top: 22px; }
 
-.osd-track {
-    flex: 1;
-    height: 10px;
-    border-radius: 5px;
-    background: var(--line);
-    overflow: hidden;
+.osd-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin-right: 28px;
+    border-radius: 50%;
+    background: var(--apricot);
+    color: var(--apricot-ink);
 }
 
-.osd-bar { width: 0; height: 100%; background: var(--apricot); }
-.osd-time { margin-left: 24px; font-size: 26px; color: var(--muted); }
+.osd-state svg { width: 30px; height: 30px; fill: currentColor; stroke: currentColor; stroke-width: 2; }
+
+.osd-track {
+    position: relative;
+    flex: 1;
+    height: 12px;
+    border-radius: 6px;
+    background: var(--line);
+}
+
+.osd-buffer,
+.osd-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    border-radius: 6px;
+}
+
+.osd-buffer { background: #46506a; }
+.osd-bar { background: var(--apricot); }
+
+.osd-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    border: 4px solid var(--apricot);
+    border-radius: 50%;
+    background: var(--text);
+}
+
+.osd-step {
+    position: absolute;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 16px;
+    border-radius: 10px;
+    background: var(--apricot);
+    color: var(--apricot-ink);
+    font-size: 26px;
+    font-weight: 700;
+}
+.osd-time { margin-left: 28px; font-size: 26px; color: var(--muted); white-space: nowrap; }
 
 .osd .hints {
     margin-top: 22px;

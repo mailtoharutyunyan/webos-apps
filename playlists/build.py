@@ -30,6 +30,15 @@ ARCHIVE_SEARCH = 'https://archive.org/advancedsearch.php'
 ARCHIVE_QUERY = 'collection:feature_films AND mediatype:movies'
 ARCHIVE_FILMS = 300
 ARCHIVE_FILE = 'archive-films.m3u'
+# Adult and exploitation titles go to a separate, opt-in playlist.
+ARCHIVE_ADULT_FILE = 'archive-films-18.m3u'
+ARCHIVE_ADULT_QUERY = ('collection:feature_films AND mediatype:movies AND '
+                       '(subject:sexploitation OR subject:erotica OR subject:erotic OR subject:nudist OR subject:grindhouse)')
+ARCHIVE_ADULT_FILMS = 150
+# Strong words count anywhere in the title, tags or description; "sex" only in the title.
+ADULT_STRONG = re.compile(r'\b(porn\w*|erotic\w*|nudis\w*|nudity|nude|sexploitation|x-rated|nsfw|topless|'
+                          r'grindhouse|softcore|stag film)\b', re.I)
+ADULT_TITLE = re.compile(r'\bsex\w*\b', re.I)
 SKIP_TAGS = ('[Not 24/7]', '[Geo-blocked]')
 TIMEOUT = 8
 USER_AGENT = 'Mozilla/5.0 (Web0S; Linux/SmartTV) AppleWebKit/537.36 Chrome/79.0 Safari/537.36'
@@ -160,20 +169,30 @@ def archive_film(doc):
     # The 512kb derivative streams well on the TV; otherwise take the smallest MP4.
     files.sort(key=lambda f: ('512kb' not in f['name'], int(f.get('size') or 0)))
     url = 'https://archive.org/download/{}/{}'.format(doc['identifier'], urllib.parse.quote(files[0]['name']))
+    info = meta.get('metadata', {})
+    words = ' '.join(str(info.get(k, '')) for k in ('title', 'subject', 'description'))
+    adult = bool(ADULT_STRONG.search(words) or ADULT_TITLE.search(str(info.get('title', ''))))
     year = str(doc.get('year') or '')[:4]
     decade = year[:3] + '0s' if year.isdigit() else 'Other'
     title = re.sub(r'\s+', ' ', str(doc.get('title', doc['identifier']))).replace(',', ' ').strip()
     name = f'{title} ({year})' if year else title
     thumb = 'https://archive.org/services/img/' + doc['identifier']
-    return f'#EXTINF:-1 tvg-logo="{thumb}" group-title="Films: {decade}",{name}', url
+    group = 'Films 18+' if adult else 'Films: ' + decade
+    return f'#EXTINF:-1 tvg-logo="{thumb}" group-title="{group}",{name}', url, adult
+
+
+def archive_search(query, rows):
+    params = urllib.parse.urlencode([
+        ('q', query), ('fl[]', 'identifier'), ('fl[]', 'title'), ('fl[]', 'year'),
+        ('sort[]', 'downloads desc'), ('rows', str(rows)), ('output', 'json'),
+    ])
+    return json.loads(fetch(ARCHIVE_SEARCH + '?' + params))['response']['docs']
 
 
 def build_archive():
-    params = urllib.parse.urlencode([
-        ('q', ARCHIVE_QUERY), ('fl[]', 'identifier'), ('fl[]', 'title'), ('fl[]', 'year'),
-        ('sort[]', 'downloads desc'), ('rows', str(ARCHIVE_FILMS)), ('output', 'json'),
-    ])
-    docs = json.loads(fetch(ARCHIVE_SEARCH + '?' + params))['response']['docs']
+    docs = archive_search(ARCHIVE_QUERY, ARCHIVE_FILMS)
+    seen = {doc['identifier'] for doc in docs}
+    docs += [doc for doc in archive_search(ARCHIVE_ADULT_QUERY, ARCHIVE_ADULT_FILMS) if doc['identifier'] not in seen]
 
     def safe(doc):
         try:
@@ -184,9 +203,11 @@ def build_archive():
     with ThreadPoolExecutor(max_workers=16) as pool:
         films = [f for f in pool.map(safe, docs) if f]
     films.sort(key=lambda f: f[0].split('group-title="', 1)[1])
-    body = ['#EXTM3U'] + [f'{line}\n{url}' for line, url in films]
-    (HERE / ARCHIVE_FILE).write_text('\n'.join(body) + '\n')
-    print(f'{ARCHIVE_FILE}: {len(films)} of {len(docs)} films have a free MP4')
+    for filename, wanted in ((ARCHIVE_FILE, False), (ARCHIVE_ADULT_FILE, True)):
+        chosen = [f for f in films if f[2] == wanted]
+        body = ['#EXTM3U'] + [f'{line}\n{url}' for line, url, _ in chosen]
+        (HERE / filename).write_text('\n'.join(body) + '\n')
+        print(f'{filename}: {len(chosen)} films')
 
 
 def main():

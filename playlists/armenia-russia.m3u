@@ -1,14 +1,10 @@
 #EXTM3U
-#EXTINF:-1 tvg-id="Armenia1.am@SD" tvg-logo="https://i.imgur.com/HIwJ4lc.png" group-title="Armenia",Armenia 1 (1080p)
-https://ifl01eu-new.bozztv.com/am1abr/index.m3u8
 #EXTINF:-1 tvg-id="Armenia2.am@SD" tvg-logo="https://i.imgur.com/AXmXw9X.png" group-title="Armenia",Armenia 2 (1080p)
 https://amtv.tulixcdn.com/amtv3/am3abr/index.m3u8
 #EXTINF:-1 tvg-id="ArmeniaPremium.am@SD" tvg-logo="" group-title="Armenia",Armenia Premium (720p)
 http://stream.mcquack.net/123/index.m3u8
 #EXTINF:-1 tvg-id="ArmeniaTVSatellite.am@SD" tvg-logo="https://i.imgur.com/UnoI5uM.png" group-title="Armenia",Armenia TV Satellite (576p)
 http://stream.mcquack.net/175/index.m3u8
-#EXTINF:-1 tvg-id="ARTNTV.us@SD" tvg-logo="" group-title="Armenia",ARTN TV (1080p) [Not 24/7]
-https://streamer1.connectto.com/ARTN_mobile/index.m3u8
 #EXTINF:-1 tvg-id="ATV.am@SD" tvg-logo="https://i.imgur.com/xrqFEou.png" group-title="Armenia",ATV (Armenia) (1080p)
 http://stream.mcquack.net/36/index.m3u8
 #EXTINF:-1 tvg-id="FirstChannelNews.am@SD" tvg-logo="https://i.imgur.com/RlYJUH4.png" group-title="Armenia",First Channel News (1080p)
@@ -109,8 +105,6 @@ http://45.11.139.43:8555/8kanal/index.m3u8
 https://tshift-1.telecoma.tv/8channel/tracks-v1a1/mono.ts.m3u8
 #EXTINF:-1 tvg-id="Channel8Novosibirsk.ru@SD" tvg-logo="https://i.imgur.com/eHGETvU.png" group-title="Russia: General",Channel 8 Novosibirsk (480i)
 https://live-8knsk.cdnvideo.ru/8knsk/stream1/playlist.m3u8
-#EXTINF:-1 tvg-id="Channel10.ru@SD" tvg-logo="https://i.imgur.com/k8JjFDw.png" group-title="Russia: General",Channel 10 (Russia) (576i)
-https://bl.rutube.ru/livestream/c9e26bf5c003fd8d477200065ca1a05f/index.m3u8?e=2072611029&s=eqlTXebDP9wSWTZgre6BwQ&scheme=https
 #EXTINF:-1 tvg-id="Channel12.ru@SD" tvg-logo="https://i.imgur.com/OA9hm6e.png" group-title="Russia: General",Channel 12 (1080p)
 https://12channel.bonus-tv.ru/cdn/12channel/playlist.m3u8
 #EXTINF:-1 tvg-id="Che.ru@SD" tvg-logo="https://i.imgur.com/ZOcDGpB.png" group-title="Russia: Entertainment",Che! (576p)
@@ -435,6 +429,8 @@ https://live-vgtrksmotrim.cdnvideo.ru/vgtrksmotrim/smotrim-live-01.smil/playlist
 http://serv30.vintera.tv:8081/sochi/sochi24_tv/playlist.m3u8
 #EXTINF:-1 tvg-id="SONGTVRussia.ru@SD" tvg-logo="https://i.imgur.com/nM7LbmV.png" group-title="Russia: Music",SONGTV Russia
 https://songtv.hls.iptvdc.com/web-russia/playlist.m3u8
+#EXTINF:-1 tvg-id="Soyuz.ru@SD" tvg-logo="https://i.imgur.com/w3OewHc.png" group-title="Russia: Religious",Soyuz (576p)
+https://hls-tvsoyuz.cdnvideo.ru/tvsoyuz/soyuz/playlist.m3u8
 #EXTINF:-1 tvg-id="Soyuzny.ru@SD" tvg-logo="https://www.mtis.by/upload/medialibrary/717/v07nk6rmf6m1mno8ujhbkcg8nstkfjgv/Slide%2016_9%20-%2050.png" group-title="Russia: General",Soyuzny (576p)
 https://souzny.mediacdn.ru/cdn/souzny/playlist.m3u8
 #EXTINF:-1 tvg-id="Spas.ru@SD" tvg-logo="https://i.imgur.com/yY39nMg.png" group-title="Russia: Religious",Spas (576p)

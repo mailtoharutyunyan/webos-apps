@@ -1,7 +1,7 @@
 """Builds playlists/armenia-russia.m3u from the iptv-org lists.
 
-Armenian channels come first. Russian channels are kept only when they are
-24/7, not geo-blocked and their stream answers right now. Each channel gets a
+Armenian channels come first. A channel is kept only when its stream answers
+right now; Russian ones must also be 24/7 and not geo-blocked. Each channel gets a
 single group, so the player's menu stays short.
 
 Usage: python3 playlists/build.py
@@ -76,7 +76,7 @@ def main():
             entries.append((group, line, stream))
 
     with ThreadPoolExecutor(max_workers=32) as pool:
-        checks = list(pool.map(lambda e: e[0] == 'Armenia' or alive(e[2]), entries))
+        checks = list(pool.map(lambda e: alive(e[2]), entries))
     kept = [e for e, ok in zip(entries, checks) if ok]
 
     body = ['#EXTM3U'] + [f'{line}\n{stream}' for _, line, stream in kept]

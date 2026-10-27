@@ -212,7 +212,13 @@
     }
 
     function loadPlaylists() {
-        var sources = read(STORE.sources, []);
+        var sources = read(STORE.sources, []).map(function (source) {
+            if (/^raw\.githubusercontent\.com \//.test(source.name)) {
+                source.name = nameFromUrl(source.url);
+            }
+            return source;
+        });
+        write(STORE.sources, sources);
         if (!sources.length) {
             stopPlayback();
             openSources();
@@ -894,6 +900,11 @@
     var pendingRemoval = -1;
 
     function nameFromUrl(url) {
+        // raw.githubusercontent.com/<user>/<repo>/<branch>/<file> reads better as "<repo> / <file>".
+        var github = /^https?:\/\/raw\.githubusercontent\.com\/[^\/]+\/([^\/]+)\/(?:refs\/heads\/)?[^\/]+\/(?:.*\/)?([^\/?#]+)/.exec(url);
+        if (github) {
+            return github[1] + ' / ' + decodeURIComponent(github[2]).replace(/\.m3u8?$/i, '');
+        }
         var match = /^https?:\/\/([^\/?#]+)(?:[^?#]*\/)?([^\/?#]*)/.exec(url);
         if (!match) {
             return url;

@@ -10,9 +10,16 @@ https://mailtoharutyunyan.github.io/webos-apps/hbrepo/apps.json
 
 | App | Folder | What it does |
 |---|---|---|
+| Alik TV | `apps/alik-tv` | IPTV player: Armenian channels first, then Russian |
 | Dev Mode Renew | `apps/devmode-renew` | Renews the Developer Mode session once a week, right on the TV |
 | Qoder IPTV | `apps/qoder-iptv` | [Qoder IPTV](https://github.com/HCLGitHub/qoder-iptv) M3U/IPTV player, unchanged mirror |
 | YouTube | `apps/youtube-adfree` | [YouTube AdFree](https://github.com/webosbrew/youtube-webos) with the regular YouTube icon |
+
+## Playlists
+
+`playlists/armenia-russia.m3u` is rebuilt every day by `.github/workflows/playlists.yml`
+from the iptv-org lists (`playlists/build.py`): Armenian-language channels first,
+then Russian ones that are 24/7, not geo-blocked and answering.
 
 ## Releasing an app
 

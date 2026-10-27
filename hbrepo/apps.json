@@ -1,6 +1,25 @@
 {
   "packages": [
     {
+      "id": "com.arayik.alik",
+      "title": "Alik TV",
+      "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.arayik.alik.png",
+      "shortDescription": "IPTV for the remote: Armenian channels first, then Russian. Fast channel menu.",
+      "manifest": {
+        "id": "com.arayik.alik",
+        "version": "1.0.0",
+        "type": "web",
+        "title": "Alik TV",
+        "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.arayik.alik.png",
+        "rootRequired": false,
+        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.arayik.alik_1.0.0_all.ipk",
+        "ipkHash": {
+          "sha256": "d78fedfc27126f5730246b0c9ff399af60742c47bbaa561cb1925cc2ab648182"
+        },
+        "ipkSize": 141326
+      }
+    },
+    {
       "id": "com.arayik.devrenew",
       "title": "Dev Mode Renew",
       "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.arayik.devrenew.png",
@@ -64,6 +83,6 @@
     "page": 1,
     "count": 1,
     "maxPage": 1,
-    "itemsTotal": 3
+    "itemsTotal": 4
   }
 }

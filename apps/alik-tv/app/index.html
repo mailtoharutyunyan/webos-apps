@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Alik</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <video id="video" autoplay></video>
+
+    <div id="status" class="status" hidden></div>
+
+    <aside id="osd" class="osd" hidden>
+        <span id="osd-number" class="osd-number"></span>
+        <div>
+            <p id="osd-name" class="osd-name"></p>
+            <p id="osd-group" class="osd-group"></p>
+        </div>
+    </aside>
+
+    <div id="digits" class="digits" hidden></div>
+
+    <nav id="menu" class="menu" hidden>
+        <header class="menu-head">
+            <span class="brand">Alik</span>
+            <time id="clock"></time>
+        </header>
+        <div class="columns">
+            <ul id="groups" class="groups"></ul>
+            <ul id="channels" class="channels"></ul>
+        </div>
+        <footer class="menu-hint">OK — смотреть · ←→ — группы и каналы · Back — закрыть</footer>
+    </nav>
+
+    <script src="vendor/hls.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

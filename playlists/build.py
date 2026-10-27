@@ -123,6 +123,22 @@ def with_mirrored_logo(line):
     return line.replace(logo.group(0), f'tvg-logo="{mirrored}"')
 
 
+def merge_small_groups(entries, label, minimum=5):
+    """Folds countries with fewer than `minimum` channels into "<label>: Other"."""
+    def group_of(line):
+        return re.search(r'group-title="([^"]*)"', line).group(1)
+    counts = {}
+    for line, _ in entries:
+        counts[group_of(line)] = counts.get(group_of(line), 0) + 1
+    merged = []
+    for line, stream in entries:
+        group = group_of(line)
+        if counts[group] < minimum:
+            line = line.replace(f'group-title="{group}"', f'group-title="{label}: Other"')
+        merged.append((line, stream))
+    return merged
+
+
 def alive(url):
     try:
         request = urllib.request.Request(url, headers={'User-Agent': USER_AGENT})
@@ -147,6 +163,8 @@ def build(label, url, filename, grouping):
     with ThreadPoolExecutor(max_workers=32) as pool:
         checks = list(pool.map(lambda e: alive(e[1]), entries))
     kept = [e for e, ok in zip(entries, checks) if ok]
+    if grouping == 'country':
+        kept = merge_small_groups(kept, label)
     LOGOS.mkdir(exist_ok=True)
     with ThreadPoolExecutor(max_workers=16) as pool:
         lines = list(pool.map(lambda e: with_mirrored_logo(e[0]), kept))

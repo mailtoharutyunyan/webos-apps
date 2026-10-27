@@ -7,10 +7,4 @@ splash and recents images are replaced with the regular YouTube play button
 
 Uninstall the official YouTube app before installing it (same app id).
 
-```sh
-extras/youtube-adfree/build.sh dist/youtube
-python3 tools/publish-hbrepo.py hbrepo https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo \
-    --ipk dist/youtube/youtube.leanback.v4_0.5.3_all.ipk --icon dist/youtube/youtube-icon.png \
-    --description "YouTube without ads, with SponsorBlock. Regular YouTube icon." \
-    --source-url https://github.com/webosbrew/youtube-webos
-```
+Build and publish with `tools/release.sh youtube-adfree`.

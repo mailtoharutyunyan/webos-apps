@@ -28,4 +28,4 @@ cp "$HERE/tile.svg" "$APP/icon.svg"
 python3 -I -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["title"]="YouTube"; json.dump(d, open(p, "w"), indent=1)' "$APP/appinfo.json"
 
 ares-package -o "$OUT" "$APP"
-rsvg-convert -w 192 -h 192 "$HERE/tile.svg" -o "$OUT/youtube-icon.png"
+rsvg-convert -w 192 -h 192 "$HERE/tile.svg" -o "$OUT/icon.png"

@@ -1,33 +1,33 @@
-# Dev Mode Renew
+# webos-apps
 
-Keeps the LG webOS Developer Mode session alive by itself, with no third-party server.
+My apps for the LG webOS TV, published as a Homebrew Channel repository.
 
-A JS service on the TV reads the Developer Mode token from
-`/var/luna/preferences/devmode_enabled` and calls LG's own
-`ResetDevModeSession.dev` endpoint once a week, scheduled through the webOS
-activity manager. The app screen shows the remaining session time
-(`CheckDevModeSession.dev`) and the last renewals. The token never leaves the
-TV except to `developer.lge.com`.
+Add this repository in Homebrew Channel → Settings → Add repository:
 
-## Build and install
-
-```sh
-ares-package -o dist app service
-ares-install -d lgtv dist/com.arayik.devrenew_1.0.0_all.ipk
+```
+https://mailtoharutyunyan.github.io/webos-apps/hbrepo/apps.json
 ```
 
-Open **Dev Mode Renew** on the TV and select **Turn on weekly renewal**.
+| App | Folder | What it does |
+|---|---|---|
+| Dev Mode Renew | `apps/devmode-renew` | Renews the Developer Mode session once a week, right on the TV |
+| YouTube | `apps/youtube-adfree` | [YouTube AdFree](https://github.com/webosbrew/youtube-webos) with the regular YouTube icon |
 
-## Notes
+## Releasing an app
 
-- The TV runs Node 8.12 and Chromium 79: keep the code ES5 and avoid flexbox `gap`.
-- Developer Mode apps may not call `activitymanager/getDetails`, so the schedule
-  flag lives in the service's `state.json`.
-- Renewal only runs while the TV is on. The session lasts 1000 hours (about 41 days).
+```sh
+tools/release.sh devmode-renew     # builds into dist/, updates hbrepo/
+git add -A && git commit -m "Release devmode-renew 1.0.1" && git push
+```
 
-## Homebrew Channel repository
+Bump the version in the app's `appinfo.json` first: Homebrew Channel offers an
+update only when the version differs from the installed one.
 
-`hbrepo/` is served by GitHub Pages and added to Homebrew Channel as
-`https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/apps.json`.
-It also carries a YouTube AdFree build with the regular YouTube icon, see
-`extras/youtube-adfree/`. Publish with `tools/publish-hbrepo.py` and push.
+## Adding an app
+
+Create `apps/<name>/` with:
+
+- `build.sh <output-dir>`: writes the `.ipk` and an `icon.png` into the output folder
+- `hbrepo.json`: `{"description": "...", "sourceUrl": "..."}` (`sourceUrl` optional)
+
+Then run `tools/release.sh <name>`.

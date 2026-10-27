@@ -3,39 +3,39 @@
     {
       "id": "com.arayik.devrenew",
       "title": "Dev Mode Renew",
-      "iconUri": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/icons/com.arayik.devrenew.png",
+      "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.arayik.devrenew.png",
       "shortDescription": "Renews the Developer Mode session once a week, right on the TV.",
       "manifest": {
         "id": "com.arayik.devrenew",
         "version": "1.0.0",
         "type": "web",
         "title": "Dev Mode Renew",
-        "iconUri": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/icons/com.arayik.devrenew.png",
+        "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.arayik.devrenew.png",
         "rootRequired": false,
-        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/ipk/com.arayik.devrenew_1.0.0_all.ipk",
+        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.arayik.devrenew_1.0.0_all.ipk",
         "ipkHash": {
-          "sha256": "4533e1640961bc43bfc351b71f538851ac9608f3b056d923c9d8bb601973fa29"
+          "sha256": "e676289203bad15ebda069e69250ec8e25f6db32774af8a6cfee589fc44faa51"
         },
-        "ipkSize": 15198
+        "ipkSize": 15188
       }
     },
     {
       "id": "youtube.leanback.v4",
       "title": "YouTube",
-      "iconUri": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/icons/youtube.leanback.v4.png",
+      "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/youtube.leanback.v4.png",
       "shortDescription": "YouTube without ads, with SponsorBlock. Regular YouTube icon.",
       "manifest": {
         "id": "youtube.leanback.v4",
         "version": "0.5.3",
         "type": "web",
         "title": "YouTube",
-        "iconUri": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/icons/youtube.leanback.v4.png",
+        "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/youtube.leanback.v4.png",
         "rootRequired": false,
-        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/ipk/youtube.leanback.v4_0.5.3_all.ipk",
+        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/youtube.leanback.v4_0.5.3_all.ipk",
         "ipkHash": {
-          "sha256": "ac701cc8c8ddc4f76c7273ed6f11d63b64b78ebe46775b479e117a120455c6d1"
+          "sha256": "1ede49fddabf9ef61b7fa5f11bc52e91f44248b1617623f5916caccfd4d8182a"
         },
-        "ipkSize": 487372,
+        "ipkSize": 487350,
         "sourceUrl": "https://github.com/webosbrew/youtube-webos"
       }
     }

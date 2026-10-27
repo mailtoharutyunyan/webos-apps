@@ -1,26 +1,20 @@
-"""Writes packages into a Homebrew Channel repository folder.
+"""Adds a built IPK to the Homebrew Channel repository in hbrepo/.
 
 Usage:
-  python3 tools/publish-hbrepo.py <repo-dir> <public-base-url>
-      Builds Dev Mode Renew from app/ and service/ and publishes it.
-  python3 tools/publish-hbrepo.py <repo-dir> <public-base-url> --ipk <file> \
-      --icon <png> --description <text> [--source-url <url>]
-      Publishes an already built IPK.
-
-Example:
-  python3 tools/publish-hbrepo.py hbrepo \
-      https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo
+  python3 tools/publish-hbrepo.py --ipk <file> --icon <png> --description <text> \
+      [--source-url <url>]
 """
 import argparse
 import hashlib
 import io
 import json
 import shutil
-import subprocess
 import tarfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+REPO_DIR = ROOT / 'hbrepo'
+BASE_URL = 'https://mailtoharutyunyan.github.io/webos-apps/hbrepo'
 
 
 def read_ar_member(ipk_bytes, prefix):
@@ -44,13 +38,6 @@ def appinfo_from_ipk(ipk_bytes):
             if member.name.endswith('/appinfo.json') and '/applications/' in member.name:
                 return json.load(tar.extractfile(member))
     raise ValueError('No appinfo.json in the IPK')
-
-
-def build_devrenew():
-    dist = ROOT / 'dist'
-    shutil.rmtree(dist, ignore_errors=True)
-    subprocess.run(['ares-package', '-o', str(dist), 'app', 'service'], cwd=ROOT, check=True)
-    return next(dist.glob('*.ipk'))
 
 
 def publish(repo, base_url, ipk_path, icon_path, description, source_url):
@@ -99,23 +86,12 @@ def publish(repo, base_url, ipk_path, icon_path, description, source_url):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('repo_dir')
-    parser.add_argument('base_url')
-    parser.add_argument('--ipk', type=Path)
-    parser.add_argument('--icon', type=Path)
-    parser.add_argument('--description')
+    parser.add_argument('--ipk', type=Path, required=True)
+    parser.add_argument('--icon', type=Path, required=True)
+    parser.add_argument('--description', required=True)
     parser.add_argument('--source-url')
     args = parser.parse_args()
-
-    repo = Path(args.repo_dir).expanduser()
-    base_url = args.base_url.rstrip('/')
-    if args.ipk:
-        if not (args.icon and args.description):
-            parser.error('--ipk needs --icon and --description')
-        publish(repo, base_url, args.ipk, args.icon, args.description, args.source_url)
-    else:
-        publish(repo, base_url, build_devrenew(), ROOT / 'app' / 'largeIcon.png',
-                'Renews the Developer Mode session once a week, right on the TV.', None)
+    publish(REPO_DIR, BASE_URL, args.ipk, args.icon, args.description, args.source_url)
 
 
 if __name__ == '__main__':

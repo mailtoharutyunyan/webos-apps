@@ -308,6 +308,18 @@ video {
     background: #1d232c;
 }
 
+/* Must come after .button so the focus colour wins. */
+.source-list .button.focused,
+.source-list .source.focused,
+.catalog-list .focused {
+    background: var(--apricot);
+    border-color: var(--apricot);
+}
+
+.source-list .source.focused .source-action {
+    color: var(--apricot-ink);
+}
+
 .source-list .primary {
     margin-top: 18px;
     color: var(--apricot);

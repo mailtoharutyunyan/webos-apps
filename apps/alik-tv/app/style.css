@@ -304,8 +304,7 @@ video {
 }
 
 .source-list .button {
-    display: inline-flex;
-    width: auto;
+    width: max-content;
     background: #1d232c;
 }
 

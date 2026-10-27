@@ -1,0 +1,7 @@
+{
+  "name": "com.arayik.devrenew.service",
+  "version": "1.0.0",
+  "description": "Renews the LG Developer Mode session on a weekly schedule",
+  "main": "service.js",
+  "license": "MIT"
+}

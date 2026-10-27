@@ -1,0 +1,180 @@
+:root {
+    --night: #17202c;
+    --track: #273344;
+    --text: #eef1f4;
+    --muted: #93a1b3;
+    --healthy: #8ccbae;
+    --low: #e9b44c;
+    --fault: #e2735e;
+    --state: var(--healthy);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--night);
+    color: var(--text);
+    font-family: "LG Smart UI", "Museo Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+body.is-low { --state: var(--low); }
+body.is-fault { --state: var(--fault); }
+
+main {
+    padding: 96px 144px;
+}
+
+.app-name {
+    font-size: 26px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+}
+
+h1 {
+    margin-top: 72px;
+    max-width: 1400px;
+    font-size: 64px;
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.detail {
+    margin-top: 20px;
+    min-height: 40px;
+    max-width: 1400px;
+    font-size: 32px;
+    line-height: 1.35;
+    color: var(--muted);
+}
+
+body.is-fault .detail {
+    color: var(--fault);
+}
+
+/* Session gauge: the full width is LG's 1000-hour maximum. */
+.gauge {
+    position: relative;
+    margin-top: 120px;
+    padding-top: 64px;
+}
+
+.gauge-track {
+    height: 28px;
+    border-radius: 14px;
+    background: var(--track);
+    overflow: hidden;
+}
+
+.gauge-fill {
+    width: 0;
+    height: 100%;
+    background: var(--state);
+    transition: width 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.gauge-marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateX(-50%);
+    transition: left 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    white-space: nowrap;
+}
+
+.gauge-marker span {
+    display: block;
+    font-size: 34px;
+    font-weight: 600;
+    color: var(--state);
+}
+
+.gauge-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    list-style: none;
+    font-size: 22px;
+    color: var(--muted);
+}
+
+.gauge.is-unknown .gauge-marker {
+    visibility: hidden;
+}
+
+.actions {
+    display: flex;
+    margin-top: 96px;
+}
+
+/* The TV browser (Chromium 79) has no flexbox gap. */
+.actions button + button {
+    margin-left: 32px;
+}
+
+button {
+    min-width: 320px;
+    padding: 22px 44px;
+    border: 4px solid transparent;
+    border-radius: 999px;
+    background: var(--track);
+    color: var(--text);
+    font: inherit;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+button:focus {
+    outline: none;
+    border-color: var(--state);
+    background: #33415a;
+}
+
+button:disabled {
+    color: var(--muted);
+}
+
+.history {
+    margin-top: 88px;
+}
+
+.history h2 {
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.history ul {
+    margin-top: 16px;
+    list-style: none;
+}
+
+.history li {
+    display: flex;
+    padding: 10px 0;
+    font-size: 26px;
+}
+
+.history time {
+    min-width: 260px;
+    margin-right: 40px;
+    color: var(--muted);
+}
+
+.history .failed {
+    color: var(--fault);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gauge-fill,
+    .gauge-marker {
+        transition: none;
+    }
+}

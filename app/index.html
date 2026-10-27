@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Dev Mode Renew</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <p class="app-name">Dev Mode Renew</p>
+
+        <h1 id="headline">Checking your Developer Mode session…</h1>
+        <p id="detail" class="detail"></p>
+
+        <section class="gauge" id="gauge" aria-label="Developer Mode session, 1000 hours maximum">
+            <div class="gauge-track">
+                <div class="gauge-fill" id="gauge-fill"></div>
+            </div>
+            <div class="gauge-marker" id="gauge-marker"><span id="gauge-label"></span></div>
+            <ol class="gauge-scale" aria-hidden="true">
+                <li>0 h</li><li>250 h</li><li>500 h</li><li>750 h</li><li>1000 h</li>
+            </ol>
+        </section>
+
+        <div class="actions">
+            <button id="primary" type="button" disabled>Renew now</button>
+            <button id="secondary" type="button" hidden></button>
+        </div>
+
+        <section class="history">
+            <h2>Recent renewals</h2>
+            <ul id="log"></ul>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>

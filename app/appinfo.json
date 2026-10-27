@@ -1,0 +1,13 @@
+{
+  "id": "com.arayik.devrenew",
+  "version": "1.0.0",
+  "vendor": "Arayik Harutyunyan",
+  "type": "web",
+  "main": "index.html",
+  "title": "Dev Mode Renew",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "bgColor": "#17202C",
+  "resolution": "1920x1080",
+  "disableBackHistoryAPI": true
+}

@@ -1,0 +1,9 @@
+{
+  "id": "com.arayik.devrenew.service",
+  "description": "Renews the LG Developer Mode session on a weekly schedule",
+  "services": [
+    {
+      "name": "com.arayik.devrenew.service"
+    }
+  ]
+}

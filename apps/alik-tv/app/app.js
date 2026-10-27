@@ -26,7 +26,7 @@
 
     var SETTINGS = [
         { id: 'theme', kind: 'choice', title: 'Тема', text: 'Цвета Alik. ← → или OK — сменить.', options: THEMES },
-        { id: 'adult', title: 'Показывать 18+', text: 'Группы и готовый плейлист для взрослых. Выключено — они скрыты.' },
+        { id: 'adult', title: 'Показывать 18+', text: 'Включено — добавляется плейлист 18+ и группа «Films 18+». Выключено — скрыто.' },
         { id: 'wheelZap', title: 'Колесо Magic Remote переключает каналы', text: 'Во время просмотра. Выключено — только CH+ и CH−.' }
     ];
 
@@ -1242,6 +1242,16 @@
             return;   // ← → only change choices
         }
         values[id] = values[id] !== true;
+        // Turning 18+ on also adds its ready playlist, so the films appear right away.
+        if (id === 'adult' && values[id]) {
+            var saved = read(STORE.sources, []);
+            PRESETS.forEach(function (preset) {
+                if (preset.adult && !saved.some(function (s) { return s.url === preset.url; })) {
+                    saved.push({ name: preset.name, url: preset.url });
+                }
+            });
+            write(STORE.sources, saved);
+        }
         write(STORE.settings, values);
         settingsChanged = settingsChanged || id === 'adult';
         renderSettings();

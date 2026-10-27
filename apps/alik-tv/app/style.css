@@ -505,7 +505,7 @@ video {
     left: 0;
     width: 1920px;
     height: 1080px;
-    background: var(--ink);
+    background: transparent;
 }
 
 .sources-left { position: absolute; top: 64px; left: 96px; width: 760px; }
@@ -623,7 +623,7 @@ video {
     width: 1920px;
     height: 1080px;
     padding: 72px 120px;
-    background: var(--ink);
+    background: transparent;
 }
 
 .help-title { font-size: 56px; font-weight: 600; }
@@ -658,7 +658,7 @@ video {
     width: 1920px;
     height: 1080px;
     padding: 64px 96px;
-    background: var(--ink);
+    background: transparent;
 }
 
 .settings-title { margin-top: 56px; font-size: 64px; font-weight: 600; }

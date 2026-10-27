@@ -21,6 +21,8 @@ https://mailtoharutyunyan.github.io/webos-apps/hbrepo/apps.json
 from the iptv-org lists (`playlists/build.py`): Armenian-language channels, Russian
 channels and movie channels grouped by country. Outside Armenia only 24/7, not
 geo-blocked channels stay, and only streams that answer are kept.
+`playlists/archive-films.m3u` lists the 300 most downloaded public-domain and
+Creative Commons feature films of the Internet Archive that have an MP4.
 
 ## Releasing an app
 

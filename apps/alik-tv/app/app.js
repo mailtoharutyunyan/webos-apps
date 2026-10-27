@@ -7,7 +7,8 @@
     var PRESETS = [
         { name: 'Армения', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/armenia.m3u' },
         { name: 'Россия', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/russia.m3u' },
-        { name: 'Фильмы со всего мира', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/movies.m3u' }
+        { name: 'Фильмы со всего мира', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/movies.m3u' },
+        { name: 'Классика кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films.m3u' }
     ];
     var CATALOG_URL = 'https://iptv-org.github.io/api/countries.json';
     var CATALOG_PINNED = ['AM', 'RU'];
@@ -19,8 +20,10 @@
 
     var KEY = {
         OK: 13, BACK: 461, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
-        CH_UP: 33, CH_DOWN: 34, RED: 403, GREEN: 404, YELLOW: 405, BLUE: 406, INFO: 457
+        CH_UP: 33, CH_DOWN: 34, RED: 403, GREEN: 404, YELLOW: 405, BLUE: 406, INFO: 457,
+        PLAY: 415, PAUSE: 19, FAST_FORWARD: 417, REWIND: 412
     };
+    var SEEK_STEP = 30;
 
     var video = document.getElementById('video');
     var statusBox = document.getElementById('status');
@@ -443,7 +446,10 @@
         }
         video.removeAttribute('src');
 
-        if (window.Hls && Hls.isSupported()) {
+        // Films are plain video files the TV plays itself; live channels are HLS.
+        if (isVideoFile(channel.url)) {
+            video.src = channel.url;
+        } else if (window.Hls && Hls.isSupported()) {
             hls = new Hls({ maxBufferLength: 20, manifestLoadingMaxRetry: 2, levelLoadingMaxRetry: 2 });
             hls.on(Hls.Events.ERROR, function (event, data) {
                 if (!data.fatal) {
@@ -464,6 +470,31 @@
         if (attempt && attempt.catch) {
             attempt.catch(function () { /* autoplay resolves once data arrives */ });
         }
+    }
+
+    function isVideoFile(url) {
+        return /\.(mp4|m4v|webm|mov)(\?|#|$)/i.test(url);
+    }
+
+    function isFilm() {
+        return current >= 0 && isVideoFile(channels[current].url);
+    }
+
+    function seek(seconds) {
+        if (!isFinite(video.duration)) {
+            return;
+        }
+        video.currentTime = Math.max(0, Math.min(video.duration - 1, video.currentTime + seconds));
+        showOsd();
+    }
+
+    function togglePause(play) {
+        if (play === undefined ? video.paused : play) {
+            video.play();
+        } else {
+            video.pause();
+        }
+        showOsd();
     }
 
     function noSignal() {
@@ -496,9 +527,18 @@
         var channel = channels[current];
         osdNumber.textContent = channel.number;
         osdName.textContent = channel.name;
-        osdGroup.textContent = channel.group;
+        osdGroup.textContent = isFilm() && isFinite(video.duration)
+            ? clockText(video.currentTime) + ' / ' + clockText(video.duration) + (video.paused ? ' · пауза' : '') + ' · ← → 30 с'
+            : channel.group;
         osd.hidden = false;
         restartTimer('osd', OSD_TIMEOUT, function () { osd.hidden = true; });
+    }
+
+    function clockText(seconds) {
+        var s = Math.floor(seconds);
+        var h = Math.floor(s / 3600);
+        var m = ('0' + Math.floor(s % 3600 / 60)).slice(-2);
+        return (h ? h + ':' : '') + m + ':' + ('0' + s % 60).slice(-2);
     }
 
     function restartTimer(name, delay, callback) {
@@ -725,6 +765,12 @@
             step(1);
         } else if (code === KEY.DOWN || code === KEY.CH_DOWN) {
             step(-1);
+        } else if ((code === KEY.LEFT || code === KEY.REWIND) && isFilm()) {
+            seek(-SEEK_STEP);
+        } else if ((code === KEY.RIGHT || code === KEY.FAST_FORWARD) && isFilm()) {
+            seek(SEEK_STEP);
+        } else if (code === KEY.PLAY || code === KEY.PAUSE) {
+            togglePause(code === KEY.PLAY);
         } else if (code === KEY.INFO || code === KEY.LEFT || code === KEY.RIGHT) {
             if (current >= 0) {
                 showOsd();

@@ -535,7 +535,10 @@
         groupList.innerHTML = '';
         groups.forEach(function (group, index) {
             var item = document.createElement('li');
-            item.textContent = group.name;
+            var label = document.createElement('span');
+            label.className = 'group-name';
+            label.textContent = group.name;
+            item.appendChild(label);
             var count = document.createElement('span');
             count.className = 'count';
             count.textContent = group.channels.length;
@@ -580,6 +583,8 @@
             logo.alt = '';
             if (channel.logo) {
                 logo.src = channel.logo;
+            } else {
+                logo.style.visibility = 'hidden';
             }
             logo.onerror = function () { logo.style.visibility = 'hidden'; };
             item.appendChild(logo);

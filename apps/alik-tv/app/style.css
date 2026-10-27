@@ -172,7 +172,13 @@ video {
     justify-content: space-between;
 }
 
+.group-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .groups .count {
+    flex-shrink: 0;
     margin-left: 16px;
     font-size: 24px;
     color: var(--muted);

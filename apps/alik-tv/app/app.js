@@ -17,13 +17,30 @@
     var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings' };
     var ADULT_GROUP = /18\+|adult|xxx/i;
 
+    var THEMES = [
+        { id: 'apricot', name: 'Абрикос', colours: ['#0f1420', '#f39c4a'] },
+        { id: 'pomegranate', name: 'Гранат', colours: ['#170f15', '#e0475b'] },
+        { id: 'sevan', name: 'Севан', colours: ['#0b1719', '#3cc6b4'] },
+        { id: 'ararat', name: 'Арарат', colours: ['#eef1f5', '#d9742b'] }
+    ];
+
     var SETTINGS = [
+        { id: 'theme', kind: 'choice', title: 'Тема', text: 'Цвета Alik. ← → или OK — сменить.', options: THEMES },
         { id: 'adult', title: 'Показывать 18+', text: 'Группы и готовый плейлист для взрослых. Выключено — они скрыты.' },
         { id: 'wheelZap', title: 'Колесо Magic Remote переключает каналы', text: 'Во время просмотра. Выключено — только CH+ и CH−.' }
     ];
 
     function setting(id) {
         return read(STORE.settings, {})[id] === true;
+    }
+
+    function applyTheme() {
+        var theme = read(STORE.settings, {}).theme || 'apricot';
+        if (theme === 'apricot') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
     }
     var RECENT_LIMIT = 30;
     var OSD_TIMEOUT = 5000;
@@ -733,11 +750,13 @@
     }
 
     function moveRail(delta) {
-        var next = home.rail;
-        do {
-            next += delta;
-        } while (next >= 0 && next < sections.length && !focusableRail(next));
-        if (next < 0 || next >= sections.length) {
+        // Big jumps (CH+/CH-) stop at the first or last row instead of doing nothing.
+        var next = Math.max(0, Math.min(sections.length - 1, home.rail + delta));
+        var stepBack = delta > 0 ? -1 : 1;
+        while (next >= 0 && next < sections.length && !focusableRail(next)) {
+            next += Math.abs(delta) === 1 ? (delta > 0 ? 1 : -1) : stepBack;
+        }
+        if (next < 0 || next >= sections.length || next === home.rail) {
             return;
         }
         home.rail = next;
@@ -1149,6 +1168,7 @@
         setHints($('settings-hints'), [
             [['updown'], 'Выбор'],
             [['OK'], 'Включить / выключить'],
+            [['leftright'], 'Тема'],
             [['back'], 'Готово']
         ]);
     }
@@ -1164,14 +1184,52 @@
             text.appendChild(el('strong', '', item.title));
             text.appendChild(el('span', '', item.text));
             row.appendChild(text);
-            row.appendChild(el('span', 'switch' + (values[item.id] === true ? ' on' : '')));
+            if (item.kind === 'choice') {
+                var chosen = choiceIndex(item, values);
+                var choice = el('div', 'choice');
+                choice.appendChild(el('span', 'choice-arrow', '‹'));
+                choice.appendChild(el('span', 'choice-value', item.options[chosen].name));
+                choice.appendChild(el('span', 'choice-arrow', '›'));
+                var swatches = el('span', 'swatches');
+                item.options[chosen].colours.forEach(function (colour) {
+                    var dot = el('span', 'swatch');
+                    dot.style.background = colour;
+                    swatches.appendChild(dot);
+                });
+                choice.appendChild(swatches);
+                row.appendChild(choice);
+            } else {
+                row.appendChild(el('span', 'switch' + (values[item.id] === true ? ' on' : '')));
+            }
             list.appendChild(row);
         });
     }
 
-    function toggleSetting(index) {
+    function choiceIndex(item, values) {
+        var at = 0;
+        item.options.forEach(function (option, i) {
+            if (option.id === values[item.id]) {
+                at = i;
+            }
+        });
+        return at;
+    }
+
+    function toggleSetting(index, direction) {
         var values = read(STORE.settings, {});
-        var id = SETTINGS[index].id;
+        var item = SETTINGS[index];
+        var id = item.id;
+        if (item.kind === 'choice') {
+            var size = item.options.length;
+            values[id] = item.options[(choiceIndex(item, values) + (direction || 1) + size) % size].id;
+            write(STORE.settings, values);
+            applyTheme();
+            renderSettings();
+            return;
+        }
+        if (direction) {
+            return;   // ← → only change choices
+        }
         values[id] = values[id] !== true;
         write(STORE.settings, values);
         settingsChanged = settingsChanged || id === 'adult';
@@ -1184,6 +1242,8 @@
             renderSettings();
         } else if (code === KEY.OK) {
             toggleSetting(settingsFocus);
+        } else if (code === KEY.LEFT || code === KEY.RIGHT) {
+            toggleSetting(settingsFocus, code === KEY.LEFT ? -1 : 1);
         } else if (code === KEY.BACK) {
             // Showing or hiding 18+ changes the channel list, so reload it.
             if (settingsChanged) {
@@ -1500,5 +1560,6 @@
         }
     });
 
+    applyTheme();
     loadPlaylists();
 }());

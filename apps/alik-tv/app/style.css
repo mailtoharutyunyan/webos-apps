@@ -15,6 +15,51 @@
     --yellow: #f2c94c;
     --blue: #4a8cf3;
     --veil: rgba(10, 13, 20, 0.86);
+    --home-fade: linear-gradient(90deg, rgba(15, 20, 32, 0.98) 0, rgba(15, 20, 32, 0.95) 560px, rgba(15, 20, 32, 0.88) 100%);
+    --buffer: #46506a;
+}
+
+/* Themes, chosen in Settings. Each one only swaps colour tokens. */
+:root[data-theme="pomegranate"] {
+    --ink: #170f15;
+    --panel: #221720;
+    --raised: #2e1f2b;
+    --line: #402b3b;
+    --text: #f6eef0;
+    --muted: #b39cab;
+    --apricot: #e0475b;
+    --apricot-ink: #fff3f4;
+    --veil: rgba(18, 10, 15, 0.86);
+    --home-fade: linear-gradient(90deg, rgba(23, 15, 21, 0.98) 0, rgba(23, 15, 21, 0.95) 560px, rgba(23, 15, 21, 0.88) 100%);
+    --buffer: #5a3d50;
+}
+
+:root[data-theme="sevan"] {
+    --ink: #0b1719;
+    --panel: #112225;
+    --raised: #172e31;
+    --line: #234044;
+    --text: #ecf5f3;
+    --muted: #8fb0ad;
+    --apricot: #3cc6b4;
+    --apricot-ink: #04201b;
+    --veil: rgba(7, 16, 18, 0.86);
+    --home-fade: linear-gradient(90deg, rgba(11, 23, 25, 0.98) 0, rgba(11, 23, 25, 0.95) 560px, rgba(11, 23, 25, 0.88) 100%);
+    --buffer: #2f5a5d;
+}
+
+:root[data-theme="ararat"] {
+    --ink: #eef1f5;
+    --panel: #ffffff;
+    --raised: #e3e8ef;
+    --line: #cdd5e0;
+    --text: #172033;
+    --muted: #5d6779;
+    --apricot: #d9742b;
+    --apricot-ink: #ffffff;
+    --veil: rgba(238, 241, 245, 0.94);
+    --home-fade: linear-gradient(90deg, rgba(238, 241, 245, 0.99) 0, rgba(238, 241, 245, 0.97) 560px, rgba(238, 241, 245, 0.93) 100%);
+    --buffer: #b9c3d1;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -204,7 +249,7 @@ video {
     border-radius: 6px;
 }
 
-.osd-buffer { background: #46506a; }
+.osd-buffer { background: var(--buffer); }
 .osd-bar { background: var(--apricot); }
 
 .osd-thumb {
@@ -260,7 +305,7 @@ video {
     left: 0;
     width: 1920px;
     height: 1080px;
-    background: linear-gradient(90deg, rgba(15, 20, 32, 0.98) 0, rgba(15, 20, 32, 0.95) 560px, rgba(15, 20, 32, 0.88) 100%);
+    background: var(--home-fade);
 }
 
 .home-head {
@@ -649,6 +694,21 @@ video {
 
 .switch.on { background: var(--green); }
 .switch.on::after { transform: translateX(44px); background: var(--text); }
+
+.choice {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 32px;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.choice-value { min-width: 200px; text-align: center; color: var(--apricot); }
+.choice-arrow { font-size: 34px; color: var(--muted); }
+
+.swatches { display: flex; margin-left: 20px; }
+.swatch { width: 28px; height: 28px; margin-left: 8px; border-radius: 50%; border: 2px solid var(--line); }
 
 .settings-list .focused { border-color: var(--apricot); background: var(--raised); }
 

@@ -16,6 +16,7 @@ films from the Internet Archive, all from this repository
 | Play / Pause | Films: pause and resume |
 | INFO | Show the channel info |
 | Green | Playlists: add a link, a preset or a country, remove one |
+| Settings (menu) | Show 18+ content, let the Magic Remote wheel switch channels |
 | Back | Close the menu / exit |
 
 Playback uses [hls.js](https://github.com/video-dev/hls.js) 1.5.20 (Apache-2.0, `app/vendor`).

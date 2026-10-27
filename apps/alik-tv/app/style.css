@@ -595,6 +595,65 @@ video {
 
 .help-hints { position: absolute; left: 120px; bottom: 48px; }
 
+/* ---------- Settings ---------- */
+
+.settings {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1080px;
+    padding: 64px 96px;
+    background: var(--ink);
+}
+
+.settings-title { margin-top: 56px; font-size: 64px; font-weight: 600; }
+.settings-list { width: 1100px; margin-top: 48px; }
+
+.settings-list li {
+    display: flex;
+    align-items: center;
+    min-height: 112px;
+    margin-bottom: 18px;
+    padding: 20px 32px;
+    border: 3px solid var(--line);
+    border-radius: 20px;
+    background: var(--panel);
+}
+
+.setting-text { flex: 1; }
+.setting-text strong { display: block; font-size: 32px; font-weight: 600; }
+.setting-text span { display: block; margin-top: 6px; font-size: 24px; color: var(--muted); }
+
+.switch {
+    position: relative;
+    flex-shrink: 0;
+    width: 96px;
+    height: 52px;
+    margin-left: 32px;
+    border-radius: 26px;
+    background: var(--line);
+}
+
+.switch::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: transform 120ms ease-out;
+}
+
+.switch.on { background: var(--green); }
+.switch.on::after { transform: translateX(44px); background: var(--text); }
+
+.settings-list .focused { border-color: var(--apricot); background: var(--raised); }
+
+.settings-hints { position: absolute; left: 96px; bottom: 40px; }
+
 /* ---------- Exit dialog ---------- */
 
 .dialog {

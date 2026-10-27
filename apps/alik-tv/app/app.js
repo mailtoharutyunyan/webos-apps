@@ -9,12 +9,22 @@
         { name: 'Россия', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/russia.m3u' },
         { name: 'Фильмы со всего мира', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/movies.m3u' },
         { name: 'Классика кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films.m3u' },
-        { name: '18+ · винтажное кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films-18.m3u' }
+        { name: '18+ · винтажное кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films-18.m3u', adult: true }
     ];
     var CATALOG_URL = 'https://iptv-org.github.io/api/countries.json';
     var CATALOG_PINNED = ['AM', 'RU'];
 
-    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent' };
+    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings' };
+    var ADULT_GROUP = /18\+|adult|xxx/i;
+
+    var SETTINGS = [
+        { id: 'adult', title: 'Показывать 18+', text: 'Группы и готовый плейлист для взрослых. Выключено — они скрыты.' },
+        { id: 'wheelZap', title: 'Колесо Magic Remote переключает каналы', text: 'Во время просмотра. Выключено — только CH+ и CH−.' }
+    ];
+
+    function setting(id) {
+        return read(STORE.settings, {})[id] === true;
+    }
     var RECENT_LIMIT = 30;
     var OSD_TIMEOUT = 5000;
     var DIGIT_TIMEOUT = 1500;
@@ -108,6 +118,7 @@
         list: 'M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1',
         help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 015 .5c0 1.7-2.5 2-2.5 3.5M12 17h.01',
         play: 'M8 5l11 7-11 7z',
+        gear: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-1-3-2 .3-1.4-1.4.3-2-3-1-1 2h-2l-1-2-3 1 .3 2L5.8 7.3 4 7 3 10l2 1v2l-2 1 1 3 2-.3 1.4 1.4-.3 2 3 1 1-2h2l1 2 3-1-.3-2 1.4-1.4 2 .3 1-3-2-1z',
         pause: 'M8 5v14M16 5v14'
     };
 
@@ -201,6 +212,9 @@
                     channels = channels.concat(result.channels);
                 }
             });
+            if (!setting('adult')) {
+                channels = channels.filter(function (channel) { return !ADULT_GROUP.test(channel.group); });
+            }
             channels.forEach(function (channel, index) { channel.number = index + 1; });
             if (!channels.length) {
                 showStatus('Не удалось загрузить плейлисты. ' + failed.join('; ') +
@@ -273,8 +287,9 @@
             byGroup[channel.group].items.push(index);
         });
         sections = sections.concat(groups);
-        sections.push({ kind: 'heading', name: 'Настройки' });
+        sections.push({ kind: 'heading', name: 'Приложение' });
         sections.push({ kind: 'action', name: 'Плейлисты', icon: 'list', action: openSources });
+        sections.push({ kind: 'action', name: 'Настройки', icon: 'gear', action: openSettings });
         sections.push({ kind: 'action', name: 'Справка по пульту', icon: 'help', action: openHelp });
     }
 
@@ -508,6 +523,7 @@
         $('home').hidden = name !== 'home';
         $('sources').hidden = name !== 'sources';
         $('help').hidden = name !== 'help';
+        $('settings').hidden = name !== 'settings';
         $('dialog').hidden = name !== 'dialog';
         if (name !== 'player') {
             osd.hidden = true;
@@ -859,7 +875,7 @@
     function sourceRows() {
         var saved = read(STORE.sources, []);
         var right = [{ kind: 'heading', text: 'Готовые плейлисты' }];
-        PRESETS.forEach(function (preset) {
+        PRESETS.filter(function (preset) { return !preset.adult || setting('adult'); }).forEach(function (preset) {
             right.push({ kind: 'preset', preset: preset, added: saved.some(function (s) { return s.url === preset.url; }) });
         });
         right.push({ kind: 'catalog' });
@@ -1120,6 +1136,67 @@
         return true;
     }
 
+    // ---------- Settings ----------
+
+    var settingsFocus = 0;
+    var settingsChanged = false;
+
+    function openSettings() {
+        settingsFocus = 0;
+        settingsChanged = false;
+        showScreen('settings');
+        renderSettings();
+        setHints($('settings-hints'), [
+            [['updown'], 'Выбор'],
+            [['OK'], 'Включить / выключить'],
+            [['back'], 'Готово']
+        ]);
+    }
+
+    function renderSettings() {
+        var values = read(STORE.settings, {});
+        var list = $('settings-list');
+        list.innerHTML = '';
+        SETTINGS.forEach(function (item, index) {
+            var row = el('li', index === settingsFocus ? 'focused' : '');
+            row.dataset.setting = index;
+            var text = el('div', 'setting-text');
+            text.appendChild(el('strong', '', item.title));
+            text.appendChild(el('span', '', item.text));
+            row.appendChild(text);
+            row.appendChild(el('span', 'switch' + (values[item.id] === true ? ' on' : '')));
+            list.appendChild(row);
+        });
+    }
+
+    function toggleSetting(index) {
+        var values = read(STORE.settings, {});
+        var id = SETTINGS[index].id;
+        values[id] = values[id] !== true;
+        write(STORE.settings, values);
+        settingsChanged = settingsChanged || id === 'adult';
+        renderSettings();
+    }
+
+    function handleSettingsKey(code) {
+        if (code === KEY.UP || code === KEY.DOWN) {
+            settingsFocus = (settingsFocus + (code === KEY.UP ? -1 : 1) + SETTINGS.length) % SETTINGS.length;
+            renderSettings();
+        } else if (code === KEY.OK) {
+            toggleSetting(settingsFocus);
+        } else if (code === KEY.BACK) {
+            // Showing or hiding 18+ changes the channel list, so reload it.
+            if (settingsChanged) {
+                loadPlaylists();
+            } else {
+                openHome();
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+
     // ---------- Help ----------
 
     var HELP = [
@@ -1134,7 +1211,7 @@
         [['yellow'], 'Предыдущий канал', 'Быстро вернуться к прошлому каналу'],
         [['INFO'], 'Справка и информация', 'Эта страница; во время просмотра — данные канала'],
         [['back'], 'Назад', 'На главном экране предлагает выйти'],
-        [['Magic Remote'], 'Указка', 'Наведите и нажмите колесо; колесо листает меню, но не каналы']
+        [['Magic Remote'], 'Указка', 'Наведите и нажмите колесо; колесо листает меню. Каналы — в Настройках']
     ];
 
     function openHelp() {
@@ -1276,6 +1353,8 @@
             handled = handleSourcesKey(code);
         } else if (screen === 'dialog') {
             handled = handleDialogKey(code);
+        } else if (screen === 'settings') {
+            handled = handleSettingsKey(code);
         } else if (screen === 'help') {
             if (code === KEY.BACK || code === KEY.OK || code === KEY.INFO) {
                 closeHelp();
@@ -1358,6 +1437,12 @@
             openHome();
         } else if (screen === 'help') {
             closeHelp();
+        } else if (screen === 'settings') {
+            var row = event.target.closest('[data-setting]');
+            if (row) {
+                settingsFocus = Number(row.dataset.setting);
+                toggleSetting(settingsFocus);
+            }
         } else if (!target) {
             return;
         } else if (screen === 'home') {
@@ -1386,6 +1471,8 @@
             } else {
                 moveSources(down ? 1 : -1);
             }
+        } else if (screen === 'player' && setting('wheelZap')) {
+            step(down ? -1 : 1);
         }
         event.preventDefault();
     }, { passive: false });

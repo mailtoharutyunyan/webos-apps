@@ -807,7 +807,7 @@
         while (next >= 0 && next < sections.length && !focusableRail(next)) {
             next += Math.abs(delta) === 1 ? (delta > 0 ? 1 : -1) : stepBack;
         }
-        if (next < 0 || next >= sections.length || next === home.rail) {
+        if (next < 0 || next >= sections.length || (next === home.rail && delta !== 0)) {
             return;
         }
         home.rail = next;
@@ -856,7 +856,7 @@
             [['updown'], 'Раздел'],
             [['right'], 'К каналам'],
             [['OK'], 'Открыть'],
-            [['yellow'], sections[home.rail] && sections[home.rail].folderId ? 'Удалить папку (2 раза)' : 'Папки'],
+            [['yellow'], sections[home.rail] && sections[home.rail].folderId ? 'Переименовать / удалить' : 'Папки'],
             [['green'], 'Плейлисты'],
             [['INFO'], 'Справка'],
             [['back'], 'Выход']
@@ -1270,16 +1270,7 @@
         var section = sections[home.rail];
         if (home.area === 'rail') {
             if (section && section.folderId) {
-                var item = rail.querySelector('[data-rail="' + home.rail + '"]');
-                if (item.classList.contains('confirm')) {
-                    saveFolders(read(STORE.folders, []).filter(function (f) { return f.id !== section.folderId; }));
-                    toast('Папка «' + section.name + '» удалена');
-                    moveRail(-1);
-                } else {
-                    item.classList.add('confirm');
-                    toast('Нажмите жёлтую кнопку ещё раз, чтобы удалить папку');
-                    restartTimer('confirm', 3000, function () { item.classList.remove('confirm'); });
-                }
+                openFolderMenu(section.folderId);
             }
             return;
         }
@@ -1290,18 +1281,49 @@
     }
 
     // Picker: folders with a check mark when the channel is inside, plus "new folder".
-    var picker = { channel: -1, focus: 0 };
+    var picker = { mode: 'channel', channel: -1, folder: null, focus: 0, confirm: false };
 
     function openPicker(index) {
-        picker = { channel: index, focus: 0 };
+        picker = { mode: 'channel', channel: index, folder: null, focus: 0, confirm: false };
         screen = 'picker';
         $('picker').hidden = false;
+        $('picker-title').textContent = 'В папку';
         $('picker-channel').textContent = channels[index].name;
         renderPicker();
         setHints($('picker-hints'), [[['updown'], 'Папка'], [['OK'], 'Положить / убрать'], [['back'], 'Готово']]);
     }
 
+    function openFolderMenu(folderId) {
+        var folder = findFolder(folderId);
+        picker = { mode: 'folder', channel: -1, folder: folder, focus: 0, confirm: false };
+        screen = 'picker';
+        $('picker').hidden = false;
+        $('picker-title').textContent = 'Папка «' + folder.name + '»';
+        $('picker-channel').textContent = folder.urls.length + ' в папке. Сами каналы не удаляются.';
+        renderPicker();
+        setHints($('picker-hints'), [[['updown'], 'Действие'], [['OK'], 'Выбрать'], [['back'], 'Закрыть']]);
+    }
+
+    function folderActions() {
+        return [
+            { id: 'rename', text: 'Переименовать' },
+            { id: 'delete', text: picker.confirm ? 'Точно удалить? OK — да' : 'Удалить папку' },
+            { id: 'cancel', text: 'Отмена' }
+        ];
+    }
+
     function renderPicker() {
+        if (picker.mode === 'folder') {
+            var actions = $('picker-list');
+            actions.innerHTML = '';
+            folderActions().forEach(function (action, i) {
+                var row = el('li', (i === picker.focus ? 'focused' : '') + (action.id === 'delete' && picker.confirm ? ' danger' : ''));
+                row.dataset.pick = i;
+                row.appendChild(el('span', '', action.text));
+                actions.appendChild(row);
+            });
+            return;
+        }
         var folders = read(STORE.folders, []);
         var url = channels[picker.channel].url;
         var list = $('picker-list');
@@ -1330,7 +1352,37 @@
         renderGrid();
     }
 
+    function chooseFolderAction() {
+        var action = folderActions()[picker.focus].id;
+        var folder = picker.folder;
+        if (action === 'rename') {
+            $('picker').hidden = true;
+            openPrompt(-1, folder);
+        } else if (action === 'delete') {
+            if (!picker.confirm) {
+                picker.confirm = true;
+                renderPicker();
+                return;
+            }
+            saveFolders(read(STORE.folders, []).filter(function (f) { return f.id !== folder.id; }));
+            toast('Папка «' + folder.name + '» удалена');
+            closePicker();
+            if (!focusableRail(home.rail) || !sections[home.rail]) {
+                home.rail = Math.max(0, home.rail - 1);
+            }
+            moveRail(0);
+            markRail();
+            renderGrid();
+        } else {
+            closePicker();
+        }
+    }
+
     function choosePicker() {
+        if (picker.mode === 'folder') {
+            chooseFolderAction();
+            return;
+        }
         var folders = read(STORE.folders, []);
         if (picker.focus === folders.length) {
             $('picker').hidden = true;
@@ -1344,9 +1396,10 @@
     }
 
     function handlePickerKey(code) {
-        var count = read(STORE.folders, []).length + 1;
+        var count = picker.mode === 'folder' ? folderActions().length : read(STORE.folders, []).length + 1;
         if (code === KEY.UP || code === KEY.DOWN) {
             picker.focus = (picker.focus + (code === KEY.UP ? -1 : 1) + count) % count;
+            picker.confirm = false;
             renderPicker();
         } else if (code === KEY.OK) {
             choosePicker();
@@ -1359,15 +1412,18 @@
     }
 
     // Prompt for a new folder name; `channelIndex` (or -1) goes straight into it.
-    var promptState = { channel: -1, focus: 0 };
+    var promptState = { channel: -1, folder: null, focus: 0 };
     var promptInput = $('prompt-input');
 
-    function openPrompt(channelIndex) {
-        promptState = { channel: channelIndex, focus: 0 };
+    // `folder` set = rename that folder; otherwise create a new one.
+    function openPrompt(channelIndex, folder) {
+        promptState = { channel: channelIndex, folder: folder || null, focus: 0 };
         screen = 'prompt';
         $('home').hidden = channels.length === 0;
         $('prompt').hidden = false;
-        promptInput.value = '';
+        $('prompt-title').textContent = folder ? 'Переименовать папку' : 'Новая папка';
+        $('prompt-create').textContent = folder ? 'Сохранить' : 'Создать';
+        promptInput.value = folder ? folder.name : '';
         markPrompt();
     }
 
@@ -1395,6 +1451,17 @@
             return;
         }
         var folders = read(STORE.folders, []);
+        if (promptState.folder) {
+            folders.forEach(function (f) {
+                if (f.id === promptState.folder.id) {
+                    f.name = name;
+                }
+            });
+            saveFolders(folders);
+            toast('Папка переименована: «' + name + '»');
+            closePrompt();
+            return;
+        }
         var folder = { id: String(Date.now()), name: name, urls: [] };
         if (promptState.channel >= 0) {
             folder.urls.push(channels[promptState.channel].url);
@@ -1653,7 +1720,7 @@
         [['play', 'pause'], 'Пауза и продолжение', 'Для фильмов'],
         [['red'], 'Избранное', 'Добавить или убрать канал'],
         [['green'], 'Плейлисты', 'Добавить ссылку, готовый плейлист или страну'],
-        [['yellow'], 'Папки / предыдущий', 'В меню: положить канал в папку; при просмотре — прошлый канал'],
+        [['yellow'], 'Папки / предыдущий', 'На плитке — в папку; на папке — переименовать или удалить; при просмотре — прошлый канал'],
         [['blue'], 'Настройки', 'Тема, 18+, колесо Magic Remote'],
         [['INFO'], 'Справка и информация', 'Эта страница; во время просмотра — данные канала'],
         [['back'], 'Назад', 'На главном экране предлагает выйти'],

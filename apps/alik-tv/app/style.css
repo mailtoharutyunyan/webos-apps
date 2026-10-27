@@ -784,6 +784,7 @@ video {
 
 .picker-list .check { font-size: 34px; color: var(--apricot); }
 .picker-list .focused { background: var(--apricot); color: var(--apricot-ink); }
+.picker-list .danger { background: var(--red); color: #fff; }
 .picker-list .focused .check { color: var(--apricot-ink); }
 .picker-hints { margin-top: 28px; }
 

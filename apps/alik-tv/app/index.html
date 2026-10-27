@@ -128,7 +128,7 @@
     <!-- Folder picker: which folders hold the channel -->
     <div id="picker" class="dialog" hidden>
         <div class="dialog-box picker-box">
-            <p class="dialog-title">В папку</p>
+            <p id="picker-title" class="dialog-title">В папку</p>
             <p id="picker-channel" class="picker-channel"></p>
             <ul id="picker-list" class="picker-list"></ul>
             <footer id="picker-hints" class="hints picker-hints"></footer>
@@ -138,7 +138,7 @@
     <!-- New folder name -->
     <div id="prompt" class="dialog" hidden>
         <div class="dialog-box">
-            <p class="dialog-title">Новая папка</p>
+            <p id="prompt-title" class="dialog-title">Новая папка</p>
             <input id="prompt-input" class="prompt-input" type="text" placeholder="Например: Любимые фильмы" maxlength="40" autocomplete="off">
             <div class="dialog-actions">
                 <button id="prompt-create" type="button" data-prompt="create">Создать</button>

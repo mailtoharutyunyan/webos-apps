@@ -24,3 +24,10 @@ Open **Dev Mode Renew** on the TV and select **Turn on weekly renewal**.
 - Developer Mode apps may not call `activitymanager/getDetails`, so the schedule
   flag lives in the service's `state.json`.
 - Renewal only runs while the TV is on. The session lasts 1000 hours (about 41 days).
+
+## Homebrew Channel repository
+
+`hbrepo/` is served by GitHub Pages and added to Homebrew Channel as
+`https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/apps.json`.
+It also carries a YouTube AdFree build with the regular YouTube icon, see
+`extras/youtube-adfree/`. Publish with `tools/publish-hbrepo.py` and push.

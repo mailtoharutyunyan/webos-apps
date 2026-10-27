@@ -14,9 +14,29 @@
         "rootRequired": false,
         "ipkUrl": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/ipk/com.arayik.devrenew_1.0.0_all.ipk",
         "ipkHash": {
-          "sha256": "36325902268fb060e16f60c20392ffff8f30077fc27458f44570c64c51c52cc7"
+          "sha256": "4533e1640961bc43bfc351b71f538851ac9608f3b056d923c9d8bb601973fa29"
         },
-        "ipkSize": 15188
+        "ipkSize": 15198
+      }
+    },
+    {
+      "id": "youtube.leanback.v4",
+      "title": "YouTube",
+      "iconUri": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/icons/youtube.leanback.v4.png",
+      "shortDescription": "YouTube without ads, with SponsorBlock. Regular YouTube icon.",
+      "manifest": {
+        "id": "youtube.leanback.v4",
+        "version": "0.5.3",
+        "type": "web",
+        "title": "YouTube",
+        "iconUri": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/icons/youtube.leanback.v4.png",
+        "rootRequired": false,
+        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-devmode-renew/hbrepo/ipk/youtube.leanback.v4_0.5.3_all.ipk",
+        "ipkHash": {
+          "sha256": "ac701cc8c8ddc4f76c7273ed6f11d63b64b78ebe46775b479e117a120455c6d1"
+        },
+        "ipkSize": 487372,
+        "sourceUrl": "https://github.com/webosbrew/youtube-webos"
       }
     }
   ],
@@ -24,6 +44,6 @@
     "page": 1,
     "count": 1,
     "maxPage": 1,
-    "itemsTotal": 1
+    "itemsTotal": 2
   }
 }

@@ -1,4 +1,4 @@
-// Alik: a small IPTV player for the LG TV remote.
+// Alik: an IPTV and film player built for the LG TV remote.
 // The TV browser is Chromium 79, so no optional chaining or `??`.
 (function () {
     'use strict';
@@ -12,47 +12,128 @@
     ];
     var CATALOG_URL = 'https://iptv-org.github.io/api/countries.json';
     var CATALOG_PINNED = ['AM', 'RU'];
-    var STORAGE_KEY = 'alik.lastChannel';
-    var SOURCES_KEY = 'alik.sources';
-    var MENU_TIMEOUT = 20000;
-    var OSD_TIMEOUT = 4000;
+
+    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent' };
+    var RECENT_LIMIT = 30;
+    var OSD_TIMEOUT = 5000;
     var DIGIT_TIMEOUT = 1500;
+    var SEEK_STEP = 30;
 
     var KEY = {
         OK: 13, BACK: 461, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
         CH_UP: 33, CH_DOWN: 34, RED: 403, GREEN: 404, YELLOW: 405, BLUE: 406, INFO: 457,
-        PLAY: 415, PAUSE: 19, FAST_FORWARD: 417, REWIND: 412
+        PLAY: 415, PAUSE: 19, PLAY_PAUSE: 10252, STOP: 413, FAST_FORWARD: 417, REWIND: 412
     };
-    var SEEK_STEP = 30;
 
-    var video = document.getElementById('video');
-    var statusBox = document.getElementById('status');
-    var osd = document.getElementById('osd');
-    var osdNumber = document.getElementById('osd-number');
-    var osdName = document.getElementById('osd-name');
-    var osdGroup = document.getElementById('osd-group');
-    var digitsBox = document.getElementById('digits');
-    var menu = document.getElementById('menu');
-    var clock = document.getElementById('clock');
-    var groupList = document.getElementById('groups');
-    var channelList = document.getElementById('channels');
-    var sourcesScreen = document.getElementById('sources');
-    var sourcesList = document.getElementById('source-list');
-    var sourcesField = document.getElementById('source-field');
-    var sourcesUrl = document.getElementById('source-url');
-    var sourcesNotice = document.getElementById('source-notice');
-    var catalogList = document.getElementById('catalog-list');
+    // Tile grid geometry (see .grid and .tile in style.css).
+    // The 16 px inset leaves room for the focused tile to grow without being clipped.
+    var GRID = { cols: 4, tileW: 316, tileH: 244, gapX: 28, gapY: 28, rows: 3, inset: 16 };
 
-    var channels = [];      // flat, numbered from 1
-    var groups = [];        // [{ name, channels: [] }]
+    var $ = function (id) { return document.getElementById(id); };
+    var video = $('video');
+
+    var channels = [];      // { name, group, logo, url, number, film }
+    var sections = [];      // rail entries: { kind, name, icon, items, action }
     var current = -1;       // index into channels
+    var previous = -1;
+    var playList = [];      // channel indexes the up/down keys walk through
     var hls = null;
-
-    var menuState = { column: 'channels', group: 0, channel: 0 };
+    var autoMuted = false;
+    var screen = 'player';  // player | home | sources | help | dialog
+    var dialogReturn = 'home';
     var timers = {};
     var digits = '';
 
-    // ---- Playlist ----
+    // ---------- Small helpers ----------
+
+    function read(key, fallback) {
+        try {
+            var value = window.localStorage.getItem(key);
+            return value === null ? fallback : JSON.parse(value);
+        } catch (e) {
+            return fallback;
+        }
+    }
+
+    function write(key, value) {
+        try {
+            window.localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+            /* storage is only a convenience */
+        }
+    }
+
+    function restartTimer(name, delay, callback) {
+        clearTimeout(timers[name]);
+        timers[name] = setTimeout(callback, delay);
+    }
+
+    function el(tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) {
+            node.className = className;
+        }
+        if (text !== undefined) {
+            node.textContent = text;
+        }
+        return node;
+    }
+
+    function clockText(seconds) {
+        var s = Math.floor(seconds);
+        var h = Math.floor(s / 3600);
+        var m = ('0' + Math.floor(s % 3600 / 60)).slice(-2);
+        return (h ? h + ':' : '') + m + ':' + ('0' + s % 60).slice(-2);
+    }
+
+    function isVideoFile(url) {
+        return /\.(mp4|m4v|webm|mov)(\?|#|$)/i.test(url);
+    }
+
+    // ---------- Icons and key hints ----------
+
+    var PATHS = {
+        up: 'M6 15l6-6 6 6', down: 'M6 9l6 6 6-6', left: 'M15 6l-6 6 6 6', right: 'M9 6l6 6-6 6',
+        updown: 'M7 9l5-5 5 5M7 15l5 5 5-5', leftright: 'M9 7l-5 5 5 5M15 7l5 5-5 5',
+        back: 'M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3',
+        star: 'M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z',
+        clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+        tv: 'M3 6h18v11H3zM8 21h8M12 17v4',
+        film: 'M4 4h16v16H4zM8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4',
+        folder: 'M3 7h6l2 2h10v10H3z',
+        list: 'M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1',
+        help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 015 .5c0 1.7-2.5 2-2.5 3.5M12 17h.01',
+        play: 'M8 5l11 7-11 7z',
+        pause: 'M8 5v14M16 5v14'
+    };
+
+    function svg(name) {
+        return '<svg viewBox="0 0 24 24"><path d="' + PATHS[name] + '"/></svg>';
+    }
+
+    // A key chip: 'OK', 'CH', digits text, a colour dot or an icon.
+    function key(spec) {
+        if (spec === 'red' || spec === 'green' || spec === 'yellow' || spec === 'blue') {
+            return '<span class="key dot ' + spec + '"></span>';
+        }
+        if (PATHS[spec]) {
+            return '<span class="key round">' + svg(spec) + '</span>';
+        }
+        return '<span class="key">' + spec + '</span>';
+    }
+
+    function setHints(container, list) {
+        container.innerHTML = list.map(function (hint) {
+            return '<span class="hint">' + hint[0].map(key).join('') + hint[1] + '</span>';
+        }).join('');
+    }
+
+    // ---------- Playlists ----------
+
+    function attr(line, name) {
+        var match = new RegExp(name + '="([^"]*)"').exec(line);
+        return match ? match[1] : '';
+    }
 
     function parseM3u(text) {
         var list = [];
@@ -70,30 +151,12 @@
                 };
             } else if (line && line.charAt(0) !== '#' && info) {
                 info.url = line;
+                info.film = isVideoFile(line);
                 list.push(info);
                 info = null;
             }
         });
         return list;
-    }
-
-    function attr(line, name) {
-        var match = new RegExp(name + '="([^"]*)"').exec(line);
-        return match ? match[1] : '';
-    }
-
-    function buildGroups() {
-        var byName = {};
-        groups = [];
-        channels.forEach(function (channel, index) {
-            channel.number = index + 1;
-            if (!byName[channel.group]) {
-                byName[channel.group] = { name: channel.group, channels: [] };
-                groups.push(byName[channel.group]);
-            }
-            byName[channel.group].channels.push(index);
-        });
-        groups.unshift({ name: 'Все каналы', channels: channels.map(function (c, i) { return i; }) });
     }
 
     function fetchSource(source) {
@@ -115,15 +178,14 @@
             });
     }
 
-    // Loads every saved playlist and merges their channels, in the order the playlists were added.
     function loadPlaylists() {
-        var sources = readSources();
+        var sources = read(STORE.sources, []);
         if (!sources.length) {
             stopPlayback();
-            hideStatus();
             openSources();
             return;
         }
+        showScreen('player');
         showStatus('Загружаю список каналов…');
         Promise.all(sources.map(fetchSource)).then(function (results) {
             var failed = [];
@@ -135,36 +197,615 @@
                     channels = channels.concat(result.channels);
                 }
             });
+            channels.forEach(function (channel, index) { channel.number = index + 1; });
             if (!channels.length) {
                 showStatus('Не удалось загрузить плейлисты. ' + failed.join('; ') +
-                    '. Нажмите OK, чтобы повторить, или Green, чтобы изменить плейлисты.');
+                    '. OK — повторить, зелёная кнопка — изменить плейлисты.');
                 statusBox.dataset.retry = '1';
                 return;
             }
-            buildGroups();
-            var saved = parseInt(readStorage(STORAGE_KEY), 10);
-            play(saved >= 0 && saved < channels.length ? saved : 0);
+            buildSections();
+            var last = read(STORE.last, '');
+            var start = 0;
+            channels.some(function (channel, index) {
+                if (channel.url === last) {
+                    start = index;
+                    return true;
+                }
+                return false;
+            });
+            play(start, allIndexes(function (c) { return c.film === channels[start].film; }));
             if (failed.length) {
                 showStatus('Не загрузились: ' + failed.join('; ') + '.');
                 restartTimer('status', 6000, hideStatus);
             }
+            openHome();
         });
     }
 
-    // ---- Playlists screen ----
+    function allIndexes(filter) {
+        var list = [];
+        channels.forEach(function (channel, index) {
+            if (!filter || filter(channel)) {
+                list.push(index);
+            }
+        });
+        return list;
+    }
 
-    function readSources() {
-        try {
-            var list = JSON.parse(readStorage(SOURCES_KEY) || '[]');
-            return Array.isArray(list) ? list : [];
-        } catch (e) {
-            return [];
+    // ---------- Sections (left rail) ----------
+
+    function indexesForUrls(urls) {
+        var byUrl = {};
+        channels.forEach(function (channel, index) {
+            if (!(channel.url in byUrl)) {
+                byUrl[channel.url] = index;
+            }
+        });
+        return urls.filter(function (url) { return url in byUrl; }).map(function (url) { return byUrl[url]; });
+    }
+
+    function buildSections() {
+        var live = allIndexes(function (c) { return !c.film; });
+        var films = allIndexes(function (c) { return c.film; });
+        sections = [
+            { kind: 'list', id: 'favourites', name: 'Избранное', icon: 'star', items: indexesForUrls(read(STORE.favourites, [])) },
+            { kind: 'list', id: 'recent', name: 'Недавние', icon: 'clock', items: indexesForUrls(read(STORE.recent, [])) }
+        ];
+        if (live.length) {
+            sections.push({ kind: 'list', id: 'live', name: 'Все каналы', icon: 'tv', items: live });
+        }
+        if (films.length) {
+            sections.push({ kind: 'list', id: 'films', name: 'Все фильмы', icon: 'film', items: films });
+        }
+        sections.push({ kind: 'heading', name: 'Группы' });
+        var byGroup = {};
+        var groups = [];
+        channels.forEach(function (channel, index) {
+            if (!byGroup[channel.group]) {
+                byGroup[channel.group] = { kind: 'list', id: 'group:' + channel.group, name: channel.group, icon: 'folder', items: [] };
+                groups.push(byGroup[channel.group]);
+            }
+            byGroup[channel.group].items.push(index);
+        });
+        sections = sections.concat(groups);
+        sections.push({ kind: 'heading', name: 'Настройки' });
+        sections.push({ kind: 'action', name: 'Плейлисты', icon: 'list', action: openSources });
+        sections.push({ kind: 'action', name: 'Справка по пульту', icon: 'help', action: openHelp });
+    }
+
+    function refreshPersonalSections() {
+        sections.forEach(function (section) {
+            if (section.id === 'favourites') {
+                section.items = indexesForUrls(read(STORE.favourites, []));
+            } else if (section.id === 'recent') {
+                section.items = indexesForUrls(read(STORE.recent, []));
+            }
+        });
+    }
+
+    // ---------- Playback ----------
+
+    var statusBox = $('status');
+
+    function showStatus(text) {
+        statusBox.textContent = text;
+        statusBox.hidden = false;
+        delete statusBox.dataset.retry;
+    }
+
+    function hideStatus() {
+        statusBox.hidden = true;
+    }
+
+    function stopPlayback() {
+        if (hls) {
+            hls.destroy();
+            hls = null;
+        }
+        video.removeAttribute('src');
+        video.load();
+        current = -1;
+    }
+
+    function startVideo() {
+        var attempt = video.play();
+        if (attempt && attempt.catch) {
+            attempt.catch(function (err) {
+                // webOS may block autoplay with sound: play muted and unmute on the next key press.
+                if (err && err.name === 'NotAllowedError' && !video.muted) {
+                    video.muted = true;
+                    autoMuted = true;
+                    video.play();
+                }
+            });
         }
     }
 
-    function saveSources(list) {
-        writeStorage(SOURCES_KEY, JSON.stringify(list));
+    function play(index, list) {
+        if (index !== current) {
+            previous = current;
+        }
+        current = index;
+        if (list) {
+            playList = list;
+        }
+        var channel = channels[index];
+        write(STORE.last, channel.url);
+        var recent = read(STORE.recent, []).filter(function (url) { return url !== channel.url; });
+        recent.unshift(channel.url);
+        write(STORE.recent, recent.slice(0, RECENT_LIMIT));
+        refreshPersonalSections();
+
+        if (hls) {
+            hls.destroy();
+            hls = null;
+        }
+        video.removeAttribute('src');
+        showStatus(channel.film ? 'Загружаю фильм…' : 'Подключаюсь к каналу…');
+
+        // Films are plain video files the TV plays itself; live channels are HLS.
+        if (channel.film || !(window.Hls && Hls.isSupported())) {
+            video.src = channel.url;
+        } else {
+            hls = new Hls({ maxBufferLength: 20, manifestLoadingMaxRetry: 2, levelLoadingMaxRetry: 2 });
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (!data.fatal) {
+                    return;
+                }
+                if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                    hls.recoverMediaError();
+                } else {
+                    noSignal();
+                }
+            });
+            hls.loadSource(channel.url);
+            hls.attachMedia(video);
+        }
+        startVideo();
+        if (screen === 'player') {
+            showOsd();
+        }
     }
+
+    function noSignal() {
+        showStatus('Канал сейчас не отвечает. Переключите: ▲ ▼ или CH+ CH−.');
+    }
+
+    video.addEventListener('playing', hideStatus);
+    video.addEventListener('timeupdate', function () {
+        if (video.currentTime > 0 && !statusBox.dataset.retry) {
+            hideStatus();
+        }
+        if (!osd.hidden) {
+            updateProgress();
+        }
+    });
+    video.addEventListener('error', noSignal);
+
+    function step(delta) {
+        if (!playList.length) {
+            return;
+        }
+        var position = playList.indexOf(current);
+        play(playList[(position + delta + playList.length) % playList.length]);
+    }
+
+    function seek(seconds) {
+        if (!isFinite(video.duration)) {
+            return;
+        }
+        video.currentTime = Math.max(0, Math.min(video.duration - 1, video.currentTime + seconds));
+        showOsd();
+    }
+
+    function togglePause(forcePlay) {
+        if (forcePlay === undefined ? video.paused : forcePlay) {
+            startVideo();
+        } else {
+            video.pause();
+        }
+        showOsd();
+    }
+
+    function isFavourite(index) {
+        return read(STORE.favourites, []).indexOf(channels[index].url) >= 0;
+    }
+
+    function toggleFavourite(index) {
+        if (index < 0) {
+            return;
+        }
+        var url = channels[index].url;
+        var list = read(STORE.favourites, []);
+        var at = list.indexOf(url);
+        if (at >= 0) {
+            list.splice(at, 1);
+        } else {
+            list.unshift(url);
+        }
+        write(STORE.favourites, list);
+        refreshPersonalSections();
+    }
+
+    // ---------- On-screen display ----------
+
+    var osd = $('osd');
+
+    function showOsd() {
+        if (current < 0) {
+            return;
+        }
+        var channel = channels[current];
+        $('osd-number').textContent = channel.number;
+        var logo = $('osd-logo');
+        logo.hidden = !channel.logo;
+        if (channel.logo) {
+            logo.src = channel.logo;
+        }
+        $('osd-name').textContent = channel.name;
+        $('osd-group').textContent = channel.group;
+        $('osd-fav').hidden = !isFavourite(current);
+        $('osd-progress').hidden = !channel.film;
+        updateProgress();
+        setHints($('osd-hints'), channel.film ? [
+            [['OK'], 'Меню'],
+            [['leftright'], '30 секунд'],
+            [[video.paused ? 'play' : 'pause'], video.paused ? 'Продолжить' : 'Пауза'],
+            [['updown'], 'Другой фильм'],
+            [['red'], isFavourite(current) ? 'Убрать из избранного' : 'В избранное'],
+            [['back'], 'Назад']
+        ] : [
+            [['OK'], 'Меню'],
+            [['updown'], 'Канал'],
+            [['0–9'], 'Номер'],
+            [['red'], isFavourite(current) ? 'Убрать из избранного' : 'В избранное'],
+            [['yellow'], 'Предыдущий'],
+            [['back'], 'Назад']
+        ]);
+        osd.hidden = false;
+        restartTimer('osd', OSD_TIMEOUT, function () { osd.hidden = true; });
+    }
+
+    function updateProgress() {
+        if (current < 0 || !channels[current].film || !isFinite(video.duration) || !video.duration) {
+            $('osd-time').textContent = '';
+            return;
+        }
+        $('osd-bar').style.width = (video.currentTime / video.duration * 100) + '%';
+        $('osd-time').textContent = clockText(video.currentTime) + ' / ' + clockText(video.duration);
+    }
+
+    // ---------- Screens ----------
+
+    function showScreen(name) {
+        screen = name;
+        $('home').hidden = name !== 'home';
+        $('sources').hidden = name !== 'sources';
+        $('help').hidden = name !== 'help';
+        $('dialog').hidden = name !== 'dialog';
+        if (name !== 'player') {
+            osd.hidden = true;
+        }
+    }
+
+    // ---------- Home ----------
+
+    var rail = $('rail');
+    var grid = $('grid');
+    var home = { area: 'grid', rail: -1, tile: 0, topRow: 0 };
+
+    function focusableRail(index) {
+        return sections[index] && sections[index].kind !== 'heading';
+    }
+
+    function openHome() {
+        if (!channels.length) {
+            openSources();
+            return;
+        }
+        refreshPersonalSections();
+        showScreen('home');
+        // Open on the section and tile of what is playing.
+        var target = -1;
+        for (var i = 0; i < sections.length && target < 0; i++) {
+            if (sections[i].kind === 'list' && sections[i].id !== 'favourites' && sections[i].id !== 'recent' &&
+                sections[i].items.indexOf(current) >= 0) {
+                target = i;
+            }
+        }
+        if (target < 0) {
+            target = 2;
+        }
+        home.rail = target;
+        home.tile = Math.max(0, sections[target].items.indexOf(current));
+        home.topRow = Math.max(0, Math.floor(home.tile / GRID.cols) - 1);
+        home.area = 'grid';
+        renderRail();
+        renderGrid();
+        tickClock();
+        updateHomeHints();
+    }
+
+    function renderRail() {
+        rail.innerHTML = '';
+        sections.forEach(function (section, index) {
+            var item;
+            if (section.kind === 'heading') {
+                item = el('li', 'rail-heading', section.name);
+            } else {
+                item = el('li', 'rail-item');
+                item.dataset.rail = index;
+                item.innerHTML = svg(section.icon);
+                item.appendChild(el('span', 'rail-name', section.name));
+                if (section.kind === 'list') {
+                    item.appendChild(el('span', 'rail-count', String(section.items.length)));
+                }
+            }
+            rail.appendChild(item);
+        });
+        markRail();
+    }
+
+    function markRail() {
+        Array.prototype.forEach.call(rail.children, function (item) {
+            var index = Number(item.dataset.rail);
+            item.classList.toggle('selected', index === home.rail && home.area === 'grid');
+            item.classList.toggle('focused', index === home.rail && home.area === 'rail');
+        });
+        // Keep the active row in view: the rail scrolls as a whole list.
+        var active = rail.querySelector('[data-rail="' + home.rail + '"]');
+        if (active) {
+            var offset = Math.max(0, active.offsetTop - 300);
+            rail.style.transform = 'translateY(' + (-offset) + 'px)';
+        }
+        var section = sections[home.rail];
+        $('section-title').textContent = section && section.kind === 'list'
+            ? section.name + ' · ' + section.items.length : '';
+    }
+
+    // Letters for tiles without a logo, e.g. "First Channel News" -> "FC".
+    function tileLabel(name) {
+        var words = name.replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').split(/[^0-9A-Za-zА-Яа-яЁёԱ-Ֆա-ֆ]+/).filter(Boolean);
+        return words.slice(0, 2).map(function (word) { return word.charAt(0); }).join('').toUpperCase() || '•';
+    }
+
+    // A stable colour per channel, so placeholder tiles are told apart at a glance.
+    function tint(name) {
+        var hash = 0;
+        for (var i = 0; i < name.length; i++) {
+            hash = (hash * 31 + name.charCodeAt(i)) % 360;
+        }
+        return hash;
+    }
+
+    function initials(channel) {
+        var hue = tint(channel.name);
+        var node = el('div', 'tile-initials', tileLabel(channel.name));
+        node.style.background = 'hsl(' + hue + ', 32%, 22%)';
+        node.style.color = 'hsl(' + hue + ', 70%, 78%)';
+        return node;
+    }
+
+    function renderGrid() {
+        var section = sections[home.rail];
+        grid.innerHTML = '';
+        var empty = $('grid-empty');
+        if (!section || section.kind !== 'list' || !section.items.length) {
+            empty.hidden = false;
+            empty.textContent = section && section.id === 'favourites'
+                ? 'Здесь будут избранные каналы. На любом канале нажмите красную кнопку.'
+                : section && section.id === 'recent' ? 'Здесь появятся каналы, которые вы смотрели.'
+                    : section && section.kind === 'action' ? 'Нажмите OK, чтобы открыть.' : '';
+            return;
+        }
+        empty.hidden = true;
+        var favourites = read(STORE.favourites, []);
+        var first = home.topRow * GRID.cols;
+        var last = Math.min(section.items.length, first + (GRID.rows + 1) * GRID.cols);
+        for (var position = first; position < last; position++) {
+            var index = section.items[position];
+            var channel = channels[index];
+            var row = Math.floor(position / GRID.cols) - home.topRow;
+            var col = position % GRID.cols;
+            var tile = el('div', 'tile' + (channel.film ? ' film' : '') + (position === home.tile && home.area === 'grid' ? ' focused' : ''));
+            tile.dataset.tile = position;
+            tile.style.left = (GRID.inset + col * (GRID.tileW + GRID.gapX)) + 'px';
+            tile.style.top = (GRID.inset + row * (GRID.tileH + GRID.gapY)) + 'px';
+
+            var frame = el('div', 'tile-logo');
+            if (channel.logo) {
+                var img = el('img');
+                img.alt = '';
+                img.src = channel.logo;
+                img.onerror = (function (owner) {
+                    return function () {
+                        this.parentNode.appendChild(initials(owner));
+                        this.remove();
+                    };
+                }(channel));
+                frame.appendChild(img);
+            } else {
+                frame.appendChild(initials(channel));
+            }
+            tile.appendChild(frame);
+            tile.appendChild(el('span', 'tile-number', String(channel.number)));
+            if (favourites.indexOf(channel.url) >= 0) {
+                tile.appendChild(el('span', 'tile-fav', '♥'));
+            }
+            if (index === current) {
+                tile.appendChild(el('span', 'tile-playing', 'Сейчас'));
+            }
+            tile.appendChild(el('span', 'tile-name', channel.name));
+            grid.appendChild(tile);
+        }
+    }
+
+    function moveTile(delta) {
+        var section = sections[home.rail];
+        var size = section.items.length;
+        var next = home.tile + delta;
+        if (delta === -1 && home.tile % GRID.cols === 0) {
+            focusRail();
+            return;
+        }
+        if (next < 0 || next >= size) {
+            if (Math.abs(delta) === GRID.cols && next >= size && Math.floor(home.tile / GRID.cols) < Math.floor((size - 1) / GRID.cols)) {
+                next = size - 1;   // last, partially filled row
+            } else {
+                return;
+            }
+        }
+        if (delta === 1 && next % GRID.cols === 0) {
+            return;   // stay on the row; ▼ moves down
+        }
+        home.tile = next;
+        var row = Math.floor(next / GRID.cols);
+        if (row < home.topRow) {
+            home.topRow = row;
+        } else if (row > home.topRow + GRID.rows - 1) {
+            home.topRow = row - GRID.rows + 1;
+        }
+        renderGrid();
+    }
+
+    function focusRail() {
+        home.area = 'rail';
+        markRail();
+        renderGrid();
+        updateHomeHints();
+    }
+
+    function focusGrid() {
+        var section = sections[home.rail];
+        if (section.kind === 'action') {
+            return;
+        }
+        if (!section.items.length) {
+            return;
+        }
+        home.area = 'grid';
+        home.tile = Math.min(home.tile, section.items.length - 1);
+        markRail();
+        renderGrid();
+        updateHomeHints();
+    }
+
+    function moveRail(delta) {
+        var next = home.rail;
+        do {
+            next += delta;
+        } while (next >= 0 && next < sections.length && !focusableRail(next));
+        if (next < 0 || next >= sections.length) {
+            return;
+        }
+        home.rail = next;
+        home.tile = 0;
+        home.topRow = 0;
+        markRail();
+        // Preview the section after a short pause so fast scrolling stays smooth.
+        restartTimer('preview', 140, renderGrid);
+    }
+
+    function chooseInHome() {
+        var section = sections[home.rail];
+        if (home.area === 'rail') {
+            if (section.kind === 'action') {
+                section.action();
+            } else {
+                focusGrid();
+            }
+            return;
+        }
+        var index = section.items[home.tile];
+        if (index === undefined) {
+            return;
+        }
+        var list = section.items.slice();
+        if (index !== current) {
+            play(index, list);
+        } else {
+            playList = list;
+        }
+        showScreen('player');
+        showOsd();
+    }
+
+    function updateHomeHints() {
+        setHints($('home-hints'), home.area === 'grid' ? [
+            [['OK'], 'Смотреть'],
+            [['red'], 'Избранное'],
+            [['green'], 'Плейлисты'],
+            [['yellow'], 'Предыдущий канал'],
+            [['CH+', 'CH−'], 'Страница'],
+            [['INFO'], 'Справка'],
+            [['back'], 'Выход']
+        ] : [
+            [['updown'], 'Раздел'],
+            [['right'], 'К каналам'],
+            [['OK'], 'Открыть'],
+            [['green'], 'Плейлисты'],
+            [['INFO'], 'Справка'],
+            [['back'], 'Выход']
+        ]);
+    }
+
+    function tickClock() {
+        var now = new Date();
+        $('clock').textContent = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    }
+
+    setInterval(function () {
+        if (screen === 'home') {
+            tickClock();
+        }
+    }, 30000);
+
+    function handleHomeKey(code) {
+        if (home.area === 'rail') {
+            if (code === KEY.UP) { moveRail(-1); }
+            else if (code === KEY.DOWN) { moveRail(1); }
+            else if (code === KEY.CH_UP) { moveRail(-6); }
+            else if (code === KEY.CH_DOWN) { moveRail(6); }
+            else if (code === KEY.RIGHT) { focusGrid(); }
+            else if (code === KEY.OK) { chooseInHome(); }
+            else { return false; }
+            return true;
+        }
+        if (code === KEY.UP) { moveTile(-GRID.cols); }
+        else if (code === KEY.DOWN) { moveTile(GRID.cols); }
+        else if (code === KEY.LEFT) { moveTile(-1); }
+        else if (code === KEY.RIGHT) { moveTile(1); }
+        else if (code === KEY.CH_UP) { pageTiles(-1); }
+        else if (code === KEY.CH_DOWN) { pageTiles(1); }
+        else if (code === KEY.OK) { chooseInHome(); }
+        else if (code === KEY.RED) {
+            var index = sections[home.rail].items[home.tile];
+            toggleFavourite(index);
+            renderRail();
+            renderGrid();
+        } else { return false; }
+        return true;
+    }
+
+    function pageTiles(direction) {
+        var size = sections[home.rail].items.length;
+        var target = Math.max(0, Math.min(size - 1, home.tile + direction * GRID.cols * GRID.rows));
+        home.tile = target;
+        home.topRow = Math.max(0, Math.min(Math.floor(target / GRID.cols), Math.floor((size - 1) / GRID.cols) - GRID.rows + 1));
+        renderGrid();
+    }
+
+    // ---------- Playlists screen ----------
+
+    var sourcesScreen = $('sources');
+    var leftCol = $('source-left');
+    var rightCol = $('source-right');
+    var sourcesField = $('source-field');
+    var sourcesUrl = $('source-url');
+    var notice = $('source-notice');
+    var sourcesFocus = { col: 'left', row: 0 };
+    var pendingRemoval = -1;
 
     function nameFromUrl(url) {
         var match = /^https?:\/\/([^\/?#]+)(?:[^?#]*\/)?([^\/?#]*)/.exec(url);
@@ -175,97 +816,110 @@
         return file ? match[1] + ' / ' + file : match[1];
     }
 
-    var sourcesFocus = 0;
-    var pendingRemoval = -1;
-
     function openSources() {
-        closeMenu();
-        osd.hidden = true;
-        sourcesNotice.textContent = '';
-        sourcesFocus = 0;
-        pendingRemoval = -1;
+        showScreen('sources');
         sourcesScreen.classList.remove('catalog-mode');
-        sourcesScreen.hidden = false;
+        notice.textContent = '';
+        sourcesFocus = { col: 'left', row: 0 };
+        pendingRemoval = -1;
         renderSources();
     }
 
     function closeSources() {
         sourcesUrl.blur();
-        sourcesScreen.hidden = true;
         loadPlaylists();
     }
 
-    // Every row of the screen is one stop for ↑ ↓: the URL field, the buttons and the saved playlists.
+    // Focusable rows per column; headings are drawn but skipped by ▲ ▼.
     function sourceRows() {
-        var sources = readSources();
-        var rows = [{ kind: 'input' }, { kind: 'add' }];
+        var saved = read(STORE.sources, []);
+        var right = [{ kind: 'heading', text: 'Готовые плейлисты' }];
         PRESETS.forEach(function (preset) {
-            if (!sources.some(function (s) { return s.url === preset.url; })) {
-                rows.push({ kind: 'preset', preset: preset });
-            }
+            right.push({ kind: 'preset', preset: preset, added: saved.some(function (s) { return s.url === preset.url; }) });
         });
-        rows.push({ kind: 'catalog' });
-        sources.forEach(function (source, index) {
-            rows.push({ kind: 'source', index: index, source: source });
+        right.push({ kind: 'catalog' });
+        right.push({ kind: 'heading', text: saved.length ? 'Ваши плейлисты · ' + saved.length : 'Ваши плейлисты: пока нет' });
+        saved.forEach(function (source, index) {
+            right.push({ kind: 'source', index: index, source: source });
         });
-        if (sources.length) {
-            rows.push({ kind: 'done' });
+        if (saved.length) {
+            right.push({ kind: 'done' });
         }
-        return rows;
+        return { left: [{ kind: 'input' }, { kind: 'add' }], right: right };
+    }
+
+    function focusable(rows) {
+        return rows.filter(function (row) { return row.kind !== 'heading'; });
     }
 
     function renderSources() {
         var rows = sourceRows();
-        sourcesFocus = Math.min(sourcesFocus, rows.length - 1);
-        sourcesList.innerHTML = '';
-        rows.forEach(function (row, position) {
-            var item;
-            if (row.kind === 'input') {
-                item = sourcesField;
-            } else {
-                item = document.createElement('li');
-                if (row.kind === 'add') {
-                    item.className = 'button';
-                    item.textContent = 'Добавить ссылку';
-                } else if (row.kind === 'preset') {
-                    item.className = 'button';
-                    item.textContent = 'Добавить готовый: ' + row.preset.name;
-                } else if (row.kind === 'catalog') {
-                    item.className = 'button';
-                    item.textContent = 'Каталог iptv-org: выбрать страну';
-                } else if (row.kind === 'done') {
-                    item.className = 'button primary';
-                    item.textContent = 'Смотреть';
-                } else {
-                    item.className = 'source';
-                    var title = document.createElement('span');
-                    title.className = 'source-name';
-                    title.textContent = row.source.name;
-                    var hint = document.createElement('span');
-                    hint.className = 'source-action';
-                    hint.textContent = pendingRemoval === row.index ? 'OK ещё раз — удалить' : 'Удалить';
-                    item.appendChild(title);
-                    item.appendChild(hint);
+        var focusList = focusable(rows[sourcesFocus.col]);
+        sourcesFocus.row = Math.max(0, Math.min(sourcesFocus.row, focusList.length - 1));
+        var focusedRow = focusList[sourcesFocus.row];
+
+        leftCol.innerHTML = '';
+        rightCol.innerHTML = '';
+        ['left', 'right'].forEach(function (col) {
+            var target = col === 'left' ? leftCol : rightCol;
+            var position = 0;
+            rows[col].forEach(function (row) {
+                var item;
+                if (row.kind === 'heading') {
+                    target.appendChild(el('li', 'heading', row.text));
+                    return;
                 }
-            }
-            item.classList.toggle('focused', position === sourcesFocus);
-            sourcesList.appendChild(item);
+                if (row.kind === 'input') {
+                    item = sourcesField;
+                } else if (row.kind === 'add') {
+                    item = el('li', 'button', 'Добавить ссылку');
+                } else if (row.kind === 'catalog') {
+                    item = el('li', 'button', 'Каталог iptv-org: выбрать страну');
+                } else if (row.kind === 'done') {
+                    item = el('li', 'button primary', 'Смотреть');
+                } else if (row.kind === 'preset') {
+                    item = el('li', 'preset');
+                    item.appendChild(el('span', 'source-name', row.preset.name));
+                    item.appendChild(el('span', 'source-action', row.added ? 'Добавлен ✓' : 'Добавить'));
+                } else {
+                    item = el('li', 'source');
+                    item.appendChild(el('span', 'source-name', row.source.name));
+                    item.appendChild(el('span', 'source-action', pendingRemoval === row.index ? 'OK ещё раз — удалить' : 'Удалить'));
+                }
+                item.dataset.col = col;
+                item.dataset.row = position;
+                item.classList.toggle('focused', row === focusedRow);
+                target.appendChild(item);
+                position++;
+            });
         });
-        var focused = sourcesList.children[sourcesFocus];
-        if (focused) {
-            focused.scrollIntoView({ block: 'nearest' });
+
+        // Scroll the right column so the focused row stays inside its 900 px box.
+        var offset = 0;
+        if (sourcesFocus.col === 'right') {
+            var focusedNode = rightCol.querySelector('.focused');
+            if (focusedNode) {
+                offset = Math.max(0, focusedNode.offsetTop + focusedNode.offsetHeight - 760);
+            }
         }
+        rightCol.style.transform = 'translateY(' + (-offset) + 'px)';
+
+        setHints($('sources-hints'), [
+            [['updown', 'leftright'], 'Выбор'],
+            [['OK'], 'Открыть'],
+            [['back'], read(STORE.sources, []).length ? 'Готово' : 'Выход']
+        ]);
     }
 
     function addSource(source) {
-        var sources = readSources();
-        if (sources.some(function (s) { return s.url === source.url; })) {
-            sourcesNotice.textContent = 'Этот плейлист уже добавлен.';
+        var saved = read(STORE.sources, []);
+        if (saved.some(function (s) { return s.url === source.url; })) {
+            notice.textContent = 'Этот плейлист уже добавлен.';
             return;
         }
-        sources.push(source);
-        saveSources(sources);
-        sourcesNotice.textContent = 'Добавлен: ' + source.name + '.';
+        saved.push(source);
+        write(STORE.sources, saved);
+        notice.textContent = 'Добавлен: ' + source.name + '.';
         sourcesUrl.value = '';
         renderSources();
     }
@@ -273,30 +927,37 @@
     function addTypedUrl() {
         var url = sourcesUrl.value.trim();
         if (!/^https?:\/\/\S+$/i.test(url)) {
-            sourcesNotice.textContent = 'Ссылка должна начинаться с http:// или https://';
+            notice.textContent = 'Ссылка должна начинаться с http:// или https://';
             return;
         }
         addSource({ name: nameFromUrl(url), url: url });
     }
 
     function activateSourceRow() {
-        var row = sourceRows()[sourcesFocus];
+        var row = focusable(sourceRows()[sourcesFocus.col])[sourcesFocus.row];
+        if (!row) {
+            return;
+        }
         if (row.kind === 'input') {
             sourcesUrl.focus();
         } else if (row.kind === 'add') {
             addTypedUrl();
         } else if (row.kind === 'preset') {
-            addSource({ name: row.preset.name, url: row.preset.url });
+            if (row.added) {
+                notice.textContent = '«' + row.preset.name + '» уже добавлен. Удалить можно ниже.';
+            } else {
+                addSource({ name: row.preset.name, url: row.preset.url });
+            }
         } else if (row.kind === 'catalog') {
             openCatalog();
         } else if (row.kind === 'done') {
             closeSources();
         } else if (pendingRemoval === row.index) {
-            var sources = readSources();
-            sources.splice(row.index, 1);
-            saveSources(sources);
+            var saved = read(STORE.sources, []);
+            saved.splice(row.index, 1);
+            write(STORE.sources, saved);
             pendingRemoval = -1;
-            sourcesNotice.textContent = 'Плейлист удалён.';
+            notice.textContent = 'Плейлист удалён.';
             renderSources();
         } else {
             pendingRemoval = row.index;
@@ -304,13 +965,68 @@
         }
     }
 
-    // ---- iptv-org country catalog ----
+    function moveSources(delta) {
+        var count = focusable(sourceRows()[sourcesFocus.col]).length;
+        sourcesFocus.row = Math.max(0, Math.min(count - 1, sourcesFocus.row + delta));
+        pendingRemoval = -1;
+        renderSources();
+    }
 
+    function switchSourceColumn(col) {
+        if (sourcesFocus.col === col) {
+            return;
+        }
+        sourcesFocus = { col: col, row: 0 };
+        pendingRemoval = -1;
+        renderSources();
+    }
+
+    function handleSourcesKey(code) {
+        if (sourcesScreen.classList.contains('catalog-mode')) {
+            return handleCatalogKey(code);
+        }
+        if (document.activeElement === sourcesUrl) {
+            // While typing, OK confirms the link and Back leaves the field.
+            if (code === KEY.OK) {
+                sourcesUrl.blur();
+                addTypedUrl();
+                return true;
+            }
+            if (code === KEY.BACK || code === KEY.UP || code === KEY.DOWN) {
+                sourcesUrl.blur();
+                if (code === KEY.DOWN) {
+                    sourcesFocus.row = 1;
+                    renderSources();
+                }
+                return true;
+            }
+            return false;
+        }
+        if (code === KEY.UP) { moveSources(-1); }
+        else if (code === KEY.DOWN) { moveSources(1); }
+        else if (code === KEY.CH_UP) { moveSources(-5); }
+        else if (code === KEY.CH_DOWN) { moveSources(5); }
+        else if (code === KEY.RIGHT) { switchSourceColumn('right'); }
+        else if (code === KEY.LEFT) { switchSourceColumn('left'); }
+        else if (code === KEY.OK) { activateSourceRow(); }
+        else if (code === KEY.BACK) {
+            if (read(STORE.sources, []).length) {
+                closeSources();
+            } else {
+                openDialog('sources');
+            }
+        } else { return false; }
+        return true;
+    }
+
+    // ---------- iptv-org country catalog ----------
+
+    var catalogList = $('catalog-list');
     var countries = null;
     var catalogFocus = 0;
 
     function openCatalog() {
-        sourcesNotice.textContent = 'Загружаю список стран…';
+        notice.textContent = 'Загружаю список стран…';
         var ready = countries ? Promise.resolve(countries) : fetch(CATALOG_URL)
             .then(function (response) {
                 if (!response.ok) {
@@ -325,12 +1041,24 @@
                 return countries;
             });
         ready.then(function () {
-            sourcesNotice.textContent = '';
+            notice.textContent = '';
             catalogFocus = 0;
             sourcesScreen.classList.add('catalog-mode');
-            renderCatalog();
+            catalogList.innerHTML = '';
+            countries.forEach(function (country, index) {
+                var item = el('li', index === 0 ? 'focused' : '', country.name);
+                item.dataset.cat = index;
+                catalogList.appendChild(item);
+            });
+            catalogList.scrollTop = 0;
+            setHints($('sources-hints'), [
+                [['updown'], 'Страна'],
+                [['CH+', 'CH−'], 'Быстрее'],
+                [['OK'], 'Добавить'],
+                [['back'], 'Назад']
+            ]);
         }, function (err) {
-            sourcesNotice.textContent = 'Каталог недоступен: ' + err.message + '.';
+            notice.textContent = 'Каталог недоступен: ' + err.message + '.';
         });
     }
 
@@ -339,21 +1067,7 @@
         renderSources();
     }
 
-    function renderCatalog() {
-        catalogList.innerHTML = '';
-        countries.forEach(function (country, index) {
-            var item = document.createElement('li');
-            item.textContent = country.name;
-            if (index === catalogFocus) {
-                item.className = 'focused';
-            }
-            catalogList.appendChild(item);
-        });
-        reveal(catalogList, catalogFocus);
-    }
-
     function moveCatalog(delta) {
-        // Toggle two rows instead of rebuilding 250 of them.
         catalogList.children[catalogFocus].classList.remove('focused');
         catalogFocus = (catalogFocus + delta + countries.length) % countries.length;
         var item = catalogList.children[catalogFocus];
@@ -381,39 +1095,137 @@
         return true;
     }
 
-    function handleSourcesKey(code) {
-        if (sourcesScreen.classList.contains('catalog-mode')) {
-            return handleCatalogKey(code);
+    // ---------- Help ----------
+
+    var HELP = [
+        [['OK'], 'Меню каналов', 'Во время просмотра открывает главный экран; в меню включает канал'],
+        [['up', 'down'], 'Переключить канал', 'В меню — движение по плиткам и разделам'],
+        [['left', 'right'], 'Перемотка фильма', '±30 секунд; в меню — разделы и плитки'],
+        [['CH+', 'CH−'], 'Канал или страница', 'В меню листает на целую страницу'],
+        [['0–9'], 'Номер канала', 'Наберите номер, переключение через 1,5 секунды'],
+        [['play', 'pause'], 'Пауза и продолжение', 'Для фильмов'],
+        [['red'], 'Избранное', 'Добавить или убрать канал'],
+        [['green'], 'Плейлисты', 'Добавить ссылку, готовый плейлист или страну'],
+        [['yellow'], 'Предыдущий канал', 'Быстро вернуться к прошлому каналу'],
+        [['INFO'], 'Справка и информация', 'Эта страница; во время просмотра — данные канала'],
+        [['back'], 'Назад', 'На главном экране предлагает выйти'],
+        [['Magic Remote'], 'Указка', 'Наведите на плитку и нажмите колесо; колесо листает']
+    ];
+
+    function openHelp() {
+        dialogReturn = screen === 'help' ? dialogReturn : screen;
+        showScreen('help');
+        $('help-grid').innerHTML = HELP.map(function (row) {
+            return '<div class="help-row"><div class="help-keys">' + row[0].map(key).join('') +
+                '</div><div class="help-text"><strong>' + row[1] + '</strong><span>' + row[2] + '</span></div></div>';
+        }).join('');
+        setHints($('help-hints'), [[['back'], 'Закрыть']]);
+    }
+
+    function closeHelp() {
+        if (dialogReturn === 'player') {
+            showScreen('player');
+        } else {
+            openHome();
         }
-        if (document.activeElement === sourcesUrl) {
-            // While typing, OK confirms the link and Back leaves the field.
-            if (code === KEY.OK) {
-                sourcesUrl.blur();
-                addTypedUrl();
-                return true;
+    }
+
+    // ---------- Exit dialog ----------
+
+    var dialogFocus = 1;
+
+    function openDialog(from) {
+        dialogReturn = from;
+        dialogFocus = 1;
+        showScreen('dialog');
+        if (from === 'home') {
+            $('home').hidden = false;
+        }
+        markDialog();
+    }
+
+    function markDialog() {
+        $('dialog-exit').classList.toggle('focused', dialogFocus === 0);
+        $('dialog-stay').classList.toggle('focused', dialogFocus === 1);
+    }
+
+    function closeDialog() {
+        if (dialogReturn === 'sources') {
+            showScreen('sources');
+        } else {
+            showScreen('home');
+        }
+    }
+
+    function handleDialogKey(code) {
+        if (code === KEY.LEFT || code === KEY.RIGHT) {
+            dialogFocus = code === KEY.LEFT ? 0 : 1;
+            markDialog();
+        } else if (code === KEY.OK) {
+            if (dialogFocus === 0) {
+                window.close();
+            } else {
+                closeDialog();
             }
-            if (code === KEY.BACK || code === KEY.UP || code === KEY.DOWN) {
-                sourcesUrl.blur();
-                if (code === KEY.DOWN) {
-                    sourcesFocus = 1;
-                    renderSources();
-                }
-                return true;
-            }
+        } else if (code === KEY.BACK) {
+            closeDialog();
+        } else {
             return false;
         }
-        var count = sourceRows().length;
-        if (code === KEY.UP || code === KEY.DOWN) {
-            sourcesFocus = (sourcesFocus + (code === KEY.UP ? -1 : 1) + count) % count;
-            pendingRemoval = -1;
-            renderSources();
-        } else if (code === KEY.OK) {
-            activateSourceRow();
-        } else if (code === KEY.BACK) {
-            if (readSources().length) {
-                closeSources();
+        return true;
+    }
+
+    // ---------- Number entry ----------
+
+    function typeDigit(digit) {
+        digits = (digits + digit).slice(0, 4);
+        $('digits').textContent = digits;
+        $('digits').hidden = false;
+        restartTimer('digits', DIGIT_TIMEOUT, function () {
+            var number = parseInt(digits, 10);
+            digits = '';
+            $('digits').hidden = true;
+            if (number >= 1 && number <= channels.length) {
+                play(number - 1, allIndexes(function (c) { return c.film === channels[number - 1].film; }));
+                showScreen('player');
+                showOsd();
+            }
+        });
+    }
+
+    // ---------- Player keys ----------
+
+    function handlePlayerKey(code) {
+        var film = current >= 0 && channels[current].film;
+        if (code === KEY.OK) {
+            if (statusBox.dataset.retry) {
+                loadPlaylists();
             } else {
-                window.close();
+                openHome();
+            }
+        } else if (code === KEY.UP || code === KEY.CH_UP) {
+            step(1);
+        } else if (code === KEY.DOWN || code === KEY.CH_DOWN) {
+            step(-1);
+        } else if (film && (code === KEY.LEFT || code === KEY.REWIND)) {
+            seek(-SEEK_STEP);
+        } else if (film && (code === KEY.RIGHT || code === KEY.FAST_FORWARD)) {
+            seek(SEEK_STEP);
+        } else if (code === KEY.PLAY || code === KEY.PAUSE || code === KEY.PLAY_PAUSE) {
+            togglePause(code === KEY.PLAY ? true : code === KEY.PAUSE ? false : undefined);
+        } else if (code === KEY.STOP) {
+            video.pause();
+            showOsd();
+        } else if (code === KEY.RED) {
+            toggleFavourite(current);
+            showOsd();
+        } else if (code === KEY.LEFT || code === KEY.RIGHT || code === KEY.INFO) {
+            showOsd();
+        } else if (code === KEY.BACK) {
+            if (!osd.hidden) {
+                osd.hidden = true;
+            } else {
+                openHome();
             }
         } else {
             return false;
@@ -421,385 +1233,158 @@
         return true;
     }
 
-    function stopPlayback() {
-        if (hls) {
-            hls.destroy();
-            hls = null;
-        }
-        video.removeAttribute('src');
-        video.load();
-        current = -1;
-    }
-
-    // ---- Playback ----
-
-    function play(index) {
-        current = index;
-        var channel = channels[index];
-        writeStorage(STORAGE_KEY, String(index));
-        showOsd();
-        showStatus('Подключаюсь к каналу…');
-
-        if (hls) {
-            hls.destroy();
-            hls = null;
-        }
-        video.removeAttribute('src');
-
-        // Films are plain video files the TV plays itself; live channels are HLS.
-        if (isVideoFile(channel.url)) {
-            video.src = channel.url;
-        } else if (window.Hls && Hls.isSupported()) {
-            hls = new Hls({ maxBufferLength: 20, manifestLoadingMaxRetry: 2, levelLoadingMaxRetry: 2 });
-            hls.on(Hls.Events.ERROR, function (event, data) {
-                if (!data.fatal) {
-                    return;
-                }
-                if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                    hls.recoverMediaError();
-                } else {
-                    noSignal();
-                }
-            });
-            hls.loadSource(channel.url);
-            hls.attachMedia(video);
-        } else {
-            video.src = channel.url;
-        }
-        var attempt = video.play();
-        if (attempt && attempt.catch) {
-            attempt.catch(function () { /* autoplay resolves once data arrives */ });
-        }
-    }
-
-    function isVideoFile(url) {
-        return /\.(mp4|m4v|webm|mov)(\?|#|$)/i.test(url);
-    }
-
-    function isFilm() {
-        return current >= 0 && isVideoFile(channels[current].url);
-    }
-
-    function seek(seconds) {
-        if (!isFinite(video.duration)) {
-            return;
-        }
-        video.currentTime = Math.max(0, Math.min(video.duration - 1, video.currentTime + seconds));
-        showOsd();
-    }
-
-    function togglePause(play) {
-        if (play === undefined ? video.paused : play) {
-            video.play();
-        } else {
-            video.pause();
-        }
-        showOsd();
-    }
-
-    function noSignal() {
-        showStatus('Канал сейчас не отвечает. Переключите на другой: ↑ ↓ или CH+ CH−.');
-    }
-
-    video.addEventListener('playing', hideStatus);
-    video.addEventListener('error', noSignal);
-
-    function step(delta) {
-        if (!channels.length) {
-            return;
-        }
-        play((current + delta + channels.length) % channels.length);
-    }
-
-    // ---- On-screen messages ----
-
-    function showStatus(text) {
-        statusBox.textContent = text;
-        statusBox.hidden = false;
-        delete statusBox.dataset.retry;
-    }
-
-    function hideStatus() {
-        statusBox.hidden = true;
-    }
-
-    function showOsd() {
-        var channel = channels[current];
-        osdNumber.textContent = channel.number;
-        osdName.textContent = channel.name;
-        osdGroup.textContent = isFilm() && isFinite(video.duration)
-            ? clockText(video.currentTime) + ' / ' + clockText(video.duration) + (video.paused ? ' · пауза' : '') + ' · ← → 30 с'
-            : channel.group;
-        osd.hidden = false;
-        restartTimer('osd', OSD_TIMEOUT, function () { osd.hidden = true; });
-    }
-
-    function clockText(seconds) {
-        var s = Math.floor(seconds);
-        var h = Math.floor(s / 3600);
-        var m = ('0' + Math.floor(s % 3600 / 60)).slice(-2);
-        return (h ? h + ':' : '') + m + ':' + ('0' + s % 60).slice(-2);
-    }
-
-    function restartTimer(name, delay, callback) {
-        clearTimeout(timers[name]);
-        timers[name] = setTimeout(callback, delay);
-    }
-
-    // ---- Menu ----
-
-    function openMenu() {
-        if (!channels.length) {
-            return;
-        }
-        osd.hidden = true;
-        var group = 0;
-        menuState = { column: 'channels', group: group, channel: Math.max(0, groups[group].channels.indexOf(current)) };
-        menu.hidden = false;
-        renderGroups();
-        renderChannels();
-        tickClock();
-        touchMenu();
-    }
-
-    function closeMenu() {
-        menu.hidden = true;
-        clearTimeout(timers.menu);
-    }
-
-    function touchMenu() {
-        restartTimer('menu', MENU_TIMEOUT, closeMenu);
-    }
-
-    function renderGroups() {
-        groupList.innerHTML = '';
-        groups.forEach(function (group, index) {
-            var item = document.createElement('li');
-            var label = document.createElement('span');
-            label.className = 'group-name';
-            label.textContent = group.name;
-            item.appendChild(label);
-            var count = document.createElement('span');
-            count.className = 'count';
-            count.textContent = group.channels.length;
-            item.appendChild(count);
-            if (index === menuState.group) {
-                item.className = menuState.column === 'groups' ? 'focused' : 'selected';
-            }
-            groupList.appendChild(item);
-        });
-        var action = document.createElement('li');
-        action.className = 'action' + (menuState.group === groups.length && menuState.column === 'groups' ? ' focused' : '');
-        action.textContent = 'Плейлисты…';
-        groupList.appendChild(action);
-        reveal(groupList, menuState.group);
-    }
-
-    function renderChannels() {
-        channelList.innerHTML = '';
-        if (menuState.group >= groups.length) {
-            return;
-        }
-        groups[menuState.group].channels.forEach(function (channelIndex, position) {
-            var channel = channels[channelIndex];
-            var item = document.createElement('li');
-            var classes = [];
-            if (channelIndex === current) {
-                classes.push('playing');
-            }
-            if (menuState.column === 'channels' && position === menuState.channel) {
-                classes.push('focused');
-            }
-            item.className = classes.join(' ');
-
-            var number = document.createElement('span');
-            number.className = 'number';
-            number.textContent = channel.number;
-            item.appendChild(number);
-
-            var logo = document.createElement('img');
-            logo.className = 'logo';
-            logo.loading = 'lazy';
-            logo.alt = '';
-            if (channel.logo) {
-                logo.src = channel.logo;
-            } else {
-                logo.style.visibility = 'hidden';
-            }
-            logo.onerror = function () { logo.style.visibility = 'hidden'; };
-            item.appendChild(logo);
-
-            var name = document.createElement('span');
-            name.className = 'name';
-            name.textContent = channel.name;
-            item.appendChild(name);
-
-            channelList.appendChild(item);
-        });
-        reveal(channelList, menuState.column === 'channels' ? menuState.channel : 0);
-    }
-
-    function reveal(list, index) {
-        var item = list.children[index];
-        if (item) {
-            item.scrollIntoView({ block: 'nearest' });
-        }
-    }
-
-    function moveInMenu(delta) {
-        if (menuState.column === 'groups') {
-            // groups.length is the "Playlists…" row.
-            var rows = groups.length + 1;
-            menuState.group = (menuState.group + delta + rows) % rows;
-            menuState.channel = 0;
-            renderGroups();
-            renderChannels();
-        } else {
-            // Only move the highlight: rebuilding hundreds of rows per key press lags on the TV.
-            var size = groups[menuState.group].channels.length;
-            setChannelFocus(false);
-            menuState.channel = (menuState.channel + delta + size) % size;
-            setChannelFocus(true);
-        }
-    }
-
-    function setChannelFocus(on) {
-        var item = channelList.children[menuState.channel];
-        if (!item) {
-            return;
-        }
-        item.classList.toggle('focused', on);
-        if (on) {
-            item.scrollIntoView({ block: 'nearest' });
-        }
-    }
-
-    function switchColumn(column) {
-        if (menuState.column === column || (column === 'channels' && menuState.group >= groups.length)) {
-            return;
-        }
-        menuState.column = column;
-        renderGroups();
-        setChannelFocus(column === 'channels');
-    }
-
-    function chooseInMenu() {
-        if (menuState.column === 'groups') {
-            if (menuState.group >= groups.length) {
-                openSources();
-            } else {
-                switchColumn('channels');
-            }
-            return;
-        }
-        play(groups[menuState.group].channels[menuState.channel]);
-        closeMenu();
-    }
-
-    function tickClock() {
-        var now = new Date();
-        clock.textContent = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
-    }
-
-    // ---- Number entry ----
-
-    function typeDigit(digit) {
-        digits = (digits + digit).slice(0, 4);
-        digitsBox.textContent = digits;
-        digitsBox.hidden = false;
-        restartTimer('digits', DIGIT_TIMEOUT, function () {
-            var number = parseInt(digits, 10);
-            digits = '';
-            digitsBox.hidden = true;
-            if (number >= 1 && number <= channels.length) {
-                play(number - 1);
-            }
-        });
-    }
-
-    // ---- Remote ----
+    // ---------- Remote ----------
 
     document.addEventListener('keydown', function (event) {
         var code = event.keyCode;
-
-        if (!sourcesScreen.hidden) {
-            if (handleSourcesKey(code)) {
-                event.preventDefault();
-            }
-            return;
+        if (autoMuted) {
+            video.muted = false;
+            autoMuted = false;
         }
 
-        if (code >= 48 && code <= 57) {
+        var handled = false;
+        if (screen === 'sources') {
+            handled = handleSourcesKey(code);
+        } else if (screen === 'dialog') {
+            handled = handleDialogKey(code);
+        } else if (screen === 'help') {
+            if (code === KEY.BACK || code === KEY.OK || code === KEY.INFO) {
+                closeHelp();
+                handled = true;
+            }
+        } else if (code >= 48 && code <= 57) {
             typeDigit(String(code - 48));
-            return;
-        }
-
-        if (code === KEY.GREEN) {
+            handled = true;
+        } else if (code === KEY.GREEN) {
             openSources();
-            event.preventDefault();
-            return;
-        }
-
-        if (!menu.hidden) {
-            touchMenu();
-            if (code === KEY.UP) { moveInMenu(-1); }
-            else if (code === KEY.DOWN) { moveInMenu(1); }
-            else if (code === KEY.CH_UP) { moveInMenu(-8); }
-            else if (code === KEY.CH_DOWN) { moveInMenu(8); }
-            else if (code === KEY.LEFT) { switchColumn('groups'); }
-            else if (code === KEY.RIGHT) { switchColumn('channels'); }
-            else if (code === KEY.OK) { chooseInMenu(); }
-            else if (code === KEY.BACK) { closeMenu(); }
-            else { return; }
-            event.preventDefault();
-            return;
-        }
-
-        if (code === KEY.OK) {
-            if (statusBox.dataset.retry) {
-                loadPlaylists();
+            handled = true;
+        } else if (code === KEY.YELLOW && previous >= 0) {
+            play(previous);
+            showScreen('player');
+            showOsd();
+            handled = true;
+        } else if (screen === 'home') {
+            if (code === KEY.INFO) {
+                openHelp();
+                handled = true;
+            } else if (code === KEY.BACK) {
+                openDialog('home');
+                handled = true;
             } else {
-                openMenu();
+                handled = handleHomeKey(code);
             }
-        } else if (code === KEY.UP || code === KEY.CH_UP) {
-            step(1);
-        } else if (code === KEY.DOWN || code === KEY.CH_DOWN) {
-            step(-1);
-        } else if ((code === KEY.LEFT || code === KEY.REWIND) && isFilm()) {
-            seek(-SEEK_STEP);
-        } else if ((code === KEY.RIGHT || code === KEY.FAST_FORWARD) && isFilm()) {
-            seek(SEEK_STEP);
-        } else if (code === KEY.PLAY || code === KEY.PAUSE) {
-            togglePause(code === KEY.PLAY);
-        } else if (code === KEY.INFO || code === KEY.LEFT || code === KEY.RIGHT) {
-            if (current >= 0) {
-                showOsd();
-            }
-        } else if (code === KEY.BACK) {
-            window.close();
         } else {
-            return;
+            handled = handlePlayerKey(code);
         }
-        event.preventDefault();
+        if (handled) {
+            event.preventDefault();
+        }
     });
 
-    // ---- Storage (may be unavailable) ----
+    // ---------- Magic Remote (pointer and wheel) ----------
 
-    function readStorage(key) {
-        try {
-            return window.localStorage.getItem(key);
-        } catch (e) {
-            return null;
+    document.addEventListener('mouseover', function (event) {
+        var target = event.target.closest('[data-tile],[data-rail],[data-col],[data-cat],[data-action]');
+        if (!target) {
+            return;
         }
-    }
+        if (target.dataset.tile !== undefined && screen === 'home') {
+            home.area = 'grid';
+            home.tile = Number(target.dataset.tile);
+            markRail();
+            Array.prototype.forEach.call(grid.children, function (tile) {
+                tile.classList.toggle('focused', tile === target);
+            });
+            updateHomeHints();
+        } else if (target.dataset.rail !== undefined && screen === 'home') {
+            if (home.rail !== Number(target.dataset.rail) || home.area !== 'rail') {
+                home.area = 'rail';
+                home.rail = Number(target.dataset.rail);
+                home.tile = 0;
+                home.topRow = 0;
+                markRail();
+                restartTimer('preview', 140, renderGrid);
+                updateHomeHints();
+            }
+        } else if (target.dataset.col !== undefined && screen === 'sources') {
+            var col = target.dataset.col;
+            var row = Number(target.dataset.row);
+            if (sourcesFocus.col !== col || sourcesFocus.row !== row) {
+                sourcesFocus = { col: col, row: row };
+                renderSources();
+            }
+        } else if (target.dataset.action !== undefined && screen === 'dialog') {
+            dialogFocus = target.dataset.action === 'exit' ? 0 : 1;
+            markDialog();
+        }
+    });
 
-    function writeStorage(key, value) {
-        try {
-            window.localStorage.setItem(key, value);
-        } catch (e) {
-            /* remembering the channel is only a convenience */
+    document.addEventListener('click', function (event) {
+        if (autoMuted) {
+            video.muted = false;
+            autoMuted = false;
         }
-    }
+        var target = event.target.closest('[data-tile],[data-rail],[data-col],[data-cat],[data-action]');
+        if (screen === 'player') {
+            openHome();
+        } else if (screen === 'help') {
+            closeHelp();
+        } else if (!target) {
+            return;
+        } else if (screen === 'home') {
+            chooseInHome();
+        } else if (screen === 'sources' && target.dataset.cat !== undefined) {
+            catalogFocus = Number(target.dataset.cat);
+            handleCatalogKey(KEY.OK);
+        } else if (screen === 'sources') {
+            activateSourceRow();
+        } else if (screen === 'dialog') {
+            handleDialogKey(KEY.OK);
+        }
+    });
+
+    document.addEventListener('wheel', function (event) {
+        var down = event.deltaY > 0;
+        if (screen === 'home') {
+            if (home.area === 'rail') {
+                moveRail(down ? 1 : -1);
+            } else {
+                moveTile(down ? GRID.cols : -GRID.cols);
+            }
+        } else if (screen === 'sources') {
+            if (sourcesScreen.classList.contains('catalog-mode')) {
+                moveCatalog(down ? 1 : -1);
+            } else {
+                moveSources(down ? 1 : -1);
+            }
+        } else if (screen === 'player') {
+            step(down ? -1 : 1);
+        }
+        event.preventDefault();
+    }, { passive: false });
+
+    // ---------- webOS lifecycle ----------
+
+    // Stop streaming while the app is in the background and resume on return.
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            video.pause();
+            if (hls) {
+                hls.stopLoad();
+            }
+        } else if (current >= 0) {
+            if (hls) {
+                hls.startLoad();
+            }
+            startVideo();
+        }
+    });
+
+    document.addEventListener('webOSRelaunch', function () {
+        if (screen === 'player' && current >= 0) {
+            showOsd();
+        }
+    });
 
     loadPlaylists();
 }());

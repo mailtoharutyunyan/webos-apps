@@ -8,43 +8,85 @@
 <body>
     <video id="video" autoplay></video>
 
+    <!-- Full-screen player overlays -->
     <div id="status" class="status" hidden></div>
 
     <aside id="osd" class="osd" hidden>
-        <span id="osd-number" class="osd-number"></span>
-        <div>
-            <p id="osd-name" class="osd-name"></p>
-            <p id="osd-group" class="osd-group"></p>
+        <div class="osd-main">
+            <span id="osd-number" class="osd-number"></span>
+            <img id="osd-logo" class="osd-logo" alt="">
+            <div class="osd-text">
+                <p id="osd-name" class="osd-name"></p>
+                <p id="osd-group" class="osd-group"></p>
+            </div>
+            <span id="osd-fav" class="osd-fav" hidden>♥</span>
         </div>
+        <div id="osd-progress" class="osd-progress" hidden>
+            <div class="osd-track"><div id="osd-bar" class="osd-bar"></div></div>
+            <span id="osd-time" class="osd-time"></span>
+        </div>
+        <div id="osd-hints" class="hints"></div>
     </aside>
 
     <div id="digits" class="digits" hidden></div>
 
-    <nav id="menu" class="menu" hidden>
-        <header class="menu-head">
-            <span class="brand">Alik</span>
-            <time id="clock"></time>
+    <!-- Home: sections on the left, channel tiles on the right -->
+    <section id="home" class="home" hidden>
+        <header class="home-head">
+            <div class="brand"><span class="brand-mark"></span>Alik</div>
+            <h1 id="section-title" class="section-title"></h1>
+            <time id="clock" class="clock"></time>
         </header>
-        <div class="columns">
-            <ul id="groups" class="groups"></ul>
-            <ul id="channels" class="channels"></ul>
-        </div>
-        <footer class="menu-hint">OK — смотреть · ←→ — группы и каналы · Green — плейлисты · Back — закрыть</footer>
-    </nav>
-
-    <section id="sources" class="sources" hidden>
-        <h1 class="brand">Alik</h1>
-        <h2>Плейлисты</h2>
-        <p class="sources-intro">Вставьте ссылку на M3U-плейлист. Длинную ссылку удобно вставить с телефона: клавиатура в приложении LG ThinQ.</p>
-        <ul id="source-list" class="source-list">
-            <li id="source-field" class="field">
-                <input id="source-url" type="url" placeholder="https://example.com/playlist.m3u" spellcheck="false" autocomplete="off">
-            </li>
-        </ul>
-        <p class="catalog-intro">Каталог iptv-org: выберите страну и нажмите OK. Back — назад.</p>
-        <ul id="catalog-list" class="catalog-list"></ul>
-        <p id="source-notice" class="sources-notice" aria-live="polite"></p>
+        <nav class="rail">
+            <ul id="rail" class="rail-list"></ul>
+        </nav>
+        <div id="grid" class="grid"></div>
+        <p id="grid-empty" class="grid-empty" hidden></p>
+        <footer id="home-hints" class="hints home-hints"></footer>
     </section>
+
+    <!-- Playlists -->
+    <section id="sources" class="sources" hidden>
+        <div class="sources-left">
+            <div class="brand"><span class="brand-mark"></span>Alik</div>
+            <h1 class="sources-title">Плейлисты</h1>
+            <p class="sources-intro">Добавьте ссылку на свой M3U-плейлист или выберите готовый справа. Каналы всех плейлистов собираются в одно меню.</p>
+            <p class="sources-tip">Длинную ссылку удобно вставить с телефона: пульт с клавиатурой в приложении LG ThinQ.</p>
+            <ul id="source-left" class="source-col">
+                <li id="source-field" class="field" data-row="0">
+                    <input id="source-url" type="url" placeholder="https://example.com/playlist.m3u" spellcheck="false" autocomplete="off">
+                </li>
+            </ul>
+            <p id="source-notice" class="sources-notice" aria-live="polite"></p>
+        </div>
+        <div class="sources-right">
+            <ul id="source-right" class="source-col"></ul>
+        </div>
+        <div class="sources-catalog">
+            <h2 class="catalog-title">Каталог iptv-org</h2>
+            <p class="catalog-intro">Выберите страну и нажмите OK.</p>
+            <ul id="catalog-list" class="catalog-list"></ul>
+        </div>
+        <footer id="sources-hints" class="hints sources-hints"></footer>
+    </section>
+
+    <!-- Remote control help -->
+    <section id="help" class="help" hidden>
+        <h1 class="help-title">Управление с пульта</h1>
+        <div id="help-grid" class="help-grid"></div>
+        <footer id="help-hints" class="hints help-hints"></footer>
+    </section>
+
+    <!-- Exit confirmation -->
+    <div id="dialog" class="dialog" hidden>
+        <div class="dialog-box">
+            <p class="dialog-title">Выйти из Alik?</p>
+            <div class="dialog-actions">
+                <button id="dialog-exit" type="button" data-action="exit">Выйти</button>
+                <button id="dialog-stay" type="button" data-action="stay">Остаться</button>
+            </div>
+        </div>
+    </div>
 
     <script src="vendor/hls.min.js"></script>
     <script src="app.js"></script>

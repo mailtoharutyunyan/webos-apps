@@ -6,6 +6,8 @@ player's menu stays short.
 
 Usage: python3 playlists/build.py
 """
+import hashlib
+import io
 import json
 import re
 import urllib.parse
@@ -20,6 +22,8 @@ SOURCES = [
     ('Movies', 'https://iptv-org.github.io/iptv/categories/movies.m3u', 'movies.m3u', 'country'),
 ]
 HERE = Path(__file__).resolve().parent
+LOGOS = HERE / 'logos'
+LOGO_BASE = 'https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/'
 
 # Public-domain and Creative Commons feature films from the Internet Archive.
 ARCHIVE_SEARCH = 'https://archive.org/advancedsearch.php'
@@ -68,6 +72,48 @@ def clean(extinf, label, grouping):
     return f'{head} group-title="{group}",{name}', name
 
 
+def mirror_logo(url):
+    """Copies a channel logo into playlists/logos and returns its Pages URL.
+
+    Image hosts such as imgur answer TV browsers with HTTP 429, so the TV gets
+    logos from this repository instead. Returns '' when the logo cannot be fetched.
+    """
+    if not url.startswith('http'):
+        return ''
+    name = hashlib.sha1(url.encode()).hexdigest()[:16] + '.png'
+    path = LOGOS / name
+    if not path.exists():
+        try:
+            request = urllib.request.Request(url, headers={'User-Agent': 'curl/8.7'})
+            with urllib.request.urlopen(request, timeout=15) as response:
+                data = response.read(2_000_000)
+            if not data or response.status != 200:
+                return ''
+            path.write_bytes(shrink(data))
+        except Exception:
+            return ''
+    return LOGO_BASE + name
+
+
+def shrink(data):
+    """Fits a logo into 320x180 PNG, small enough for a TV tile."""
+    from PIL import Image
+    image = Image.open(io.BytesIO(data))
+    image = image.convert('RGBA')
+    image.thumbnail((320, 180))
+    out = io.BytesIO()
+    image.save(out, 'PNG', optimize=True)
+    return out.getvalue()
+
+
+def with_mirrored_logo(line):
+    logo = re.search(r'tvg-logo="([^"]*)"', line)
+    if not logo or not logo.group(1):
+        return line
+    mirrored = mirror_logo(logo.group(1))
+    return line.replace(logo.group(0), f'tvg-logo="{mirrored}"')
+
+
 def alive(url):
     try:
         request = urllib.request.Request(url, headers={'User-Agent': USER_AGENT})
@@ -92,6 +138,10 @@ def build(label, url, filename, grouping):
     with ThreadPoolExecutor(max_workers=32) as pool:
         checks = list(pool.map(lambda e: alive(e[1]), entries))
     kept = [e for e, ok in zip(entries, checks) if ok]
+    LOGOS.mkdir(exist_ok=True)
+    with ThreadPoolExecutor(max_workers=16) as pool:
+        lines = list(pool.map(lambda e: with_mirrored_logo(e[0]), kept))
+    kept = [(line, stream) for line, (_, stream) in zip(lines, kept)]
 
     body = ['#EXTM3U'] + [f'{line}\n{stream}' for line, stream in kept]
     (HERE / filename).write_text('\n'.join(body) + '\n')

@@ -25,6 +25,7 @@
     ];
 
     var SETTINGS = [
+        { id: 'playlists', kind: 'link', title: 'Плейлисты и каталоги', text: 'Добавить ссылку M3U, готовый плейлист или страну из iptv-org. OK — открыть.' },
         { id: 'theme', kind: 'choice', title: 'Тема', text: 'Цвета Alik. ← → или OK — сменить.', options: THEMES },
         { id: 'adult', title: 'Показывать 18+', text: 'Включено — добавляется плейлист 18+ и группа «Films 18+». Выключено — скрыто.' },
         { id: 'wheelZap', title: 'Колесо Magic Remote переключает каналы', text: 'Во время просмотра. Выключено — только CH+ и CH−.' }
@@ -226,6 +227,7 @@
                 if (result.error) {
                     failed.push('«' + result.source.name + '»: ' + result.error);
                 } else {
+                    result.channels.forEach(function (channel) { channel.source = result.source.name; });
                     channels = channels.concat(result.channels);
                 }
             });
@@ -292,6 +294,19 @@
         }
         if (films.length) {
             sections.push({ kind: 'list', id: 'films', name: 'Все фильмы', icon: 'film', items: films });
+        }
+        var bySource = {};
+        var playlists = [];
+        channels.forEach(function (channel, index) {
+            if (!bySource[channel.source]) {
+                bySource[channel.source] = { kind: 'list', id: 'source:' + channel.source, name: channel.source, icon: 'list', items: [] };
+                playlists.push(bySource[channel.source]);
+            }
+            bySource[channel.source].items.push(index);
+        });
+        if (playlists.length > 1) {
+            sections.push({ kind: 'heading', name: 'Мои плейлисты' });
+            sections = sections.concat(playlists);
         }
         sections.push({ kind: 'heading', name: 'Группы' });
         var byGroup = {};
@@ -1195,7 +1210,9 @@
             text.appendChild(el('strong', '', item.title));
             text.appendChild(el('span', '', item.text));
             row.appendChild(text);
-            if (item.kind === 'choice') {
+            if (item.kind === 'link') {
+                row.appendChild(el('span', 'choice-arrow', '›'));
+            } else if (item.kind === 'choice') {
                 var chosen = choiceIndex(item, values);
                 var choice = el('div', 'choice');
                 choice.appendChild(el('span', 'choice-arrow', '‹'));
@@ -1230,6 +1247,12 @@
         var values = read(STORE.settings, {});
         var item = SETTINGS[index];
         var id = item.id;
+        if (item.kind === 'link') {
+            if (!direction) {
+                openSources();
+            }
+            return;
+        }
         if (item.kind === 'choice') {
             var size = item.options.length;
             values[id] = item.options[(choiceIndex(item, values) + (direction || 1) + size) % size].id;

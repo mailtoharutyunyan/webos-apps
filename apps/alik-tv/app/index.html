@@ -29,8 +29,22 @@
             <ul id="groups" class="groups"></ul>
             <ul id="channels" class="channels"></ul>
         </div>
-        <footer class="menu-hint">OK — смотреть · ←→ — группы и каналы · Back — закрыть</footer>
+        <footer class="menu-hint">OK — смотреть · ←→ — группы и каналы · Green — плейлисты · Back — закрыть</footer>
     </nav>
+
+    <section id="sources" class="sources" hidden>
+        <h1 class="brand">Alik</h1>
+        <h2>Плейлисты</h2>
+        <p class="sources-intro">Вставьте ссылку на M3U-плейлист. Длинную ссылку удобно вставить с телефона: клавиатура в приложении LG ThinQ.</p>
+        <ul id="source-list" class="source-list">
+            <li id="source-field" class="field">
+                <input id="source-url" type="url" placeholder="https://example.com/playlist.m3u" spellcheck="false" autocomplete="off">
+            </li>
+        </ul>
+        <p class="catalog-intro">Каталог iptv-org: выберите страну и нажмите OK. Back — назад.</p>
+        <ul id="catalog-list" class="catalog-list"></ul>
+        <p id="source-notice" class="sources-notice" aria-live="polite"></p>
+    </section>
 
     <script src="vendor/hls.min.js"></script>
     <script src="app.js"></script>

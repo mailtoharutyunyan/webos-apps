@@ -17,9 +17,10 @@ https://mailtoharutyunyan.github.io/webos-apps/hbrepo/apps.json
 
 ## Playlists
 
-`playlists/armenia-russia.m3u` is rebuilt every day by `.github/workflows/playlists.yml`
-from the iptv-org lists (`playlists/build.py`): Armenian-language channels first,
-then Russian ones that are 24/7, not geo-blocked and answering.
+`playlists/armenia.m3u`, `playlists/russia.m3u` and `playlists/movies.m3u` are rebuilt every day by `.github/workflows/playlists.yml`
+from the iptv-org lists (`playlists/build.py`): Armenian-language channels, Russian
+channels and movie channels grouped by country. Outside Armenia only 24/7, not
+geo-blocked channels stay, and only streams that answer are kept.
 
 ## Releasing an app
 

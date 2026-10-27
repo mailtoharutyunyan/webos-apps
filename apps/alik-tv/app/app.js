@@ -14,7 +14,8 @@
     var CATALOG_URL = 'https://iptv-org.github.io/api/countries.json';
     var CATALOG_PINNED = ['AM', 'RU'];
 
-    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings' };
+    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings', folders: 'alik.folders' };
+    var DRAG_DELAY = 400;
     var ADULT_GROUP = /18\+|adult|xxx/i;
 
     var THEMES = [
@@ -136,6 +137,8 @@
         list: 'M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1',
         help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 015 .5c0 1.7-2.5 2-2.5 3.5M12 17h.01',
         play: 'M8 5l11 7-11 7z',
+        plus: 'M12 5v14M5 12h14',
+        heartfolder: 'M3 7h6l2 2h10v10H3zM12 17l-2.6-2.4a1.6 1.6 0 012.3-2.2l.3.3.3-.3a1.6 1.6 0 012.3 2.2z',
         gear: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-1-3-2 .3-1.4-1.4.3-2-3-1-1 2h-2l-1-2-3 1 .3 2L5.8 7.3 4 7 3 10l2 1v2l-2 1 1 3 2-.3 1.4 1.4-.3 2 3 1 1-2h2l1 2 3-1-.3-2 1.4-1.4 2 .3 1-3-2-1z',
         pause: 'M8 5v14M16 5v14'
     };
@@ -300,6 +303,11 @@
             { kind: 'list', id: 'favourites', name: 'Избранное', icon: 'star', items: indexesForUrls(read(STORE.favourites, [])) },
             { kind: 'list', id: 'recent', name: 'Недавние', icon: 'clock', items: indexesForUrls(read(STORE.recent, [])) }
         ];
+        sections.push({ kind: 'heading', name: 'Мои папки' });
+        read(STORE.folders, []).forEach(function (folder) {
+            sections.push({ kind: 'list', id: 'folder:' + folder.id, folderId: folder.id, name: folder.name, icon: 'heartfolder', items: indexesForUrls(folder.urls) });
+        });
+        sections.push({ kind: 'action', name: 'Новая папка', icon: 'plus', action: function () { openPrompt(-1); } });
         if (live.length) {
             sections.push({ kind: 'list', id: 'live', name: 'Все каналы', icon: 'tv', items: live });
         }
@@ -342,6 +350,9 @@
                 section.items = indexesForUrls(read(STORE.favourites, []));
             } else if (section.id === 'recent') {
                 section.items = indexesForUrls(read(STORE.recent, []));
+            } else if (section.folderId) {
+                var folder = findFolder(section.folderId);
+                section.items = folder ? indexesForUrls(folder.urls) : [];
             }
         });
     }
@@ -609,7 +620,11 @@
             }
         }
         if (target < 0) {
-            target = 2;
+            sections.forEach(function (section, i) {
+                if (target < 0 && (section.id === 'live' || section.id === 'films')) {
+                    target = i;
+                }
+            });
         }
         home.rail = target;
         home.tile = Math.max(0, sections[target].items.indexOf(current));
@@ -628,7 +643,7 @@
             if (section.kind === 'heading') {
                 item = el('li', 'rail-heading', section.name);
             } else {
-                item = el('li', 'rail-item');
+                item = el('li', 'rail-item' + (section.folderId ? ' folder' : ''));
                 item.dataset.rail = index;
                 item.innerHTML = svg(section.icon);
                 item.appendChild(el('span', 'rail-name', section.name));
@@ -832,7 +847,7 @@
             [['OK'], 'Смотреть'],
             [['red'], 'Избранное'],
             [['green'], 'Плейлисты'],
-            [['yellow'], 'Предыдущий'],
+            [['yellow'], 'В папку'],
             [['blue'], 'Настройки'],
             [['CH+', 'CH−'], 'Страница'],
             [['INFO'], 'Справка'],
@@ -841,6 +856,7 @@
             [['updown'], 'Раздел'],
             [['right'], 'К каналам'],
             [['OK'], 'Открыть'],
+            [['yellow'], sections[home.rail] && sections[home.rail].folderId ? 'Удалить папку (2 раза)' : 'Папки'],
             [['green'], 'Плейлисты'],
             [['INFO'], 'Справка'],
             [['back'], 'Выход']
@@ -1197,6 +1213,315 @@
         return true;
     }
 
+    // ---------- Folders ----------
+
+    function findFolder(id) {
+        var match = null;
+        read(STORE.folders, []).forEach(function (folder) {
+            if (folder.id === id) {
+                match = folder;
+            }
+        });
+        return match;
+    }
+
+    function saveFolders(folders) {
+        write(STORE.folders, folders);
+        var railId = sections[home.rail] && sections[home.rail].id;
+        buildSections();
+        // Keep the rail on the same section after the list changes.
+        sections.forEach(function (section, index) {
+            if (section.id === railId) {
+                home.rail = index;
+            }
+        });
+        if (screen === 'home' || screen === 'picker' || screen === 'prompt') {
+            renderRail();
+            renderGrid();
+        }
+    }
+
+    function toggleInFolder(folderId, index) {
+        var url = channels[index].url;
+        var folders = read(STORE.folders, []);
+        var added = false;
+        folders.forEach(function (folder) {
+            if (folder.id === folderId) {
+                var at = folder.urls.indexOf(url);
+                if (at >= 0) {
+                    folder.urls.splice(at, 1);
+                } else {
+                    folder.urls.push(url);
+                    added = true;
+                }
+            }
+        });
+        saveFolders(folders);
+        return added;
+    }
+
+    function toast(text) {
+        $('toast').textContent = text;
+        $('toast').hidden = false;
+        restartTimer('toast', 2500, function () { $('toast').hidden = true; });
+    }
+
+    function homeYellow() {
+        var section = sections[home.rail];
+        if (home.area === 'rail') {
+            if (section && section.folderId) {
+                var item = rail.querySelector('[data-rail="' + home.rail + '"]');
+                if (item.classList.contains('confirm')) {
+                    saveFolders(read(STORE.folders, []).filter(function (f) { return f.id !== section.folderId; }));
+                    toast('Папка «' + section.name + '» удалена');
+                    moveRail(-1);
+                } else {
+                    item.classList.add('confirm');
+                    toast('Нажмите жёлтую кнопку ещё раз, чтобы удалить папку');
+                    restartTimer('confirm', 3000, function () { item.classList.remove('confirm'); });
+                }
+            }
+            return;
+        }
+        var index = section.items[home.tile];
+        if (index !== undefined) {
+            openPicker(index);
+        }
+    }
+
+    // Picker: folders with a check mark when the channel is inside, plus "new folder".
+    var picker = { channel: -1, focus: 0 };
+
+    function openPicker(index) {
+        picker = { channel: index, focus: 0 };
+        screen = 'picker';
+        $('picker').hidden = false;
+        $('picker-channel').textContent = channels[index].name;
+        renderPicker();
+        setHints($('picker-hints'), [[['updown'], 'Папка'], [['OK'], 'Положить / убрать'], [['back'], 'Готово']]);
+    }
+
+    function renderPicker() {
+        var folders = read(STORE.folders, []);
+        var url = channels[picker.channel].url;
+        var list = $('picker-list');
+        list.innerHTML = '';
+        folders.forEach(function (folder, i) {
+            var row = el('li', i === picker.focus ? 'focused' : '');
+            row.dataset.pick = i;
+            row.appendChild(el('span', '', folder.name + ' · ' + folder.urls.length));
+            row.appendChild(el('span', 'check', folder.urls.indexOf(url) >= 0 ? '✓' : ''));
+            list.appendChild(row);
+        });
+        var create = el('li', folders.length === picker.focus ? 'focused' : '');
+        create.dataset.pick = folders.length;
+        create.appendChild(el('span', '', '＋ Новая папка'));
+        list.appendChild(create);
+        var focused = list.children[picker.focus];
+        if (focused) {
+            focused.scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    function closePicker() {
+        $('picker').hidden = true;
+        screen = 'home';
+        renderRail();
+        renderGrid();
+    }
+
+    function choosePicker() {
+        var folders = read(STORE.folders, []);
+        if (picker.focus === folders.length) {
+            $('picker').hidden = true;
+            openPrompt(picker.channel);
+            return;
+        }
+        var folder = folders[picker.focus];
+        var added = toggleInFolder(folder.id, picker.channel);
+        toast((added ? 'Добавлено в «' : 'Убрано из «') + folder.name + '»');
+        renderPicker();
+    }
+
+    function handlePickerKey(code) {
+        var count = read(STORE.folders, []).length + 1;
+        if (code === KEY.UP || code === KEY.DOWN) {
+            picker.focus = (picker.focus + (code === KEY.UP ? -1 : 1) + count) % count;
+            renderPicker();
+        } else if (code === KEY.OK) {
+            choosePicker();
+        } else if (code === KEY.BACK || code === KEY.YELLOW) {
+            closePicker();
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    // Prompt for a new folder name; `channelIndex` (or -1) goes straight into it.
+    var promptState = { channel: -1, focus: 0 };
+    var promptInput = $('prompt-input');
+
+    function openPrompt(channelIndex) {
+        promptState = { channel: channelIndex, focus: 0 };
+        screen = 'prompt';
+        $('home').hidden = channels.length === 0;
+        $('prompt').hidden = false;
+        promptInput.value = '';
+        markPrompt();
+    }
+
+    function markPrompt() {
+        promptInput.classList.toggle('focused', promptState.focus === 0);
+        $('prompt-create').classList.toggle('focused', promptState.focus === 1);
+        $('prompt-cancel').classList.toggle('focused', promptState.focus === 2);
+    }
+
+    function closePrompt() {
+        promptInput.blur();
+        $('prompt').hidden = true;
+        screen = 'home';
+        renderRail();
+        renderGrid();
+        updateHomeHints();
+    }
+
+    function createFolder() {
+        var name = promptInput.value.trim();
+        if (!name) {
+            promptState.focus = 0;
+            markPrompt();
+            toast('Введите название папки');
+            return;
+        }
+        var folders = read(STORE.folders, []);
+        var folder = { id: String(Date.now()), name: name, urls: [] };
+        if (promptState.channel >= 0) {
+            folder.urls.push(channels[promptState.channel].url);
+        }
+        folders.push(folder);
+        saveFolders(folders);
+        toast(promptState.channel >= 0 ? 'Папка «' + name + '» создана, канал добавлен' : 'Папка «' + name + '» создана');
+        closePrompt();
+    }
+
+    function handlePromptKey(code) {
+        if (document.activeElement === promptInput) {
+            if (code === KEY.OK) {
+                promptInput.blur();
+                createFolder();
+                return true;
+            }
+            if (code === KEY.BACK || code === KEY.DOWN) {
+                promptInput.blur();
+                promptState.focus = 1;
+                markPrompt();
+                return true;
+            }
+            return false;
+        }
+        if (code === KEY.UP) {
+            promptState.focus = 0;
+        } else if (code === KEY.DOWN && promptState.focus === 0) {
+            promptState.focus = 1;
+        } else if (code === KEY.LEFT && promptState.focus === 2) {
+            promptState.focus = 1;
+        } else if (code === KEY.RIGHT && promptState.focus === 1) {
+            promptState.focus = 2;
+        } else if (code === KEY.OK) {
+            if (promptState.focus === 0) {
+                promptInput.focus();
+            } else if (promptState.focus === 1) {
+                createFolder();
+            } else {
+                closePrompt();
+            }
+            return true;
+        } else if (code === KEY.BACK) {
+            closePrompt();
+            return true;
+        } else {
+            return false;
+        }
+        markPrompt();
+        return true;
+    }
+
+    // Magic Remote drag and drop: hold a tile, drag it onto a folder in the rail.
+    var drag = null;
+    var suppressClick = false;
+
+    document.addEventListener('mousedown', function (event) {
+        var tile = event.target.closest('[data-tile]');
+        if (!tile || screen !== 'home') {
+            return;
+        }
+        var index = sections[home.rail].items[Number(tile.dataset.tile)];
+        drag = { index: index, active: false, x: event.clientX, y: event.clientY };
+        restartTimer('drag', DRAG_DELAY, function () {
+            if (!drag) {
+                return;
+            }
+            drag.active = true;
+            document.body.classList.add('dragging');
+            var ghost = $('ghost');
+            ghost.textContent = channels[index].name;
+            ghost.style.left = drag.x + 'px';
+            ghost.style.top = drag.y + 'px';
+            ghost.hidden = false;
+            toast('Перетащите на папку в меню слева');
+        });
+    });
+
+    document.addEventListener('mousemove', function (event) {
+        if (!drag) {
+            return;
+        }
+        drag.x = event.clientX;
+        drag.y = event.clientY;
+        if (!drag.active) {
+            return;
+        }
+        var ghost = $('ghost');
+        ghost.style.left = drag.x + 'px';
+        ghost.style.top = drag.y + 'px';
+        var over = document.elementFromPoint(drag.x, drag.y);
+        var target = over && over.closest('.rail-item.folder');
+        Array.prototype.forEach.call(rail.querySelectorAll('.drop-target'), function (item) {
+            if (item !== target) {
+                item.classList.remove('drop-target');
+            }
+        });
+        if (target) {
+            target.classList.add('drop-target');
+        }
+    });
+
+    document.addEventListener('mouseup', function (event) {
+        clearTimeout(timers.drag);
+        if (!drag) {
+            return;
+        }
+        if (drag.active) {
+            suppressClick = true;
+            var over = document.elementFromPoint(event.clientX, event.clientY);
+            var target = over && over.closest('.rail-item.folder');
+            if (target) {
+                var section = sections[Number(target.dataset.rail)];
+                var folder = findFolder(section.folderId);
+                if (folder && folder.urls.indexOf(channels[drag.index].url) < 0) {
+                    toggleInFolder(folder.id, drag.index);
+                    toast('Добавлено в «' + folder.name + '»');
+                } else if (folder) {
+                    toast('Уже в «' + folder.name + '»');
+                }
+            }
+            $('ghost').hidden = true;
+            document.body.classList.remove('dragging');
+        }
+        drag = null;
+    });
+
     // ---------- Settings ----------
 
     var settingsFocus = 0;
@@ -1328,10 +1653,11 @@
         [['play', 'pause'], 'Пауза и продолжение', 'Для фильмов'],
         [['red'], 'Избранное', 'Добавить или убрать канал'],
         [['green'], 'Плейлисты', 'Добавить ссылку, готовый плейлист или страну'],
-        [['yellow'], 'Предыдущий канал', 'Быстро вернуться к прошлому каналу'],
+        [['yellow'], 'Папки / предыдущий', 'В меню: положить канал в папку; при просмотре — прошлый канал'],
         [['blue'], 'Настройки', 'Тема, 18+, колесо Magic Remote'],
         [['INFO'], 'Справка и информация', 'Эта страница; во время просмотра — данные канала'],
         [['back'], 'Назад', 'На главном экране предлагает выйти'],
+        [['Magic Remote'], 'Перетаскивание', 'Зажмите плитку и перетащите на папку в меню слева'],
         [['Magic Remote'], 'Указка', 'Наведите и нажмите колесо; колесо листает меню. Каналы — в Настройках']
     ];
 
@@ -1476,6 +1802,10 @@
             handled = handleDialogKey(code);
         } else if (screen === 'settings') {
             handled = handleSettingsKey(code);
+        } else if (screen === 'picker') {
+            handled = handlePickerKey(code);
+        } else if (screen === 'prompt') {
+            handled = handlePromptKey(code);
         } else if (screen === 'help') {
             if (code === KEY.BACK || code === KEY.OK || code === KEY.INFO) {
                 closeHelp();
@@ -1489,6 +1819,9 @@
             handled = true;
         } else if (code === KEY.BLUE) {
             openSettings();
+            handled = true;
+        } else if (code === KEY.YELLOW && screen === 'home') {
+            homeYellow();
             handled = true;
         } else if (code === KEY.YELLOW && previous >= 0) {
             play(previous);
@@ -1535,6 +1868,32 @@
     });
 
     document.addEventListener('click', function (event) {
+        if (suppressClick) {
+            suppressClick = false;
+            return;
+        }
+        if (screen === 'picker') {
+            var pick = event.target.closest('[data-pick]');
+            if (pick) {
+                picker.focus = Number(pick.dataset.pick);
+                choosePicker();
+            }
+            return;
+        }
+        if (screen === 'prompt') {
+            var action = event.target.closest('[data-prompt]');
+            if (event.target === promptInput) {
+                promptState.focus = 0;
+                markPrompt();
+            } else if (action) {
+                if (action.dataset.prompt === 'create') {
+                    createFolder();
+                } else {
+                    closePrompt();
+                }
+            }
+            return;
+        }
         if (autoMuted) {
             video.muted = false;
             autoMuted = false;

@@ -16,6 +16,8 @@ films from the Internet Archive, all from this repository
 | Play / Pause | Films: pause and resume |
 | INFO | Show the channel info |
 | Green | Playlists: add a link, a preset or a country, remove one |
+| Yellow (home) | Put the channel into a folder; on a folder in the menu, press twice to delete it |
+| Magic Remote | Hold a tile and drag it onto a folder in the menu |
 | Settings (menu) | Show 18+ content, let the Magic Remote wheel switch channels |
 | Back | Close the menu / exit |
 

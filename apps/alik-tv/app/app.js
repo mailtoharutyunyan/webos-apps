@@ -541,11 +541,21 @@
         $('sources').hidden = name !== 'sources';
         $('help').hidden = name !== 'help';
         $('settings').hidden = name !== 'settings';
+        updateBackdrop();
         $('dialog').hidden = name !== 'dialog';
         if (name !== 'player') {
             osd.hidden = true;
         }
     }
+
+    // The backdrop shows wherever there is no picture to look at.
+    function updateBackdrop() {
+        var playing = current >= 0 && !video.paused && video.readyState > 1;
+        $('backdrop').style.display = (screen === 'player' || (screen === 'home' && playing)) ? 'none' : '';
+    }
+
+    video.addEventListener('playing', updateBackdrop);
+    video.addEventListener('emptied', updateBackdrop);
 
     // ---------- Home ----------
 
@@ -1469,23 +1479,6 @@
                 tile.classList.toggle('focused', tile === target);
             });
             updateHomeHints();
-        } else if (target.dataset.rail !== undefined && screen === 'home') {
-            if (home.rail !== Number(target.dataset.rail) || home.area !== 'rail') {
-                home.area = 'rail';
-                home.rail = Number(target.dataset.rail);
-                home.tile = 0;
-                home.topRow = 0;
-                markRail();
-                restartTimer('preview', 140, renderGrid);
-                updateHomeHints();
-            }
-        } else if (target.dataset.col !== undefined && screen === 'sources') {
-            var col = target.dataset.col;
-            var row = Number(target.dataset.row);
-            if (sourcesFocus.col !== col || sourcesFocus.row !== row) {
-                sourcesFocus = { col: col, row: row };
-                renderSources();
-            }
         } else if (target.dataset.action !== undefined && screen === 'dialog') {
             dialogFocus = target.dataset.action === 'exit' ? 0 : 1;
             markDialog();
@@ -1511,11 +1504,27 @@
         } else if (!target) {
             return;
         } else if (screen === 'home') {
-            chooseInHome();
+            if (target.dataset.rail !== undefined) {
+                home.area = 'rail';
+                home.rail = Number(target.dataset.rail);
+                home.tile = 0;
+                home.topRow = 0;
+                markRail();
+                renderGrid();
+                updateHomeHints();
+                if (sections[home.rail].kind === 'action') {
+                    sections[home.rail].action();
+                }
+            } else if (target.dataset.tile !== undefined) {
+                home.area = 'grid';
+                home.tile = Number(target.dataset.tile);
+                chooseInHome();
+            }
         } else if (screen === 'sources' && target.dataset.cat !== undefined) {
             catalogFocus = Number(target.dataset.cat);
             handleCatalogKey(KEY.OK);
-        } else if (screen === 'sources') {
+        } else if (screen === 'sources' && target.dataset.col !== undefined) {
+            sourcesFocus = { col: target.dataset.col, row: Number(target.dataset.row) };
             activateSourceRow();
         } else if (screen === 'dialog') {
             handleDialogKey(KEY.OK);

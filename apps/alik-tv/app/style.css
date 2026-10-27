@@ -86,6 +86,15 @@ video {
     object-fit: contain;
 }
 
+/* Sits above the (black) video and under every screen. */
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1080px;
+}
+
 .brand {
     display: flex;
     align-items: center;

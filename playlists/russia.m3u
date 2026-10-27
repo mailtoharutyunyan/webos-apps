@@ -141,7 +141,7 @@ http://fashionlive.mediacdn.ru/cdn/fashiontv/playlist.m3u8
 http://rtmp.one.by:1300
 #EXTINF:-1 tvg-id="FONMusic.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b29f4cfb460a0833.png" group-title="Russia: Music",FON Music (576p)
 https://stream8.cinerama.uz/1272/tracks-v1a1/mono.m3u8
-#EXTINF:-1 tvg-id="FoodNetwork.ru@SD" tvg-logo="" group-title="Russia: Cooking",Food Network (Russia) (1080p)
+#EXTINF:-1 tvg-id="FoodNetwork.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/db8b2cdad86903b4.png" group-title="Russia: Cooking",Food Network (Russia) (1080p)
 http://stream.mcquack.net/298/index.m3u8
 #EXTINF:-1 tvg-id="Fox.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4bd5d950b02d66b6.png" group-title="Russia: Entertainment",Fox (Russia) (576p)
 http://stream.mcquack.net/182/index.m3u8
@@ -167,7 +167,7 @@ http://176.118.197.101/Illuzion+/index.m3u8
 http://188.113.190.12/329/index.m3u8
 #EXTINF:-1 tvg-id="Ingushetia.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ed0a0764bbd16648.png" group-title="Russia: General",Ingushetia (1080p)
 https://ingushetia.mediacdn.ru/cdn/ingushetia/playlist.m3u8
-#EXTINF:-1 tvg-id="InvestigationDiscovery.ru@SD" tvg-logo="" group-title="Russia: Documentary",Investigation Discovery (Russia) (1080p)
+#EXTINF:-1 tvg-id="InvestigationDiscovery.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/288f30dc79528d77.png" group-title="Russia: Documentary",Investigation Discovery (Russia) (1080p)
 http://stream.mcquack.net/205/index.m3u8
 #EXTINF:-1 tvg-id="Istoki.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/55fb618f2d5c516b.png" group-title="Russia: General",Istoki (1080p)
 https://istoki.tv/live/stream1/playlist.m3u8
@@ -357,7 +357,7 @@ https://bl.rutube.ru/livestream/b1eb8e90d7e636677b3eb73b4fcbb717/index.m3u8?e=20
 http://31.148.5.241/kanal_21/index.m3u8
 #EXTINF:-1 tvg-id="Russia1.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f4d58fe84dfeb81a.png" group-title="Russia: General",Russia-1 HD (1080p)
 https://stream.smotrim.ru/hls2/russia_hd/playlist_6.m3u8
-#EXTINF:-1 tvg-id="RussiaK.ru@SD" tvg-logo="" group-title="Russia: Culture",Russia-K (576p)
+#EXTINF:-1 tvg-id="RussiaK.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/26f5655c6475f110.png" group-title="Russia: Culture",Russia-K (576p)
 http://stream.mcquack.net/229/index.m3u8
 #EXTINF:-1 tvg-id="RussiaK.ru@HD" tvg-logo="" group-title="Russia: Culture",Russia-K HD (1080p)
 https://stream.smotrim.ru/hls2/russia_k/playlist_5.m3u8
@@ -451,7 +451,7 @@ https://iam-profi.ru/hls-live/livepkgr/_definst_/liveevent/td720.m3u8
 https://live-tvkrasnodar.cdnvideo.ru/tvkrasnodar/tvkrasnodar.sdp/playlist.m3u8
 #EXTINF:-1 tvg-id="TiJi.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/215d7b8df2cf45cf.png" group-title="Russia: Kids",TiJi (576p)
 http://stream.mcquack.net/111/index.m3u8
-#EXTINF:-1 tvg-id="TLC.ru@SD" tvg-logo="" group-title="Russia: Lifestyle",TLC (Russia) (1080p)
+#EXTINF:-1 tvg-id="TLC.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/38d1c610c41d08a4.png" group-title="Russia: Lifestyle",TLC (Russia) (1080p)
 http://stream.mcquack.net/168/index.m3u8
 #EXTINF:-1 tvg-id="TNT4.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/18cfddac62ba1bca.png" group-title="Russia: Entertainment",TNT4 (576p)
 http://flussonic.linkintel.ru/tnt4/index.m3u8

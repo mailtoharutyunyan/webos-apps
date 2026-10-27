@@ -15,11 +15,11 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-# (label, source, output file, how channels are grouped: single / category / country)
+# (label, source, output file, how channels are grouped: single / category / country / language)
 SOURCES = [
     ('Armenia', 'https://iptv-org.github.io/iptv/languages/hye.m3u', 'armenia.m3u', 'single'),
     ('Russia', 'https://iptv-org.github.io/iptv/countries/ru.m3u', 'russia.m3u', 'category'),
-    ('Movies', 'https://iptv-org.github.io/iptv/categories/movies.m3u', 'movies.m3u', 'country'),
+    ('Movies', 'https://iptv-org.github.io/iptv/categories/movies.m3u', 'movies.m3u', 'language'),
 ]
 HERE = Path(__file__).resolve().parent
 LOGOS = HERE / 'logos'
@@ -38,8 +38,19 @@ ARCHIVE_ADULT_FILMS = 150
 # Strong words count anywhere in the title, tags or description; "sex" only in the title.
 ADULT_STRONG = re.compile(r'\b(porn\w*|erotic\w*|nudis\w*|nudity|nude|sexploitation|x-rated|nsfw|topless|'
                           r'grindhouse|softcore|stag film)\b', re.I)
-ADULT_TITLE = re.compile(r'\bsex\w*\b', re.I)
+ADULT_TITLE = re.compile(r'\b(sex\w*|naked|orgy|orgies)\b', re.I)
 SKIP_TAGS = ('[Not 24/7]', '[Geo-blocked]')
+# 'language' grouping keeps only these languages (iptv-org feed languages).
+FEEDS_URL = 'https://iptv-org.github.io/api/feeds.json'
+LANGUAGES = {'eng': 'English', 'rus': 'Russian', 'hye': 'Armenian'}
+_feeds = {}
+
+
+def feed_languages():
+    if not _feeds:
+        for feed in json.loads(fetch(FEEDS_URL)):
+            _feeds[(feed['channel'], feed['id'])] = feed.get('languages') or []
+    return _feeds
 TIMEOUT = 8
 USER_AGENT = 'Mozilla/5.0 (Web0S; Linux/SmartTV) AppleWebKit/537.36 Chrome/79.0 Safari/537.36'
 
@@ -72,6 +83,14 @@ def clean(extinf, label, grouping):
         category = re.search(r'group-title="([^"]*)"', extinf)
         category = (category.group(1).split(';')[0] if category else '') or 'Other'
         group = label + ': ' + ('Other' if category == 'Undefined' else category)
+    elif grouping == 'language':
+        # tvg-id looks like "Name.us@SD": channel "Name.us", feed "SD".
+        feed = re.search(r'tvg-id="([^"@]+)@([^"]+)"', extinf)
+        languages = feed_languages().get((feed.group(1), feed.group(2)), []) if feed else []
+        wanted = [code for code in languages if code in LANGUAGES]
+        if not wanted:
+            return None, name
+        group = label + ': ' + LANGUAGES[wanted[0]]
     elif grouping == 'country':
         # tvg-id looks like "Name.us@SD"; the part after the dot is the country.
         country = re.search(r'tvg-id="[^".]*\.([a-z]{2})@', extinf)
@@ -153,7 +172,7 @@ def build(label, url, filename, grouping):
     seen = set()
     for extinf, stream in parse(fetch(url)):
         line, name = clean(extinf, label, grouping)
-        if stream in seen:
+        if line is None or stream in seen:
             continue
         if label != 'Armenia' and any(tag in name for tag in SKIP_TAGS):
             continue

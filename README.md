@@ -11,6 +11,7 @@ https://mailtoharutyunyan.github.io/webos-apps/hbrepo/apps.json
 | App | Folder | What it does |
 |---|---|---|
 | Dev Mode Renew | `apps/devmode-renew` | Renews the Developer Mode session once a week, right on the TV |
+| Qoder IPTV | `apps/qoder-iptv` | [Qoder IPTV](https://github.com/HCLGitHub/qoder-iptv) M3U/IPTV player, unchanged mirror |
 | YouTube | `apps/youtube-adfree` | [YouTube AdFree](https://github.com/webosbrew/youtube-webos) with the regular YouTube icon |
 
 ## Releasing an app

@@ -20,6 +20,26 @@
       }
     },
     {
+      "id": "com.qoder.iptv",
+      "title": "IPTV \u76f4\u64ad",
+      "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.qoder.iptv.png",
+      "shortDescription": "Open-source M3U/IPTV player. Add your own playlist URL right on the TV.",
+      "manifest": {
+        "id": "com.qoder.iptv",
+        "version": "1.1.48",
+        "type": "web",
+        "title": "IPTV \u76f4\u64ad",
+        "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.qoder.iptv.png",
+        "rootRequired": false,
+        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.qoder.iptv_1.1.48_all.ipk",
+        "ipkHash": {
+          "sha256": "ad70abaf87cb72e2adb3b0db1dc98fa1354c8bcce56018db8e40bee946e72f67"
+        },
+        "ipkSize": 278324,
+        "sourceUrl": "https://github.com/HCLGitHub/qoder-iptv"
+      }
+    },
+    {
       "id": "youtube.leanback.v4",
       "title": "YouTube",
       "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/youtube.leanback.v4.png",
@@ -44,6 +64,6 @@
     "page": 1,
     "count": 1,
     "maxPage": 1,
-    "itemsTotal": 2
+    "itemsTotal": 3
   }
 }

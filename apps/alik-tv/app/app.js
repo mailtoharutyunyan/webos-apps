@@ -233,12 +233,17 @@
                 if (result.error) {
                     failed.push('«' + result.source.name + '»: ' + result.error);
                 } else {
-                    result.channels.forEach(function (channel) { channel.source = result.source.name; });
+                    // One adult group marks the whole playlist, so ungrouped entries are hidden too.
+                    var adultSource = result.channels.some(function (channel) { return ADULT_GROUP.test(channel.group); });
+                    result.channels.forEach(function (channel) {
+                        channel.source = result.source.name;
+                        channel.adult = adultSource;
+                    });
                     channels = channels.concat(result.channels);
                 }
             });
             if (!setting('adult')) {
-                channels = channels.filter(function (channel) { return !ADULT_GROUP.test(channel.group); });
+                channels = channels.filter(function (channel) { return !channel.adult; });
             }
             channels.forEach(function (channel, index) { channel.number = index + 1; });
             if (!channels.length) {

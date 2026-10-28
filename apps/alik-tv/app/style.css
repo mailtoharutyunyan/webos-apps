@@ -487,6 +487,8 @@ video {
 }
 
 .rail-item.child { height: 60px; margin-left: 44px; font-size: 26px; }
+.rail-arrow { flex-shrink: 0; margin-left: 10px; font-size: 32px; line-height: 1; transition: transform 120ms ease-out; }
+.rail-arrow.open { transform: rotate(90deg); }
 .rail-item.child svg { width: 24px; height: 24px; }
 
 .rail-item.selected { background: var(--raised); color: var(--apricot); }

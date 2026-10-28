@@ -1038,7 +1038,11 @@
                 item = el('li', 'rail-item' + (section.folderId ? ' folder' : '') + (section.child ? ' child' : ''));
                 item.dataset.rail = index;
                 item.innerHTML = svg(section.icon);
-                item.appendChild(el('span', 'rail-name', section.name + (section.parent ? (section.open ? ' ▾' : ' ▸') : '')));
+                item.appendChild(el('span', 'rail-name', section.name));
+                if (section.parent) {
+                    // "›" exists in the TV font; turned down when the folder is open.
+                    item.appendChild(el('span', 'rail-arrow' + (section.open ? ' open' : ''), '›'));
+                }
                 if (section.kind === 'list') {
                     item.appendChild(el('span', 'rail-count', String(section.items.length)));
                 }

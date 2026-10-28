@@ -3,13 +3,28 @@
 (function () {
     'use strict';
 
+    // Interface language: Russian strings are the keys, i18n.js holds English and Armenian.
+    // Read first, because constants below already use t().
+    var LANG = (function () {
+        try {
+            return JSON.parse(window.localStorage.getItem('alik.settings') || '{}').lang || 'ru';
+        } catch (e) {
+            return 'ru';
+        }
+    }());
+
+    function t(text) {
+        var table = LANG !== 'ru' && window.ALIK_I18N && window.ALIK_I18N[LANG];
+        return (table && table[text]) || text;
+    }
+
     // Checked daily in the webos-apps repository: only streams that answer stay in.
     var PRESETS = [
-        { name: 'Армения', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/armenia.m3u' },
-        { name: 'Россия', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/russia.m3u' },
-        { name: 'Фильмы со всего мира', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/movies.m3u' },
-        { name: 'Классика кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films.m3u' },
-        { name: '18+ · винтажное кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films-18.m3u', adult: true }
+        { name: t('Армения'), url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/armenia.m3u' },
+        { name: t('Россия'), url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/russia.m3u' },
+        { name: t('Фильмы со всего мира'), url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/movies.m3u' },
+        { name: t('Классика кино (Internet Archive)'), url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films.m3u' },
+        { name: t('18+ · винтажное кино (Internet Archive)'), url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films-18.m3u', adult: true }
     ];
     var CATALOG_URL = 'https://iptv-org.github.io/api/countries.json';
     // 48-hour guide for the channels of the ready playlists, rebuilt daily.
@@ -24,22 +39,41 @@
     var ADULT_GROUP = /18\+|adult|xxx/i;
 
     var THEMES = [
-        { id: 'apricot', name: 'Абрикос', colours: ['#0f1420', '#f39c4a'] },
-        { id: 'pomegranate', name: 'Гранат', colours: ['#170f15', '#e0475b'] },
-        { id: 'sevan', name: 'Севан', colours: ['#0b1719', '#3cc6b4'] },
-        { id: 'ararat', name: 'Арарат', colours: ['#eef1f5', '#d9742b'] }
+        { id: 'apricot', name: t('Абрикос'), colours: ['#0f1420', '#f39c4a'] },
+        { id: 'pomegranate', name: t('Гранат'), colours: ['#170f15', '#e0475b'] },
+        { id: 'sevan', name: t('Севан'), colours: ['#0b1719', '#3cc6b4'] },
+        { id: 'ararat', name: t('Арарат'), colours: ['#eef1f5', '#d9742b'] }
+    ];
+
+    var SLEEP_OPTIONS = [
+        { id: 'off', name: t('Выключен'), colours: [] },
+        { id: '30', name: t('30 минут'), colours: [] },
+        { id: '60', name: t('1 час'), colours: [] },
+        { id: '90', name: t('1,5 часа'), colours: [] },
+        { id: '120', name: t('2 часа'), colours: [] }
+    ];
+    var sleepChoice = 'off';
+    var sleepAt = 0;
+
+    var LANGUAGES = [
+        { id: 'ru', name: 'Русский', colours: [] },
+        { id: 'en', name: 'English', colours: [] },
+        { id: 'hy', name: 'Հայերեն', colours: [] }
     ];
 
     var SETTINGS = [
-        { id: 'playlists', kind: 'link', title: 'Плейлисты и каталоги', text: 'Добавить ссылку M3U, готовый плейлист или страну из iptv-org. OK — открыть.' },
-        { id: 'theme', kind: 'choice', title: 'Тема', text: 'Цвета Alik. ← → или OK — сменить.', options: THEMES },
-        { id: 'adult', title: 'Показывать 18+', text: 'Включено — добавляется плейлист 18+ и группа «Films 18+». Выключено — скрыто.' },
-        { id: 'wheelZap', title: 'Колесо Magic Remote переключает каналы', text: 'Во время просмотра. Выключено — только CH+ и CH−.' },
-        { id: 'hideDead', title: 'Скрыть неработающие каналы', text: 'Каналы, которые не ответили за последние сутки.' },
-        { id: 'groups', kind: 'link', title: 'Группы', text: 'Скрыть ненужные группы и поменять порядок.' },
-        { id: 'pinSet', kind: 'link', title: 'Задать PIN для 18+', text: '4 цифры. После этого 18+ закрыто при каждом запуске Alik.', when: function () { return !pinSet(); } },
-        { id: 'pinChange', kind: 'link', title: 'Сменить PIN для 18+', text: 'Нужен текущий PIN.', when: pinSet },
-        { id: 'pinRemove', kind: 'link', title: 'Убрать PIN', text: 'Нужен текущий PIN. 18+ снова управляется только переключателем.', when: pinSet }
+        { id: 'lang', kind: 'choice', title: t('Язык'), text: t('Язык интерфейса Alik. Приложение перезапустится.'), options: LANGUAGES },
+        { id: 'playlists', kind: 'link', title: t('Плейлисты и каталоги'), text: t('Добавить ссылку M3U, готовый плейлист или страну из iptv-org. OK — открыть.') },
+        { id: 'theme', kind: 'choice', title: t('Тема'), text: t('Цвета Alik. ← → или OK — сменить.'), options: THEMES },
+        { id: 'adult', title: t('Показывать 18+'), text: t('Включено — добавляется плейлист 18+ и группа «Films 18+». Выключено — скрыто.') },
+        { id: 'wheelZap', title: t('Колесо Magic Remote переключает каналы'), text: t('Во время просмотра. Выключено — только CH+ и CH−.') },
+        { id: 'hideDead', title: t('Скрыть неработающие каналы'), text: t('Каналы, которые не ответили за последние сутки.') },
+        { id: 'sleep', kind: 'choice', title: t('Таймер сна'), text: t('Остановит просмотр через выбранное время.'), options: SLEEP_OPTIONS, session: true },
+        { id: 'backup', kind: 'link', title: t('Восстановить из резервной копии'), text: t('Копия плейлистов, папок, избранного и настроек сохраняется сама на ТВ.') },
+        { id: 'groups', kind: 'link', title: t('Группы'), text: t('Скрыть ненужные группы и поменять порядок.') },
+        { id: 'pinSet', kind: 'link', title: t('Задать PIN для 18+'), text: t('4 цифры. После этого 18+ закрыто при каждом запуске Alik.'), when: function () { return !pinSet(); } },
+        { id: 'pinChange', kind: 'link', title: t('Сменить PIN для 18+'), text: t('Нужен текущий PIN.'), when: pinSet },
+        { id: 'pinRemove', kind: 'link', title: t('Убрать PIN'), text: t('Нужен текущий PIN. 18+ снова управляется только переключателем.'), when: pinSet }
     ];
 
     function visibleSettings() {
@@ -118,6 +152,86 @@
         } catch (e) {
             /* storage is only a convenience */
         }
+        if (BACKED_UP && BACKED_UP.indexOf(key) >= 0) {
+            restartTimer('backup', 3000, saveBackup);
+        }
+    }
+
+    // ---------- Backup ----------
+
+    // What a reinstall must not lose. Film positions and dead marks are cheap to rebuild.
+    var BACKED_UP = [STORE.sources, STORE.favourites, STORE.folders, STORE.settings, STORE.groups];
+    var SERVICE = 'luna://com.arayik.alik.service/';
+    var lastBackup = 0;
+
+    function callService(method, params, callback) {
+        try {
+            var bridge = new PalmServiceBridge();
+            bridge.onservicecallback = function (raw) {
+                var payload;
+                try {
+                    payload = JSON.parse(raw);
+                } catch (e) {
+                    payload = { returnValue: false };
+                }
+                callback(payload);
+            };
+            bridge.call(SERVICE + method, JSON.stringify(params || {}));
+        } catch (e) {
+            callback({ returnValue: false, errorText: 'no service' });
+        }
+    }
+
+    function saveBackup() {
+        var data = {};
+        BACKED_UP.forEach(function (key) {
+            var value = window.localStorage.getItem(key);
+            if (value !== null) {
+                data[key] = value;
+            }
+        });
+        callService('save', { data: data }, function (result) {
+            if (result.returnValue) {
+                lastBackup = result.savedAt;
+            }
+        });
+    }
+
+    // On a fresh install (no playlists yet) bring back the last backup, then start.
+    function restoreIfEmpty(start) {
+        if (window.localStorage.getItem(STORE.sources) !== null) {
+            callService('load', {}, function (result) {
+                if (result.found) {
+                    lastBackup = result.savedAt;
+                }
+            });
+            start();
+            return;
+        }
+        callService('load', {}, function (result) {
+            if (result.found && result.data) {
+                Object.keys(result.data).forEach(function (key) {
+                    window.localStorage.setItem(key, result.data[key]);
+                });
+                lastBackup = result.savedAt;
+                toast(t('Настройки восстановлены из резервной копии'));
+            }
+            start();
+        });
+    }
+
+    function restoreBackup() {
+        callService('load', {}, function (result) {
+            if (!result.found) {
+                toast(t('Резервной копии пока нет'));
+                return;
+            }
+            Object.keys(result.data).forEach(function (key) {
+                window.localStorage.setItem(key, result.data[key]);
+            });
+            toast(t('Восстановлено. Перезапускаю…'));
+            setTimeout(function () { window.location.reload(); }, 1200);
+        });
     }
 
     function restartTimer(name, delay, callback) {
@@ -209,7 +323,7 @@
                 var name = (cut >= 0 ? line.slice(cut + 2) : line.slice(line.indexOf(',') + 1)).trim();
                 info = {
                     name: name.replace(/\s*\((\d{3,4}p)\)/, '').trim(),
-                    group: attr(line, 'group-title') || 'Другое',
+                    group: attr(line, 'group-title') || t('Другое'),
                     logo: attr(line, 'tvg-logo'),
                     tvgId: attr(line, 'tvg-id').split('@')[0]
                 };
@@ -227,18 +341,18 @@
         return fetch(source.url, { cache: 'no-store' })
             .then(function (response) {
                 if (!response.ok) {
-                    throw new Error('сервер ответил ' + response.status);
+                    throw new Error(t('сервер ответил ') + response.status);
                 }
                 return response.text();
             })
             .then(function (text) {
                 var list = parseM3u(text);
                 if (!list.length) {
-                    throw new Error('в нём нет каналов');
+                    throw new Error(t('в нём нет каналов'));
                 }
                 return { source: source, channels: list };
             }, function (err) {
-                return { source: source, error: err.message || 'нет связи' };
+                return { source: source, error: err.message || t('нет связи') };
             });
     }
 
@@ -256,7 +370,7 @@
             return;
         }
         showScreen('player');
-        showStatus('Загружаю список каналов…');
+        showStatus(t('Загружаю список каналов…'));
         loadGuide();
         Promise.all(sources.map(fetchSource)).then(function (results) {
             var failed = [];
@@ -277,13 +391,22 @@
             if (!adultVisible()) {
                 channels = channels.filter(function (channel) { return !channel.adult; });
             }
+            // The same stream in two playlists shows once, from the first playlist.
+            var seenUrls = {};
+            channels = channels.filter(function (channel) {
+                if (seenUrls[channel.url]) {
+                    return false;
+                }
+                seenUrls[channel.url] = true;
+                return true;
+            });
             if (setting('hideDead')) {
                 channels = channels.filter(function (channel) { return !isDead(channel.url); });
             }
             channels.forEach(function (channel, index) { channel.number = index + 1; });
             if (!channels.length) {
-                showStatus('Не удалось загрузить плейлисты. ' + failed.join('; ') +
-                    '. OK — повторить, зелёная кнопка — изменить плейлисты.');
+                showStatus(t('Не удалось загрузить плейлисты. ') + failed.join('; ') +
+                    t('. OK — повторить, зелёная кнопка — изменить плейлисты.'));
                 statusBox.dataset.retry = '1';
                 return;
             }
@@ -299,7 +422,7 @@
             });
             play(start, allIndexes(function (c) { return c.film === channels[start].film; }));
             if (failed.length) {
-                showStatus('Не загрузились: ' + failed.join('; ') + '.');
+                showStatus(t('Не загрузились: ') + failed.join('; ') + '.');
                 restartTimer('status', 6000, hideStatus);
             }
             openHome();
@@ -368,26 +491,26 @@
         var live = allIndexes(function (c) { return !c.film; });
         var films = allIndexes(function (c) { return c.film; });
         sections = [
-            { kind: 'list', id: 'favourites', name: 'Избранное', icon: 'star', items: indexesForUrls(read(STORE.favourites, [])) }
+            { kind: 'list', id: 'favourites', name: t('Избранное'), icon: 'star', items: indexesForUrls(read(STORE.favourites, [])) }
         ];
-        sections.splice(0, 0, { kind: 'action', id: 'search-action', name: 'Поиск', icon: 'search', action: function () { openPrompt(-1, null, 'search'); } });
+        sections.splice(0, 0, { kind: 'action', id: 'search-action', name: t('Поиск'), icon: 'search', action: function () { openPrompt(-1, null, 'search'); } });
         if (searchResult) {
             sections.splice(1, 0, searchResult);
         }
-        sections.push({ kind: 'heading', name: 'Мои папки' });
+        sections.push({ kind: 'heading', name: t('Мои папки') });
         read(STORE.folders, []).forEach(function (folder) {
             sections.push({ kind: 'list', id: 'folder:' + folder.id, folderId: folder.id, name: folder.name, icon: 'heartfolder', items: indexesForUrls(folder.urls) });
         });
-        sections.push({ kind: 'action', name: 'Новая папка', icon: 'plus', action: function () { openPrompt(-1); } });
+        sections.push({ kind: 'action', name: t('Новая папка'), icon: 'plus', action: function () { openPrompt(-1); } });
         if (live.length) {
-            sections.push({ kind: 'list', id: 'live', name: 'Все каналы', icon: 'tv', items: live });
+            sections.push({ kind: 'list', id: 'live', name: t('Все каналы'), icon: 'tv', items: live });
         }
         if (films.length) {
-            sections.push({ kind: 'list', id: 'films', name: 'Все фильмы', icon: 'film', items: films });
+            sections.push({ kind: 'list', id: 'films', name: t('Все фильмы'), icon: 'film', items: films });
         }
         if (setting('adult') && pinSet() && !adultUnlocked) {
-            sections.push({ kind: 'action', name: 'Открыть 18+', icon: 'lock', action: function () {
-                openPin('check', 'Открыть 18+', 'Введите PIN-код', function () {
+            sections.push({ kind: 'action', name: t('Открыть 18+'), icon: 'lock', action: function () {
+                openPin('check', t('Открыть 18+'), t('Введите PIN-код'), function () {
                     adultUnlocked = true;
                     loadPlaylists();
                 });
@@ -403,20 +526,19 @@
             bySource[channel.source].items.push(index);
         });
         if (playlists.length > 1) {
-            sections.push({ kind: 'heading', name: 'Мои плейлисты' });
+            sections.push({ kind: 'heading', name: t('Мои плейлисты') });
             sections = sections.concat(playlists);
         }
-        sections.push({ kind: 'heading', name: 'Группы' });
+        sections.push({ kind: 'heading', name: t('Группы') });
         var groupPrefs = read(STORE.groups, { hidden: [], order: [] });
         orderedGroups().forEach(function (group) {
             if (groupPrefs.hidden.indexOf(group.name) < 0) {
                 sections.push(group);
             }
         });
-        sections.push({ kind: 'heading', name: 'Приложение' });
-        sections.push({ kind: 'action', name: 'Плейлисты', icon: 'list', action: openSources });
-        sections.push({ kind: 'action', name: 'Настройки', icon: 'gear', action: openSettings });
-        sections.push({ kind: 'action', name: 'Справка по пульту', icon: 'help', action: openHelp });
+        // Playlists and Settings live on the green and blue keys; only Help stays here.
+        sections.push({ kind: 'heading', name: t('Приложение') });
+        sections.push({ kind: 'action', name: t('Справка по пульту'), icon: 'help', action: openHelp });
     }
 
     // All groups in the user's order (new groups go last, in playlist order).
@@ -430,6 +552,24 @@
             }
             byGroup[channel.group].items.push(index);
         });
+        // Groups with one or two channels make the menu long: fold them into "Другое".
+        var other = null;
+        groups = groups.filter(function (group) {
+            if (group.items.length >= 3 || group.name === t('Другое')) {
+                return true;
+            }
+            if (!other) {
+                other = byGroup[t('Другое')] || { kind: 'list', id: 'group:Другое', name: t('Другое'), icon: 'folder', items: [] };
+            }
+            other.items = other.items.concat(group.items);
+            return false;
+        });
+        if (other && groups.indexOf(other) < 0) {
+            groups.push(other);
+        }
+        if (other) {
+            other.items.sort(function (a, b) { return a - b; });
+        }
         var order = read(STORE.groups, { hidden: [], order: [] }).order;
         return groups.sort(function (a, b) {
             var ia = order.indexOf(a.name);
@@ -510,7 +650,7 @@
             hls = null;
         }
         video.removeAttribute('src');
-        showStatus(channel.film ? 'Загружаю фильм…' : 'Подключаюсь к каналу…');
+        showStatus(channel.film ? t('Загружаю фильм…') : t('Подключаюсь к каналу…'));
 
         // Films are plain video files the TV plays itself; live channels are HLS.
         if (channel.film || !(window.Hls && Hls.isSupported())) {
@@ -537,7 +677,7 @@
     }
 
     function noSignal() {
-        showStatus('Канал сейчас не отвечает. Переключите кнопками CH+ CH−.');
+        showStatus(t('Канал сейчас не отвечает. Переключите кнопками CH+ CH−.'));
         if (current >= 0) {
             var dead = read(STORE.dead, {});
             dead[channels[current].url] = Date.now();
@@ -588,7 +728,7 @@
         var at = read(STORE.positions, {})[channels[current].url];
         if (at && at < video.duration - 60) {
             video.currentTime = at;
-            toast('Продолжаю с ' + clockText(at) + '. С начала — держите ←');
+            toast(t('Продолжаю с ') + clockText(at) + t('. С начала — держите ←'));
         }
     });
 
@@ -623,7 +763,7 @@
         seekRun++;
         restartTimer('seekRun', SEEK_RESET, function () { seekRun = 0; });
         video.currentTime = Math.max(0, Math.min(video.duration - 1, video.currentTime + direction * stepSeconds));
-        $('osd-step').textContent = (direction > 0 ? '+' : '−') + (stepSeconds >= 60 ? stepSeconds / 60 + ' мин' : stepSeconds + ' с');
+        $('osd-step').textContent = (direction > 0 ? '+' : '−') + (stepSeconds >= 60 ? stepSeconds / 60 + t(' мин') : stepSeconds + t(' с'));
         $('osd-step').hidden = false;
         restartTimer('seekLabel', 1200, function () { $('osd-step').hidden = true; });
         showOsd();
@@ -683,24 +823,24 @@
             $('osd-epg-title').textContent = programmes[0][2];
             $('osd-epg-time').textContent = hhmm(programmes[0][0]) + '–' + hhmm(programmes[0][1]);
             $('osd-epg-bar').style.width = showProgress(programmes[0]) + '%';
-            $('osd-epg-next').textContent = programmes[1] ? 'Далее ' + hhmm(programmes[1][0]) + ' · ' + programmes[1][2] : '';
+            $('osd-epg-next').textContent = programmes[1] ? t('Далее ') + hhmm(programmes[1][0]) + ' · ' + programmes[1][2] : '';
         }
         updateProgress();
         $('osd-state').innerHTML = channel.film ? svg(video.paused ? 'play' : 'pause') : '';
         $('osd-state').hidden = !channel.film;
         setHints($('osd-hints'), channel.film ? [
-            [['OK'], video.paused ? 'Продолжить' : 'Пауза'],
-            [['leftright'], 'Перемотка (чаще — быстрее)'],
-            [['CH+', 'CH−'], 'Другой фильм'],
-            [['red'], isFavourite(current) ? 'Убрать из избранного' : 'В избранное'],
-            [['back'], 'Меню']
+            [['OK'], video.paused ? t('Продолжить') : t('Пауза')],
+            [['leftright'], t('Перемотка (чаще — быстрее)')],
+            [['CH+', 'CH−'], t('Другой фильм')],
+            [['red'], isFavourite(current) ? t('Убрать из избранного') : t('В избранное')],
+            [['back'], t('Меню')]
         ] : [
-            [['OK'], 'Меню'],
-            [['CH+', 'CH−'], 'Канал'],
-            [['0–9'], 'Номер'],
-            [['red'], isFavourite(current) ? 'Убрать из избранного' : 'В избранное'],
-            [['yellow'], 'Предыдущий'],
-            [['back'], 'Назад']
+            [['OK'], t('Меню')],
+            [['CH+', 'CH−'], t('Канал')],
+            [['0–9'], t('Номер')],
+            [['red'], isFavourite(current) ? t('Убрать из избранного') : t('В избранное')],
+            [['yellow'], t('Предыдущий')],
+            [['back'], t('Назад')]
         ]);
         osd.hidden = false;
         restartTimer('osd', OSD_TIMEOUT, function () {
@@ -726,7 +866,7 @@
         $('osd-buffer').style.width = buffered + '%';
         $('osd-thumb').style.left = played + '%';
         $('osd-time').textContent = clockText(video.currentTime) + ' / ' + clockText(video.duration) +
-            ' · осталось ' + clockText(video.duration - video.currentTime);
+            t(' · осталось ') + clockText(video.duration - video.currentTime);
     }
 
     // ---------- Screens ----------
@@ -866,9 +1006,9 @@
         if (!section || section.kind !== 'list' || !section.items.length) {
             empty.hidden = false;
             empty.textContent = section && section.id === 'favourites'
-                ? 'Здесь будут избранные каналы. На любом канале нажмите красную кнопку.'
-                : section && section.id === 'recent' ? 'Здесь появятся каналы, которые вы смотрели.'
-                    : section && section.kind === 'action' ? 'Нажмите OK, чтобы открыть.' : '';
+                ? t('Здесь будут избранные каналы. На любом канале нажмите красную кнопку.')
+                : section && section.id === 'recent' ? t('Здесь появятся каналы, которые вы смотрели.')
+                    : section && section.kind === 'action' ? t('Нажмите OK, чтобы открыть.') : '';
             return;
         }
         empty.hidden = true;
@@ -907,10 +1047,10 @@
                 tile.appendChild(el('span', 'tile-fav', '♥'));
             }
             if (index === current) {
-                tile.appendChild(el('span', 'tile-playing', 'Сейчас'));
+                tile.appendChild(el('span', 'tile-playing', t('Сейчас')));
             }
             if (isDead(channel.url)) {
-                tile.appendChild(el('span', 'tile-dead', 'не отвечает'));
+                tile.appendChild(el('span', 'tile-dead', t('не отвечает')));
             }
             var onAir = channel.film ? null : nowNext(channel)[0];
             if (onAir) {
@@ -1019,22 +1159,22 @@
 
     function updateHomeHints() {
         setHints($('home-hints'), home.area === 'grid' ? [
-            [['OK'], 'Смотреть'],
-            [['red'], 'Избранное'],
-            [['green'], 'Плейлисты'],
-            [['yellow'], 'В папку'],
-            [['blue'], 'Настройки'],
-            [['CH+', 'CH−'], 'Страница'],
-            [['INFO'], 'Справка'],
-            [['back'], 'Выход']
+            [['OK'], t('Смотреть')],
+            [['red'], t('Избранное')],
+            [['green'], t('Плейлисты')],
+            [['yellow'], t('В папку')],
+            [['blue'], t('Настройки')],
+            [['CH+', 'CH−'], t('Страница')],
+            [['INFO'], t('Справка')],
+            [['back'], t('Выход')]
         ] : [
-            [['updown'], 'Раздел'],
-            [['right'], 'К каналам'],
-            [['OK'], 'Открыть'],
-            [['yellow'], sections[home.rail] && sections[home.rail].folderId ? 'Переименовать / удалить' : 'Папки'],
-            [['green'], 'Плейлисты'],
-            [['INFO'], 'Справка'],
-            [['back'], 'Выход']
+            [['updown'], t('Раздел')],
+            [['right'], t('К каналам')],
+            [['OK'], t('Открыть')],
+            [['yellow'], sections[home.rail] && sections[home.rail].folderId ? t('Переименовать / удалить') : t('Папки')],
+            [['green'], t('Плейлисты')],
+            [['INFO'], t('Справка')],
+            [['back'], t('Выход')]
         ]);
     }
 
@@ -1127,12 +1267,12 @@
     // Focusable rows per column; headings are drawn but skipped by ▲ ▼.
     function sourceRows() {
         var saved = read(STORE.sources, []);
-        var right = [{ kind: 'heading', text: 'Готовые плейлисты' }];
+        var right = [{ kind: 'heading', text: t('Готовые плейлисты') }];
         PRESETS.filter(function (preset) { return !preset.adult || adultVisible(); }).forEach(function (preset) {
             right.push({ kind: 'preset', preset: preset, added: saved.some(function (s) { return s.url === preset.url; }) });
         });
         right.push({ kind: 'catalog' });
-        right.push({ kind: 'heading', text: saved.length ? 'Ваши плейлисты · ' + saved.length : 'Ваши плейлисты: пока нет' });
+        right.push({ kind: 'heading', text: saved.length ? t('Ваши плейлисты · ') + saved.length : t('Ваши плейлисты: пока нет') });
         saved.forEach(function (source, index) {
             right.push({ kind: 'source', index: index, source: source });
         });
@@ -1166,19 +1306,19 @@
                 if (row.kind === 'input') {
                     item = sourcesField;
                 } else if (row.kind === 'add') {
-                    item = el('li', 'button', 'Добавить ссылку');
+                    item = el('li', 'button', t('Добавить ссылку'));
                 } else if (row.kind === 'catalog') {
-                    item = el('li', 'button', 'Каталог iptv-org: выбрать страну');
+                    item = el('li', 'button', t('Каталог iptv-org: выбрать страну'));
                 } else if (row.kind === 'done') {
-                    item = el('li', 'button primary', 'Смотреть');
+                    item = el('li', 'button primary', t('Смотреть'));
                 } else if (row.kind === 'preset') {
                     item = el('li', 'preset');
                     item.appendChild(el('span', 'source-name', row.preset.name));
-                    item.appendChild(el('span', 'source-action', row.added ? 'Добавлен ✓' : 'Добавить'));
+                    item.appendChild(el('span', 'source-action', row.added ? t('Добавлен ✓') : t('Добавить')));
                 } else {
                     item = el('li', 'source');
                     item.appendChild(el('span', 'source-name', row.source.name));
-                    item.appendChild(el('span', 'source-action', pendingRemoval === row.index ? 'OK ещё раз — удалить' : 'Удалить'));
+                    item.appendChild(el('span', 'source-action', pendingRemoval === row.index ? t('OK ещё раз — удалить') : t('Удалить')));
                 }
                 item.dataset.col = col;
                 item.dataset.row = position;
@@ -1199,21 +1339,21 @@
         rightCol.style.transform = 'translateY(' + (-offset) + 'px)';
 
         setHints($('sources-hints'), [
-            [['updown', 'leftright'], 'Выбор'],
-            [['OK'], 'Открыть'],
-            [['back'], read(STORE.sources, []).length ? 'Готово' : 'Выход']
+            [['updown', 'leftright'], t('Выбор')],
+            [['OK'], t('Открыть')],
+            [['back'], read(STORE.sources, []).length ? t('Готово') : t('Выход')]
         ]);
     }
 
     function addSource(source) {
         var saved = read(STORE.sources, []);
         if (saved.some(function (s) { return s.url === source.url; })) {
-            notice.textContent = 'Этот плейлист уже добавлен.';
+            notice.textContent = t('Этот плейлист уже добавлен.');
             return;
         }
         saved.push(source);
         write(STORE.sources, saved);
-        notice.textContent = 'Добавлен: ' + source.name + '.';
+        notice.textContent = t('Добавлен: ') + source.name + '.';
         sourcesUrl.value = '';
         renderSources();
     }
@@ -1221,7 +1361,7 @@
     function addTypedUrl() {
         var url = sourcesUrl.value.trim();
         if (!/^https?:\/\/\S+$/i.test(url)) {
-            notice.textContent = 'Ссылка должна начинаться с http:// или https://';
+            notice.textContent = t('Ссылка должна начинаться с http:// или https://');
             return;
         }
         addSource({ name: nameFromUrl(url), url: url });
@@ -1238,7 +1378,7 @@
             addTypedUrl();
         } else if (row.kind === 'preset') {
             if (row.added) {
-                notice.textContent = '«' + row.preset.name + '» уже добавлен. Удалить можно ниже.';
+                notice.textContent = '«' + row.preset.name + t('» уже добавлен. Удалить можно ниже.');
             } else {
                 addSource({ name: row.preset.name, url: row.preset.url });
             }
@@ -1251,7 +1391,7 @@
             saved.splice(row.index, 1);
             write(STORE.sources, saved);
             pendingRemoval = -1;
-            notice.textContent = 'Плейлист удалён.';
+            notice.textContent = t('Плейлист удалён.');
             renderSources();
         } else {
             pendingRemoval = row.index;
@@ -1320,11 +1460,11 @@
     var catalogFocus = 0;
 
     function openCatalog() {
-        notice.textContent = 'Загружаю список стран…';
+        notice.textContent = t('Загружаю список стран…');
         var ready = countries ? Promise.resolve(countries) : fetch(CATALOG_URL)
             .then(function (response) {
                 if (!response.ok) {
-                    throw new Error('сервер ответил ' + response.status);
+                    throw new Error(t('сервер ответил ') + response.status);
                 }
                 return response.json();
             })
@@ -1346,13 +1486,13 @@
             });
             catalogList.scrollTop = 0;
             setHints($('sources-hints'), [
-                [['updown'], 'Страна'],
-                [['CH+', 'CH−'], 'Быстрее'],
-                [['OK'], 'Добавить'],
-                [['back'], 'Назад']
+                [['updown'], t('Страна')],
+                [['CH+', 'CH−'], t('Быстрее')],
+                [['OK'], t('Добавить')],
+                [['back'], t('Назад')]
             ]);
         }, function (err) {
-            notice.textContent = 'Каталог недоступен: ' + err.message + '.';
+            notice.textContent = t('Каталог недоступен: ') + err.message + '.';
         });
     }
 
@@ -1463,10 +1603,10 @@
         picker = { mode: 'channel', channel: index, folder: null, focus: 0, confirm: false };
         screen = 'picker';
         $('picker').hidden = false;
-        $('picker-title').textContent = 'В папку';
+        $('picker-title').textContent = t('В папку');
         $('picker-channel').textContent = channels[index].name;
         renderPicker();
-        setHints($('picker-hints'), [[['updown'], 'Папка'], [['OK'], 'Положить / убрать'], [['back'], 'Готово']]);
+        setHints($('picker-hints'), [[['updown'], t('Папка')], [['OK'], t('Положить / убрать')], [['back'], t('Готово')]]);
     }
 
     function groupRows() {
@@ -1480,10 +1620,10 @@
         picker = { mode: 'groups', channel: -1, folder: null, focus: 0, confirm: false };
         screen = 'picker';
         $('picker').hidden = false;
-        $('picker-title').textContent = 'Группы';
-        $('picker-channel').textContent = '✓ — группа видна в меню';
+        $('picker-title').textContent = t('Группы');
+        $('picker-channel').textContent = t('✓ — группа видна в меню');
         renderPicker();
-        setHints($('picker-hints'), [[['OK'], 'Показать / скрыть'], [['CH+', 'CH−'], 'Выше / ниже'], [['back'], 'Готово']]);
+        setHints($('picker-hints'), [[['OK'], t('Показать / скрыть')], [['CH+', 'CH−'], t('Выше / ниже')], [['back'], t('Готово')]]);
     }
 
     function toggleGroup(index) {
@@ -1521,12 +1661,12 @@
     function trackRows() {
         var rows = [];
         hls.audioTracks.forEach(function (track, i) {
-            rows.push({ kind: 'audio', id: i, text: 'Звук: ' + (track.name || track.lang || 'дорожка ' + (i + 1)), on: hls.audioTrack === i });
+            rows.push({ kind: 'audio', id: i, text: t('Звук: ') + (track.name || track.lang || t('дорожка ') + (i + 1)), on: hls.audioTrack === i });
         });
         if (hls.subtitleTracks.length) {
-            rows.push({ kind: 'sub', id: -1, text: 'Субтитры: выключены', on: hls.subtitleTrack === -1 });
+            rows.push({ kind: 'sub', id: -1, text: t('Субтитры: выключены'), on: hls.subtitleTrack === -1 });
             hls.subtitleTracks.forEach(function (track, i) {
-                rows.push({ kind: 'sub', id: i, text: 'Субтитры: ' + (track.name || track.lang || 'дорожка ' + (i + 1)), on: hls.subtitleTrack === i });
+                rows.push({ kind: 'sub', id: i, text: t('Субтитры: ') + (track.name || track.lang || t('дорожка ') + (i + 1)), on: hls.subtitleTrack === i });
             });
         }
         return rows;
@@ -1536,10 +1676,10 @@
         picker = { mode: 'tracks', channel: current, folder: null, focus: 0, confirm: false };
         screen = 'picker';
         $('picker').hidden = false;
-        $('picker-title').textContent = 'Звук и субтитры';
+        $('picker-title').textContent = t('Звук и субтитры');
         $('picker-channel').textContent = channels[current].name;
         renderPicker();
-        setHints($('picker-hints'), [[['updown'], 'Дорожка'], [['OK'], 'Выбрать'], [['back'], 'Закрыть']]);
+        setHints($('picker-hints'), [[['updown'], t('Дорожка')], [['OK'], t('Выбрать')], [['back'], t('Закрыть')]]);
     }
 
     function openFolderMenu(folderId) {
@@ -1547,17 +1687,17 @@
         picker = { mode: 'folder', channel: -1, folder: folder, focus: 0, confirm: false };
         screen = 'picker';
         $('picker').hidden = false;
-        $('picker-title').textContent = 'Папка «' + folder.name + '»';
-        $('picker-channel').textContent = folder.urls.length + ' в папке. Сами каналы не удаляются.';
+        $('picker-title').textContent = t('Папка «') + folder.name + '»';
+        $('picker-channel').textContent = folder.urls.length + t(' в папке. Сами каналы не удаляются.');
         renderPicker();
-        setHints($('picker-hints'), [[['updown'], 'Действие'], [['OK'], 'Выбрать'], [['back'], 'Закрыть']]);
+        setHints($('picker-hints'), [[['updown'], t('Действие')], [['OK'], t('Выбрать')], [['back'], t('Закрыть')]]);
     }
 
     function folderActions() {
         return [
-            { id: 'rename', text: 'Переименовать' },
-            { id: 'delete', text: picker.confirm ? 'Точно удалить? OK — да' : 'Удалить папку' },
-            { id: 'cancel', text: 'Отмена' }
+            { id: 'rename', text: t('Переименовать') },
+            { id: 'delete', text: picker.confirm ? t('Точно удалить? OK — да') : t('Удалить папку') },
+            { id: 'cancel', text: t('Отмена') }
         ];
     }
 
@@ -1603,7 +1743,7 @@
         });
         var create = el('li', folders.length === picker.focus ? 'focused' : '');
         create.dataset.pick = folders.length;
-        create.appendChild(el('span', '', '＋ Новая папка'));
+        create.appendChild(el('span', '', t('＋ Новая папка')));
         list.appendChild(create);
         var focused = list.children[picker.focus];
         if (focused) {
@@ -1640,7 +1780,7 @@
                 return;
             }
             saveFolders(read(STORE.folders, []).filter(function (f) { return f.id !== folder.id; }));
-            toast('Папка «' + folder.name + '» удалена');
+            toast(t('Папка «') + folder.name + t('» удалена'));
             closePicker();
             if (!focusableRail(home.rail) || !sections[home.rail]) {
                 home.rail = Math.max(0, home.rail - 1);
@@ -1681,7 +1821,7 @@
         }
         var folder = folders[picker.focus];
         var added = toggleInFolder(folder.id, picker.channel);
-        toast((added ? 'Добавлено в «' : 'Убрано из «') + folder.name + '»');
+        toast((added ? t('Добавлено в «') : t('Убрано из «')) + folder.name + '»');
         renderPicker();
     }
 
@@ -1720,9 +1860,9 @@
         $('home').hidden = channels.length === 0;
         $('prompt').hidden = false;
         var search = promptState.mode === 'search';
-        $('prompt-title').textContent = search ? 'Поиск канала или фильма' : folder ? 'Переименовать папку' : 'Новая папка';
-        $('prompt-create').textContent = search ? 'Найти' : folder ? 'Сохранить' : 'Создать';
-        promptInput.placeholder = search ? 'Часть названия, например «Shant»' : 'Например: Любимые фильмы';
+        $('prompt-title').textContent = search ? t('Поиск канала или фильма') : folder ? t('Переименовать папку') : t('Новая папка');
+        $('prompt-create').textContent = search ? t('Найти') : folder ? t('Сохранить') : t('Создать');
+        promptInput.placeholder = search ? t('Часть названия, например «Shant»') : t('Например: Любимые фильмы');
         promptInput.value = folder ? folder.name : '';
         markPrompt();
     }
@@ -1730,16 +1870,16 @@
     function runSearch() {
         var query = promptInput.value.trim().toLowerCase();
         if (!query) {
-            toast('Введите часть названия');
+            toast(t('Введите часть названия'));
             return;
         }
         var items = allIndexes(function (c) { return c.name.toLowerCase().indexOf(query) >= 0; });
         closePrompt();
         if (!items.length) {
-            toast('Ничего не найдено по «' + promptInput.value.trim() + '»');
+            toast(t('Ничего не найдено по «') + promptInput.value.trim() + '»');
             return;
         }
-        searchResult = { kind: 'list', id: 'search', name: 'Найдено: ' + promptInput.value.trim(), icon: 'search', items: items };
+        searchResult = { kind: 'list', id: 'search', name: t('Найдено: ') + promptInput.value.trim(), icon: 'search', items: items };
         buildSections();
         home.rail = 1;
         home.tile = 0;
@@ -1774,7 +1914,7 @@
         if (!name) {
             promptState.focus = 0;
             markPrompt();
-            toast('Введите название папки');
+            toast(t('Введите название папки'));
             return;
         }
         var folders = read(STORE.folders, []);
@@ -1785,7 +1925,7 @@
                 }
             });
             saveFolders(folders);
-            toast('Папка переименована: «' + name + '»');
+            toast(t('Папка переименована: «') + name + '»');
             closePrompt();
             return;
         }
@@ -1795,7 +1935,7 @@
         }
         folders.push(folder);
         saveFolders(folders);
-        toast(promptState.channel >= 0 ? 'Папка «' + name + '» создана, канал добавлен' : 'Папка «' + name + '» создана');
+        toast(promptState.channel >= 0 ? t('Папка «') + name + t('» создана, канал добавлен') : t('Папка «') + name + t('» создана'));
         closePrompt();
     }
 
@@ -1867,8 +2007,8 @@
             // From a folder or favourites the tile can also be thrown away.
             var removable = !!drag.from.folderId || drag.from.id === 'favourites';
             $('trash').hidden = !removable;
-            $('trash-label').textContent = drag.from.folderId ? 'Убрать из папки' : 'Убрать из избранного';
-            toast(removable ? 'Перетащите на папку слева или в корзину' : 'Перетащите на папку в меню слева');
+            $('trash-label').textContent = drag.from.folderId ? t('Убрать из папки') : t('Убрать из избранного');
+            toast(removable ? t('Перетащите на папку слева или в корзину') : t('Перетащите на папку в меню слева'));
         });
     });
 
@@ -1910,21 +2050,21 @@
                 var name = channels[drag.index].name;
                 if (drag.from.folderId) {
                     toggleInFolder(drag.from.folderId, drag.index);
-                    toast('«' + name + '» убран из «' + drag.from.name + '»');
+                    toast('«' + name + t('» убран из «') + drag.from.name + '»');
                 } else {
                     toggleFavourite(drag.index);
                     renderRail();
                     renderGrid();
-                    toast('«' + name + '» убран из избранного');
+                    toast('«' + name + t('» убран из избранного'));
                 }
             } else if (target) {
                 var section = sections[Number(target.dataset.rail)];
                 var folder = findFolder(section.folderId);
                 if (folder && folder.urls.indexOf(channels[drag.index].url) < 0) {
                     toggleInFolder(folder.id, drag.index);
-                    toast('Добавлено в «' + folder.name + '»');
+                    toast(t('Добавлено в «') + folder.name + '»');
                 } else if (folder) {
-                    toast('Уже в «' + folder.name + '»');
+                    toast(t('Уже в «') + folder.name + '»');
                 }
             }
             $('ghost').hidden = true;
@@ -1948,13 +2088,13 @@
         $('pin-text').textContent = text;
         pinInput.value = '';
         renderPin();
-        setHints($('pin-hints'), [[['0–9'], 'Цифры'], [['OK'], 'Клавиатура'], [['back'], 'Стереть / отмена']]);
+        setHints($('pin-hints'), [[['0–9'], t('Цифры')], [['OK'], t('Клавиатура')], [['back'], t('Стереть / отмена')]]);
     }
 
     var pinThen = null;   // runs once a new PIN is saved
 
     function setNewPin() {
-        openPin('new', 'Новый PIN', 'Придумайте 4 цифры', null);
+        openPin('new', t('Новый PIN'), t('Придумайте 4 цифры'), null);
     }
 
     function renderPin(error) {
@@ -1998,12 +2138,12 @@
             } else {
                 pin.value = '';
                 renderPin(true);
-                $('pin-text').textContent = 'Неверный PIN, попробуйте ещё раз';
+                $('pin-text').textContent = t('Неверный PIN, попробуйте ещё раз');
             }
         } else if (pin.mode === 'new') {
             pin = { mode: 'repeat', value: '', first: entered, done: null, back: pin.back };
-            $('pin-title').textContent = 'Повторите PIN';
-            $('pin-text').textContent = 'Ещё раз те же 4 цифры';
+            $('pin-title').textContent = t('Повторите PIN');
+            $('pin-text').textContent = t('Ещё раз те же 4 цифры');
             renderPin();
         } else if (entered === pin.first) {
             var values = read(STORE.settings, {});
@@ -2015,13 +2155,13 @@
                 pinThen();
                 pinThen = null;
             }
-            toast('PIN сохранён. 18+ будет закрыто при каждом запуске');
+            toast(t('PIN сохранён. 18+ будет закрыто при каждом запуске'));
             settingsChanged = true;
             openSettings(true);
         } else {
             pin = { mode: 'new', value: '', first: '', done: null, back: pin.back };
-            $('pin-title').textContent = 'Новый PIN';
-            $('pin-text').textContent = 'Не совпало. Придумайте 4 цифры заново';
+            $('pin-title').textContent = t('Новый PIN');
+            $('pin-text').textContent = t('Не совпало. Придумайте 4 цифры заново');
             renderPin(true);
         }
     }
@@ -2065,10 +2205,10 @@
         showScreen('settings');
         renderSettings();
         setHints($('settings-hints'), [
-            [['updown'], 'Выбор'],
-            [['OK'], 'Включить / выключить'],
-            [['leftright'], 'Тема'],
-            [['back'], 'Готово']
+            [['updown'], t('Выбор')],
+            [['OK'], t('Включить / выключить')],
+            [['leftright'], t('Тема')],
+            [['back'], t('Готово')]
         ]);
     }
 
@@ -2082,7 +2222,8 @@
             row.dataset.setting = index;
             var text = el('div', 'setting-text');
             text.appendChild(el('strong', '', item.title));
-            text.appendChild(el('span', '', item.text));
+            text.appendChild(el('span', '', item.id === 'backup' && lastBackup
+                ? item.text + t(' Последняя копия: ') + new Date(lastBackup).toLocaleString() + '.' : item.text));
             row.appendChild(text);
             if (item.kind === 'link') {
                 row.appendChild(el('span', 'choice-arrow', '›'));
@@ -2092,6 +2233,9 @@
                 choice.appendChild(el('span', 'choice-arrow', '‹'));
                 choice.appendChild(el('span', 'choice-value', item.options[chosen].name));
                 choice.appendChild(el('span', 'choice-arrow', '›'));
+                if (item.session && sleepAt) {
+                    choice.appendChild(el('span', 'choice-arrow', '· ' + Math.ceil((sleepAt - Date.now()) / 60000) + t(' мин')));
+                }
                 var swatches = el('span', 'swatches');
                 item.options[chosen].colours.forEach(function (colour) {
                     var dot = el('span', 'swatch');
@@ -2108,13 +2252,33 @@
     }
 
     function choiceIndex(item, values) {
+        var value = item.session ? sleepChoice : values[item.id];
         var at = 0;
         item.options.forEach(function (option, i) {
-            if (option.id === values[item.id]) {
+            if (option.id === value) {
                 at = i;
             }
         });
         return at;
+    }
+
+    function setSleep(choice) {
+        sleepChoice = choice;
+        clearTimeout(timers.sleep);
+        if (choice === 'off') {
+            sleepAt = 0;
+            return;
+        }
+        var minutes = Number(choice);
+        sleepAt = Date.now() + minutes * 60000;
+        restartTimer('sleep', minutes * 60000, function () {
+            video.pause();
+            sleepChoice = 'off';
+            sleepAt = 0;
+            showScreen('player');
+            showStatus(t('Таймер сна: просмотр остановлен. OK — открыть меню.'));
+        });
+        toast(t('Таймер сна: ') + SLEEP_OPTIONS.filter(function (o) { return o.id === choice; })[0].name);
     }
 
     function toggleSetting(index, direction) {
@@ -2129,16 +2293,18 @@
                 openSources();
             } else if (id === 'groups') {
                 openGroups();
+            } else if (id === 'backup') {
+                restoreBackup();
             } else if (id === 'pinSet') {
                 setNewPin();
             } else if (id === 'pinChange') {
-                openPin('check', 'Сменить PIN', 'Введите текущий PIN', setNewPin);
+                openPin('check', t('Сменить PIN'), t('Введите текущий PIN'), setNewPin);
             } else if (id === 'pinRemove') {
-                openPin('check', 'Убрать PIN', 'Введите текущий PIN', function () {
+                openPin('check', t('Убрать PIN'), t('Введите текущий PIN'), function () {
                     var current = read(STORE.settings, {});
                     delete current.pin;
                     write(STORE.settings, current);
-                    toast('PIN убран');
+                    toast(t('PIN убран'));
                     settingsChanged = true;
                     openSettings(true);
                 });
@@ -2147,7 +2313,7 @@
         }
         // With a PIN, turning 18+ on needs it.
         if (id === 'adult' && values.adult !== true && !pinSet()) {
-            toast('Сначала задайте PIN: без него 18+ не включается');
+            toast(t('Сначала задайте PIN: без него 18+ не включается'));
             pinThen = function () {
                 var v = read(STORE.settings, {});
                 v.adult = true;
@@ -2165,7 +2331,7 @@
             return;
         }
         if (id === 'adult' && values.adult !== true && pinSet() && !adultUnlocked) {
-            openPin('check', 'Показывать 18+', 'Введите PIN-код', function () {
+            openPin('check', t('Показывать 18+'), t('Введите PIN-код'), function () {
                 adultUnlocked = true;
                 showScreen('settings');
                 toggleSetting(index);
@@ -2174,9 +2340,20 @@
         }
         if (item.kind === 'choice') {
             var size = item.options.length;
-            values[id] = item.options[(choiceIndex(item, values) + (direction || 1) + size) % size].id;
-            write(STORE.settings, values);
-            applyTheme();
+            var next = item.options[(choiceIndex(item, values) + (direction || 1) + size) % size].id;
+            if (item.session) {
+                setSleep(next);
+            } else {
+                values[id] = next;
+                write(STORE.settings, values);
+                applyTheme();
+                if (id === 'lang') {
+                    // Constants are already translated, so a restart applies the new language everywhere.
+                    saveBackup();
+                    setTimeout(function () { window.location.reload(); }, 400);
+                    return;
+                }
+            }
             renderSettings();
             return;
         }
@@ -2223,20 +2400,21 @@
     // ---------- Help ----------
 
     var HELP = [
-        [['OK'], 'Меню или пауза', 'На канале открывает главный экран, в фильме — пауза; в меню включает'],
-        [['up', 'down'], 'Информация о канале', 'В меню — движение по плиткам и разделам'],
-        [['left', 'right'], 'Перемотка фильма', '10 с, при частых нажатиях 1 и 5 минут; в меню — плитки'],
-        [['CH+', 'CH−'], 'Переключить канал', 'В меню листает на целую страницу'],
-        [['0–9'], 'Номер канала', 'Наберите номер, переключение через 1,5 секунды'],
-        [['play', 'pause'], 'Пауза и продолжение', 'Для фильмов'],
-        [['red'], 'Избранное', 'Добавить или убрать канал'],
-        [['green'], 'Плейлисты', 'Добавить ссылку, готовый плейлист или страну'],
-        [['yellow'], 'Папки / предыдущий', 'На плитке — в папку; на папке — переименовать или удалить; при просмотре — прошлый канал'],
-        [['blue'], 'Настройки / дорожки', 'В меню — настройки; при просмотре — звук и субтитры, если их несколько'],
-        [['INFO'], 'Справка и информация', 'Эта страница; во время просмотра — данные канала'],
-        [['back'], 'Назад', 'На главном экране предлагает выйти'],
-        [['Magic Remote'], 'Перетаскивание', 'Зажмите плитку: на папку слева — положить, в корзину — убрать из папки'],
-        [['Magic Remote'], 'Указка', 'Наведите и нажмите колесо; колесо листает меню. Каналы — в Настройках']
+        [['OK'], t('Меню или пауза'), t('На канале открывает главный экран, в фильме — пауза; в меню включает')],
+        [['up', 'down'], t('Информация о канале'), t('В меню — движение по плиткам и разделам')],
+        [['left', 'right'], t('Перемотка фильма'), t('10 с, при частых нажатиях 1 и 5 минут; в меню — плитки')],
+        [['CH+', 'CH−'], t('Переключить канал'), t('В меню листает на целую страницу')],
+        [['0–9'], t('Номер канала'), t('Наберите номер, переключение через 1,5 секунды')],
+        [['play', 'pause'], t('Пауза и продолжение'), t('Для фильмов')],
+        [['red'], t('Избранное'), t('Добавить или убрать канал')],
+        [['green'], t('Плейлисты'), t('Добавить ссылку, готовый плейлист или страну')],
+        [['yellow'], t('Папки / предыдущий'), t('На плитке — в папку; на папке — переименовать или удалить; при просмотре — прошлый канал')],
+        [['blue'], t('Настройки / дорожки'), t('В меню — настройки; при просмотре — звук и субтитры, если их несколько')],
+        [['INFO'], t('Справка и информация'), t('Эта страница; во время просмотра — данные канала')],
+        [['back'], t('Назад'), t('На главном экране предлагает выйти')],
+        [['OK'], t('Долгое нажатие OK'), t('В папке — убрать канал (жёлтая кнопка вернёт); в других разделах — «В папку»')],
+        [['Magic Remote'], t('Перетаскивание'), t('Зажмите плитку: на папку слева — положить, в корзину — убрать из папки')],
+        [['Magic Remote'], t('Указка'), t('Наведите и нажмите колесо; колесо листает меню. Каналы — в Настройках')]
     ];
 
     function openHelp() {
@@ -2246,7 +2424,7 @@
             return '<div class="help-row"><div class="help-keys">' + row[0].map(key).join('') +
                 '</div><div class="help-text"><strong>' + row[1] + '</strong><span>' + row[2] + '</span></div></div>';
         }).join('');
-        setHints($('help-hints'), [[['back'], 'Закрыть']]);
+        setHints($('help-hints'), [[['back'], t('Закрыть')]]);
     }
 
     function closeHelp() {
@@ -2366,8 +2544,74 @@
 
     // ---------- Remote ----------
 
+    // Long OK on a tile: out of the open folder/favourites (Yellow undoes), elsewhere the folder picker.
+    var LONG_PRESS = 800;
+    var okHeld = false;
+    var undo = null;
+
+    function longPressTile() {
+        var section = sections[home.rail];
+        var index = section.items[home.tile];
+        if (index === undefined) {
+            return;
+        }
+        var name = channels[index].name;
+        if (section.folderId) {
+            toggleInFolder(section.folderId, index);
+            undo = { folderId: section.folderId, index: index };
+            toast('«' + name + t('» убран из папки. Жёлтая кнопка — вернуть'));
+        } else if (section.id === 'favourites') {
+            toggleFavourite(index);
+            undo = { favourite: true, index: index };
+            renderRail();
+            renderGrid();
+            toast('«' + name + t('» убран из избранного. Жёлтая кнопка — вернуть'));
+        } else {
+            openPicker(index);
+            return;
+        }
+        restartTimer('undo', 5000, function () { undo = null; });
+    }
+
+    document.addEventListener('keyup', function (event) {
+        if (event.keyCode !== KEY.OK || !okHeld) {
+            return;
+        }
+        okHeld = false;
+        if (timers.longPress) {
+            clearTimeout(timers.longPress);
+            timers.longPress = null;
+            chooseInHome();
+        }
+    });
+
     document.addEventListener('keydown', function (event) {
         var code = event.keyCode;
+        // In the tile grid OK acts on release, so a long press can mean something else.
+        if (code === KEY.OK && screen === 'home' && home.area === 'grid') {
+            event.preventDefault();
+            if (!event.repeat && !okHeld) {
+                okHeld = true;
+                timers.longPress = setTimeout(function () {
+                    timers.longPress = null;
+                    longPressTile();
+                }, LONG_PRESS);
+            }
+            return;
+        }
+        if (code === KEY.YELLOW && undo && screen === 'home') {
+            if (undo.folderId) {
+                toggleInFolder(undo.folderId, undo.index);
+            } else {
+                toggleFavourite(undo.index);
+                renderRail();
+                renderGrid();
+            }
+            toast(t('Вернул'));
+            undo = null;
+            event.preventDefault();
+            return;
+        }
         if (autoMuted) {
             video.muted = false;
             autoMuted = false;
@@ -2565,6 +2809,14 @@
         }
     });
 
-    applyTheme();
-    loadPlaylists();
+    // Static texts of index.html carry data-t; their Russian text is the key.
+    Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (node) {
+        node.textContent = t(node.textContent);
+    });
+    document.documentElement.lang = LANG;
+
+    restoreIfEmpty(function () {
+        applyTheme();
+        loadPlaylists();
+    });
 }());

@@ -6,5 +6,5 @@ set -eu
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="$(mkdir -p "$1" && cd "$1" && pwd)"
 
-ares-package -o "$OUT" "$HERE/app"
+ares-package -o "$OUT" "$HERE/app" "$HERE/service"
 cp "$HERE/app/largeIcon.png" "$OUT/icon.png"

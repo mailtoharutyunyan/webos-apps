@@ -1,0 +1,9 @@
+{
+  "id": "com.arayik.alik.service",
+  "description": "Keeps a backup of Alik settings outside the app folder",
+  "services": [
+    {
+      "name": "com.arayik.alik.service"
+    }
+  ]
+}

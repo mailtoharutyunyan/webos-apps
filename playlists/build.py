@@ -253,7 +253,13 @@ def build_archive():
 
 # ---------- TV guide ----------
 
-EPG_SOURCE = 'http://epg.it999.ru/epg.xml.gz'   # free XMLTV, mostly Russian-language channels
+# Free XMLTV guides, tried in order; a channel takes its guide from the first one that has it.
+EPG_SOURCES = [
+    'http://epg.it999.ru/epg.xml.gz',            # Russian-language channels
+    'https://i.mjh.nz/PlutoTV/all.xml.gz',       # Pluto TV
+    'https://i.mjh.nz/SamsungTVPlus/us.xml.gz',  # Samsung TV Plus
+    'https://i.mjh.nz/Plex/us.xml.gz',           # Plex
+]
 EPG_FILE = 'epg.json'
 EPG_HOURS = 48
 CHANNELS_URL = 'https://iptv-org.github.io/api/channels.json'
@@ -277,26 +283,15 @@ def xmltv_time(value):
     return seconds
 
 
-def build_epg():
-    """Writes epg.json: {tvg-id: [[start, stop, title], ...]} for the next EPG_HOURS."""
-    wanted = {}   # tvg-id -> names to look for
-    for _, _, filename, _ in SOURCES:
-        text = (HERE / filename).read_text()
-        for tvg_id, name in re.findall(r'tvg-id="([^"@]+)[^"]*"[^\n]*",([^\n]*)', text):
-            wanted.setdefault(tvg_id, set()).add(name)
-    for channel in json.loads(fetch(CHANNELS_URL)):
-        if channel['id'] in wanted:
-            wanted[channel['id']].update([channel['name']] + (channel.get('alt_names') or []))
-
-    request = urllib.request.Request(EPG_SOURCE, headers={'User-Agent': 'curl/8.7'})
+def read_guide(url, wanted, guide):
+    """Adds programmes of still unmatched channels from one XMLTV source to `guide`."""
+    request = urllib.request.Request(url, headers={'User-Agent': 'curl/8.7'})
     with urllib.request.urlopen(request, timeout=300) as response:
         raw = response.read()
-
     now = int(time.time())
     until = now + EPG_HOURS * 3600
     by_name = {}
-    guide = {}
-    source_to_ids = {}
+    source_to_ids = None
     with gzip.open(io.BytesIO(raw)) as stream:
         for _, element in ET.iterparse(stream, events=('end',)):
             if element.tag == 'channel':
@@ -305,9 +300,12 @@ def build_epg():
                         by_name.setdefault(norm(display.text), element.get('id'))
                 element.clear()
             elif element.tag == 'programme':
-                if not source_to_ids:
+                if source_to_ids is None:
                     # All <channel> elements come first: match them to our channels once.
+                    source_to_ids = {}
                     for tvg_id, names in wanted.items():
+                        if tvg_id in guide:
+                            continue
                         for name in names:
                             source = by_name.get(norm(name))
                             if source:
@@ -318,14 +316,34 @@ def build_epg():
                     start = xmltv_time(element.get('start'))
                     stop = xmltv_time(element.get('stop'))
                     if stop > now and start < until:
-                        title = element.findtext('title') or ''
+                        title = (element.findtext('title') or '').strip()
                         for tvg_id in ids:
-                            guide.setdefault(tvg_id, []).append([start, stop, title.strip()])
+                            guide.setdefault(tvg_id, []).append([start, stop, title])
                 element.clear()
+
+
+def build_epg():
+    """Writes epg.json: {tvg-id: [[start, stop, title], ...]} for the next EPG_HOURS."""
+    wanted = {}   # tvg-id -> names to look for
+    for _, _, filename, _ in SOURCES:
+        text = (HERE / filename).read_text()
+        for tvg_id, name in re.findall(r'tvg-id="([^"@]+)[^"]*"[^\n]*",([^\n]*)', text):
+            wanted.setdefault(tvg_id, set()).add(name)
+    for channel in json.loads(fetch(CHANNELS_URL)):
+        if channel['id'] in wanted:
+            wanted[channel['id']].update([channel['name']] + (channel.get('alt_names') or []))
+    guide = {}
+    for url in EPG_SOURCES:
+        before = len(guide)
+        try:
+            read_guide(url, wanted, guide)
+        except Exception as error:
+            print(f'  {url}: skipped ({error})')
+        print(f'  {url}: +{len(guide) - before} channels')
     for shows in guide.values():
         shows.sort()
     (HERE / EPG_FILE).write_text(json.dumps(guide, ensure_ascii=False, separators=(',', ':')))
-    print(f'{EPG_FILE}: {len(guide)} channels, {sum(len(v) for v in guide.values())} programmes')
+    print(f'{EPG_FILE}: {len(guide)} of {len(wanted)} channels, {sum(len(v) for v in guide.values())} programmes')
 
 
 def main():

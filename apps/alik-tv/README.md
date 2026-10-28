@@ -24,5 +24,10 @@ group manager (hide and reorder).
 | Settings (blue) | Theme, 18+ content with an optional 4-digit PIN, Magic Remote wheel zapping |
 | Back | Close the menu / exit |
 
+Settings also hold the interface language (Русский, English, Հայերեն), a sleep timer and
+restore from backup. A small service (`service/`) keeps a copy of playlists, folders,
+favourites and settings in `/media/developer/temp/alik`, so updating or reinstalling Alik
+does not lose them; a fresh install restores it automatically.
+
 Playback uses [hls.js](https://github.com/video-dev/hls.js) 1.5.20 (Apache-2.0, `app/vendor`).
 The TV runs Chromium 79: no optional chaining, `??` or CSS `inset`.

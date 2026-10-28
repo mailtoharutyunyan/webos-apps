@@ -1,0 +1,7 @@
+{
+  "name": "com.arayik.alik.service",
+  "version": "1.0.0",
+  "description": "Keeps a backup of Alik settings outside the app folder",
+  "main": "service.js",
+  "license": "MIT"
+}

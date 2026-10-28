@@ -71,6 +71,10 @@
         { id: 'sleep', kind: 'choice', title: t('Таймер сна'), text: t('Остановит просмотр через выбранное время.'), options: SLEEP_OPTIONS, session: true },
         { id: 'backup', kind: 'link', title: t('Восстановить из резервной копии'), text: t('Копия плейлистов, папок, избранного и настроек сохраняется сама на ТВ.') },
         { id: 'groups', kind: 'link', title: t('Группы'), text: t('Скрыть ненужные группы и поменять порядок.') },
+        { id: 'unlock', kind: 'link', title: t('Открыть 18+'), text: t('Ввести PIN — 18+ откроется до выхода из Alik.'),
+            when: function () { return setting('adult') && pinSet() && !adultUnlocked; } },
+        { id: 'lockNow', kind: 'link', title: t('Закрыть 18+'), text: t('18+ снова закрыто до ввода PIN.'),
+            when: function () { return setting('adult') && pinSet() && adultUnlocked; } },
         { id: 'pinSet', kind: 'link', title: t('Задать PIN для 18+'), text: t('4 цифры. После этого 18+ закрыто при каждом запуске Alik.'), when: function () { return !pinSet(); } },
         { id: 'pinChange', kind: 'link', title: t('Сменить PIN для 18+'), text: t('Нужен текущий PIN.'), when: pinSet },
         { id: 'pinRemove', kind: 'link', title: t('Убрать PIN'), text: t('Нужен текущий PIN. 18+ снова управляется только переключателем.'), when: pinSet }
@@ -504,14 +508,6 @@
         }
         if (films.length) {
             sections.push({ kind: 'list', id: 'films', name: t('Все фильмы'), icon: 'film', items: films });
-        }
-        if (setting('adult') && pinSet() && !adultUnlocked) {
-            sections.push({ kind: 'action', name: t('Открыть 18+'), icon: 'lock', action: function () {
-                openPin('check', t('Открыть 18+'), t('Введите PIN-код'), function () {
-                    adultUnlocked = true;
-                    loadPlaylists();
-                });
-            } });
         }
         var bySource = {};
         var playlists = [];
@@ -2296,6 +2292,18 @@
                 openGroups();
             } else if (id === 'backup') {
                 restoreBackup();
+            } else if (id === 'unlock') {
+                openPin('check', t('Открыть 18+'), t('Введите PIN-код'), function () {
+                    adultUnlocked = true;
+                    settingsChanged = true;
+                    openSettings(true);
+                    toast(t('18+ открыто до выхода из Alik'));
+                });
+            } else if (id === 'lockNow') {
+                adultUnlocked = false;
+                settingsChanged = true;
+                renderSettings();
+                toast(t('18+ закрыто'));
             } else if (id === 'pinSet') {
                 setNewPin();
             } else if (id === 'pinChange') {

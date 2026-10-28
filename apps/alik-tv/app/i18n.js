@@ -1,6 +1,11 @@
 // English and Armenian for Alik. Keys are the Russian strings used in app.js and index.html.
 window.ALIK_I18N = {
     en: {
+        'Ввести PIN — 18+ откроется до выхода из Alik.': 'Enter the PIN: 18+ stays open until you exit Alik.',
+        'Закрыть 18+': 'Lock 18+',
+        '18+ снова закрыто до ввода PIN.': '18+ is locked again until the PIN is entered.',
+        '18+ открыто до выхода из Alik': '18+ is open until you exit Alik',
+        '18+ закрыто': '18+ locked',
         'Армения': 'Armenia',
         'Россия': 'Russia',
         'Фильмы со всего мира': 'Movie channels',
@@ -222,6 +227,11 @@ window.ALIK_I18N = {
         'Звук и субтитры ': 'Audio and subtitles '
     },
     hy: {
+        'Ввести PIN — 18+ откроется до выхода из Alik.': 'Մուտքագրեք PIN-ը՝ 18+-ը բաց կմնա մինչև Alik-ից դուրս գալը։',
+        'Закрыть 18+': 'Փակել 18+',
+        '18+ снова закрыто до ввода PIN.': '18+-ը կրկին փակ է մինչև PIN-ի մուտքագրումը։',
+        '18+ открыто до выхода из Alik': '18+-ը բաց է մինչև Alik-ից դուրս գալը',
+        '18+ закрыто': '18+-ը փակվեց',
         'Армения': 'Հայաստան',
         'Россия': 'Ռուսաստան',
         'Фильмы со всего мира': 'Կինոալիքներ',

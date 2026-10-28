@@ -327,8 +327,7 @@
         var live = allIndexes(function (c) { return !c.film; });
         var films = allIndexes(function (c) { return c.film; });
         sections = [
-            { kind: 'list', id: 'favourites', name: 'Избранное', icon: 'star', items: indexesForUrls(read(STORE.favourites, [])) },
-            { kind: 'list', id: 'recent', name: 'Недавние', icon: 'clock', items: indexesForUrls(read(STORE.recent, [])) }
+            { kind: 'list', id: 'favourites', name: 'Избранное', icon: 'star', items: indexesForUrls(read(STORE.favourites, [])) }
         ];
         sections.splice(0, 0, { kind: 'action', id: 'search-action', name: 'Поиск', icon: 'search', action: function () { openPrompt(-1, null, 'search'); } });
         if (searchResult) {
@@ -721,6 +720,10 @@
             return;
         }
         refreshPersonalSections();
+        // Player messages belong to full-screen viewing, not to the menu.
+        if (!statusBox.dataset.retry) {
+            hideStatus();
+        }
         showScreen('home');
         // Open on the section and tile of what is playing.
         var target = -1;

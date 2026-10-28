@@ -566,14 +566,67 @@
         }
         sections.push({ kind: 'heading', name: t('Группы') });
         var groupPrefs = read(STORE.groups, { hidden: [], order: [] });
-        orderedGroups().forEach(function (group) {
-            if (groupPrefs.hidden.indexOf(group.name) < 0) {
-                sections.push(group);
-            }
-        });
+        var visible = orderedGroups().filter(function (group) { return groupPrefs.hidden.indexOf(group.name) < 0; });
+        sections = sections.concat(nestGroups(visible));
         // Playlists and Settings live on the green and blue keys; only Help stays here.
         sections.push({ kind: 'heading', name: t('Приложение') });
         sections.push({ kind: 'action', name: t('Справка по пульту'), icon: 'help', action: openHelp });
+    }
+
+    // "Russia: Kids", "Russia: Classic"… become subfolders of one "Russia" row.
+    // A parent with a single child stays a plain group.
+    var expanded = {};
+
+    function nestGroups(groups) {
+        var families = {};
+        groups.forEach(function (group) {
+            var cut = group.name.indexOf(': ');
+            if (cut > 0) {
+                var family = group.name.slice(0, cut);
+                (families[family] = families[family] || []).push(group);
+            }
+        });
+        var result = [];
+        var placed = {};
+        groups.forEach(function (group) {
+            var cut = group.name.indexOf(': ');
+            var family = cut > 0 ? group.name.slice(0, cut) : null;
+            if (!family || families[family].length < 2) {
+                result.push(group);
+                return;
+            }
+            if (placed[family]) {
+                return;
+            }
+            placed[family] = true;
+            var children = families[family];
+            var items = [];
+            children.forEach(function (child) { items = items.concat(child.items); });
+            items.sort(function (a, b) { return a - b; });
+            result.push({ kind: 'list', id: 'parent:' + family, name: family, icon: 'folder', items: items,
+                parent: true, open: !!expanded[family] });
+            if (expanded[family]) {
+                children.forEach(function (child) {
+                    result.push({ kind: 'list', id: child.id, name: child.name.slice(family.length + 2), icon: 'folder',
+                        items: child.items, child: true });
+                });
+            }
+        });
+        return result;
+    }
+
+    function toggleFamily() {
+        var section = sections[home.rail];
+        var id = section.id;
+        expanded[section.name] = !expanded[section.name];
+        buildSections();
+        sections.forEach(function (s, i) {
+            if (s.id === id) {
+                home.rail = i;
+            }
+        });
+        renderRail();
+        renderGrid();
     }
 
     // All groups in the user's order (new groups go last, in playlist order).
@@ -982,10 +1035,10 @@
             if (section.kind === 'heading') {
                 item = el('li', 'rail-heading', section.name);
             } else {
-                item = el('li', 'rail-item' + (section.folderId ? ' folder' : ''));
+                item = el('li', 'rail-item' + (section.folderId ? ' folder' : '') + (section.child ? ' child' : ''));
                 item.dataset.rail = index;
                 item.innerHTML = svg(section.icon);
-                item.appendChild(el('span', 'rail-name', section.name));
+                item.appendChild(el('span', 'rail-name', section.name + (section.parent ? (section.open ? ' ▾' : ' ▸') : '')));
                 if (section.kind === 'list') {
                     item.appendChild(el('span', 'rail-count', String(section.items.length)));
                 }
@@ -1174,6 +1227,8 @@
         if (home.area === 'rail') {
             if (section.kind === 'action') {
                 section.action();
+            } else if (section.parent) {
+                toggleFamily();
             } else {
                 focusGrid();
             }
@@ -1206,7 +1261,7 @@
         ] : [
             [['updown'], t('Раздел')],
             [['right'], t('К каналам')],
-            [['OK'], t('Открыть')],
+            [['OK'], sections[home.rail] && sections[home.rail].parent ? t('Раскрыть / свернуть') : t('Открыть')],
             [['yellow'], sections[home.rail] && sections[home.rail].folderId ? t('Переименовать / удалить') : t('Папки')],
             [['green'], t('Плейлисты')],
             [['INFO'], t('Справка')],
@@ -2923,6 +2978,8 @@
                 updateHomeHints();
                 if (sections[home.rail].kind === 'action') {
                     sections[home.rail].action();
+                } else if (sections[home.rail].parent) {
+                    toggleFamily();
                 }
             } else if (target.dataset.tile !== undefined) {
                 home.area = 'grid';

@@ -1,6 +1,7 @@
 // English and Armenian for Alik. Keys are the Russian strings used in app.js and index.html.
 window.ALIK_I18N = {
     en: {
+        'Раскрыть / свернуть': 'Expand / collapse',
         'Нет канала с номером ': 'No channel with number ',
         'Номер канала: ': 'Channel number: ',
         ' · 1–4 цифры, OK — сохранить, 0 — сбросить': ' · 1–4 digits, OK saves, 0 resets',
@@ -235,6 +236,7 @@ window.ALIK_I18N = {
         'Звук и субтитры ': 'Audio and subtitles '
     },
     hy: {
+        'Раскрыть / свернуть': 'Բացել / փակել',
         'Нет канала с номером ': 'Չկա ալիք այս համարով՝ ',
         'Номер канала: ': 'Ալիքի համարը՝ ',
         ' · 1–4 цифры, OK — сохранить, 0 — сбросить': ' · 1–4 թիվ, OK — պահպանել, 0 — զրոյացնել',

@@ -2249,6 +2249,10 @@
             }
             list.appendChild(row);
         });
+        var focusedRow = list.children[settingsFocus];
+        if (focusedRow) {
+            focusedRow.scrollIntoView({ block: 'nearest' });
+        }
     }
 
     function choiceIndex(item, values) {

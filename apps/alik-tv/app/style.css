@@ -730,15 +730,15 @@ video {
     background: transparent;
 }
 
-.settings-title { margin-top: 56px; font-size: 64px; font-weight: 600; }
-.settings-list { width: 1100px; margin-top: 48px; }
+.settings-title { margin-top: 36px; font-size: 60px; font-weight: 600; }
+.settings-list { width: 1100px; height: 740px; margin-top: 40px; overflow: hidden; }
 
 .settings-list li {
     display: flex;
     align-items: center;
-    min-height: 112px;
-    margin-bottom: 18px;
-    padding: 20px 32px;
+    min-height: 100px;
+    margin-bottom: 14px;
+    padding: 16px 32px;
     border: 3px solid var(--line);
     border-radius: 20px;
     background: var(--panel);

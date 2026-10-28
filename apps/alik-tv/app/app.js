@@ -12,6 +12,9 @@
         { name: '18+ · винтажное кино (Internet Archive)', url: 'https://mailtoharutyunyan.github.io/webos-apps/playlists/archive-films-18.m3u', adult: true }
     ];
     var CATALOG_URL = 'https://iptv-org.github.io/api/countries.json';
+    // 48-hour guide for the channels of the ready playlists, rebuilt daily.
+    var GUIDE_URL = 'https://mailtoharutyunyan.github.io/webos-apps/playlists/epg.json';
+    var guide = {};
     var CATALOG_PINNED = ['AM', 'RU'];
 
     var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings', folders: 'alik.folders',
@@ -207,7 +210,8 @@
                 info = {
                     name: name.replace(/\s*\((\d{3,4}p)\)/, '').trim(),
                     group: attr(line, 'group-title') || 'Другое',
-                    logo: attr(line, 'tvg-logo')
+                    logo: attr(line, 'tvg-logo'),
+                    tvgId: attr(line, 'tvg-id').split('@')[0]
                 };
             } else if (line && line.charAt(0) !== '#' && info) {
                 info.url = line;
@@ -253,6 +257,7 @@
         }
         showScreen('player');
         showStatus('Загружаю список каналов…');
+        loadGuide();
         Promise.all(sources.map(fetchSource)).then(function (results) {
             var failed = [];
             channels = [];
@@ -299,6 +304,42 @@
             }
             openHome();
         });
+    }
+
+    function loadGuide() {
+        fetch(GUIDE_URL, { cache: 'no-store' })
+            .then(function (response) { return response.ok ? response.json() : {}; })
+            .then(function (data) {
+                guide = data || {};
+                if (screen === 'home') {
+                    renderGrid();
+                }
+            }, function () { /* the guide is optional */ });
+    }
+
+    // [now, next] programmes of a channel, each [start, stop, title] in Unix seconds.
+    function nowNext(channel) {
+        var shows = channel.tvgId && guide[channel.tvgId];
+        if (!shows) {
+            return [null, null];
+        }
+        var now = Date.now() / 1000;
+        for (var i = 0; i < shows.length; i++) {
+            if (shows[i][0] <= now && now < shows[i][1]) {
+                return [shows[i], shows[i + 1] || null];
+            }
+        }
+        return [null, null];
+    }
+
+    function hhmm(seconds) {
+        var date = new Date(seconds * 1000);
+        return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+    }
+
+    function showProgress(show) {
+        var now = Date.now() / 1000;
+        return Math.max(0, Math.min(100, (now - show[0]) / (show[1] - show[0]) * 100));
     }
 
     function allIndexes(filter) {
@@ -636,6 +677,14 @@
         $('osd-group').textContent = channel.group;
         $('osd-fav').hidden = !isFavourite(current);
         $('osd-progress').hidden = !channel.film;
+        var programmes = channel.film ? [null, null] : nowNext(channel);
+        $('osd-epg').hidden = !programmes[0];
+        if (programmes[0]) {
+            $('osd-epg-title').textContent = programmes[0][2];
+            $('osd-epg-time').textContent = hhmm(programmes[0][0]) + '–' + hhmm(programmes[0][1]);
+            $('osd-epg-bar').style.width = showProgress(programmes[0]) + '%';
+            $('osd-epg-next').textContent = programmes[1] ? 'Далее ' + hhmm(programmes[1][0]) + ' · ' + programmes[1][2] : '';
+        }
         updateProgress();
         $('osd-state').innerHTML = channel.film ? svg(video.paused ? 'play' : 'pause') : '';
         $('osd-state').hidden = !channel.film;
@@ -863,6 +912,14 @@
             if (isDead(channel.url)) {
                 tile.appendChild(el('span', 'tile-dead', 'не отвечает'));
             }
+            var onAir = channel.film ? null : nowNext(channel)[0];
+            if (onAir) {
+                tile.classList.add('guide');
+                tile.appendChild(el('span', 'tile-now', onAir[2]));
+                var bar = el('span', 'tile-now-bar');
+                bar.style.width = showProgress(onAir) + '%';
+                tile.appendChild(bar);
+            }
             tile.appendChild(el('span', 'tile-name', channel.name));
             grid.appendChild(tile);
         }
@@ -989,8 +1046,9 @@
     setInterval(function () {
         if (screen === 'home') {
             tickClock();
+            renderGrid();
         }
-    }, 30000);
+    }, 60000);
 
     function handleHomeKey(code) {
         if (home.area === 'rail') {

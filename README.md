@@ -74,6 +74,8 @@ channels and movie channels grouped by country. Outside Armenia only 24/7, not
 geo-blocked channels stay, and only streams that answer are kept. Channel logos
 are copied into `playlists/logos/` (resized to 320x180), because image hosts
 such as imgur refuse requests from TV browsers.
+`playlists/epg.json` is a 48-hour TV guide for those channels, taken from the free
+XMLTV of epg.it999.ru and matched by channel names (iptv-org alt names).
 `playlists/archive-films.m3u` lists the 300 most downloaded public-domain and
 Creative Commons feature films of the Internet Archive that have an MP4.
 

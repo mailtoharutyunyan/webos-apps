@@ -6,8 +6,12 @@ player's menu stays short.
 
 Usage: python3 playlists/build.py
 """
+import calendar
+import gzip
 import hashlib
 import io
+import time
+import xml.etree.ElementTree as ET
 import json
 import re
 import urllib.parse
@@ -247,10 +251,91 @@ def build_archive():
         print(f'{filename}: {len(chosen)} films')
 
 
+# ---------- TV guide ----------
+
+EPG_SOURCE = 'http://epg.it999.ru/epg.xml.gz'   # free XMLTV, mostly Russian-language channels
+EPG_FILE = 'epg.json'
+EPG_HOURS = 48
+CHANNELS_URL = 'https://iptv-org.github.io/api/channels.json'
+
+
+def norm(name):
+    """Comparable form of a channel name: no quality tags, brackets, case or punctuation."""
+    name = re.sub(r'\(.*?\)|\[.*?\]', ' ', name.lower())
+    name = re.sub(r'\b(hd|fhd|uhd|4k|sd|orig|int|international|\+\d)\b', ' ', name)
+    return re.sub(r'[^0-9a-zа-яёա-ֆ]+', '', name)
+
+
+def xmltv_time(value):
+    """'20261028040000 +0300' -> Unix seconds."""
+    stamp = time.strptime(value[:14], '%Y%m%d%H%M%S')
+    seconds = calendar.timegm(stamp)
+    offset = value[14:].strip()
+    if offset:
+        sign = 1 if offset[0] == '+' else -1
+        seconds -= sign * (int(offset[1:3]) * 3600 + int(offset[3:5]) * 60)
+    return seconds
+
+
+def build_epg():
+    """Writes epg.json: {tvg-id: [[start, stop, title], ...]} for the next EPG_HOURS."""
+    wanted = {}   # tvg-id -> names to look for
+    for _, _, filename, _ in SOURCES:
+        text = (HERE / filename).read_text()
+        for tvg_id, name in re.findall(r'tvg-id="([^"@]+)[^"]*"[^\n]*",([^\n]*)', text):
+            wanted.setdefault(tvg_id, set()).add(name)
+    for channel in json.loads(fetch(CHANNELS_URL)):
+        if channel['id'] in wanted:
+            wanted[channel['id']].update([channel['name']] + (channel.get('alt_names') or []))
+
+    request = urllib.request.Request(EPG_SOURCE, headers={'User-Agent': 'curl/8.7'})
+    with urllib.request.urlopen(request, timeout=300) as response:
+        raw = response.read()
+
+    now = int(time.time())
+    until = now + EPG_HOURS * 3600
+    by_name = {}
+    guide = {}
+    source_to_ids = {}
+    with gzip.open(io.BytesIO(raw)) as stream:
+        for _, element in ET.iterparse(stream, events=('end',)):
+            if element.tag == 'channel':
+                for display in element.findall('display-name'):
+                    if display.text:
+                        by_name.setdefault(norm(display.text), element.get('id'))
+                element.clear()
+            elif element.tag == 'programme':
+                if not source_to_ids:
+                    # All <channel> elements come first: match them to our channels once.
+                    for tvg_id, names in wanted.items():
+                        for name in names:
+                            source = by_name.get(norm(name))
+                            if source:
+                                source_to_ids.setdefault(source, []).append(tvg_id)
+                                break
+                ids = source_to_ids.get(element.get('channel'))
+                if ids:
+                    start = xmltv_time(element.get('start'))
+                    stop = xmltv_time(element.get('stop'))
+                    if stop > now and start < until:
+                        title = element.findtext('title') or ''
+                        for tvg_id in ids:
+                            guide.setdefault(tvg_id, []).append([start, stop, title.strip()])
+                element.clear()
+    for shows in guide.values():
+        shows.sort()
+    (HERE / EPG_FILE).write_text(json.dumps(guide, ensure_ascii=False, separators=(',', ':')))
+    print(f'{EPG_FILE}: {len(guide)} channels, {sum(len(v) for v in guide.values())} programmes')
+
+
 def main():
     for label, url, filename, grouping in SOURCES:
         build(label, url, filename, grouping)
     build_archive()
+    try:
+        build_epg()
+    except Exception as error:   # keep yesterday's guide rather than fail the whole build
+        print(f'{EPG_FILE}: not updated ({error})')
 
 
 if __name__ == '__main__':

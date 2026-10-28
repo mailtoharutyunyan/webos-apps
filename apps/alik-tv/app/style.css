@@ -226,6 +226,35 @@ video {
 
 .osd-progress { display: flex; align-items: center; margin-top: 22px; }
 
+/* TV guide in the player bar: now, its progress and what comes next. */
+.osd-epg { margin-top: 20px; }
+.osd-epg-now { display: flex; align-items: baseline; font-size: 30px; }
+
+.osd-epg-label {
+    flex-shrink: 0;
+    margin-right: 18px;
+    padding: 2px 12px;
+    border-radius: 8px;
+    background: var(--apricot);
+    color: var(--apricot-ink);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.osd-epg-title { flex: 1; overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.osd-epg-time { flex-shrink: 0; margin-left: 24px; color: var(--muted); font-size: 26px; }
+.osd-epg-track { height: 6px; margin-top: 12px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.osd-epg-bar { width: 0; height: 100%; background: var(--apricot); }
+
+.osd-epg-next {
+    margin-top: 10px;
+    overflow: hidden;
+    font-size: 24px;
+    color: var(--muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .osd-state {
     display: flex;
     align-items: center;
@@ -467,7 +496,7 @@ video {
     position: absolute;
     left: 20px;
     right: 20px;
-    bottom: 22px;
+    bottom: 26px;
     overflow: hidden;
     font-size: 26px;
     text-overflow: ellipsis;
@@ -483,6 +512,33 @@ video {
 
 .tile.focused .tile-name { color: var(--apricot-ink); font-weight: 600; }
 .tile.dead .tile-logo { opacity: 0.35; filter: grayscale(1); }
+
+/* With a guide entry the name moves up and the programme takes the bottom line. */
+.tile.guide .tile-name { bottom: 50px; font-size: 24px; }
+
+.tile-now {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    overflow: hidden;
+    font-size: 20px;
+    color: var(--muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tile-now-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 5px;
+    border-radius: 0 3px 0 20px;
+    background: var(--apricot);
+}
+
+.tile.focused .tile-now { color: var(--apricot-ink); }
+.tile.focused .tile-now-bar { background: var(--apricot-ink); }
 
 .tile-dead {
     position: absolute;

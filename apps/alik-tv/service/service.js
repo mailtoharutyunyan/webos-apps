@@ -1,32 +1,56 @@
-// Stores Alik's settings in /media/developer/temp, which survives reinstalling
-// or updating the app (but not a factory reset of the TV).
+// Keeps a backup of Alik's settings. /media/developer/temp is preferred (it
+// outlives the app), but the service jail may not expose it; then the copy goes
+// next to this service, which survives app updates and reinstalls over it.
 var Service = require('webos-service');
 var fs = require('fs');
+var path = require('path');
 var pkgInfo = require('./package.json');
 
 var service = new Service(pkgInfo.name);
-var DIR = '/media/developer/temp/alik';
-var FILE = DIR + '/backup.json';
+var PLACES = ['/media/developer/temp/alik', path.join(__dirname, 'backup')];
+
+function ensureDir(dir) {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
+}
+
+function findBackup() {
+    for (var i = 0; i < PLACES.length; i++) {
+        var file = path.join(PLACES[i], 'backup.json');
+        if (fs.existsSync(file)) {
+            return file;
+        }
+    }
+    return null;
+}
 
 service.register('save', function (message) {
     var data = message.payload.data;
     if (!data || typeof data !== 'object') {
         return message.respond({ returnValue: false, errorText: 'Nothing to save.' });
     }
-    try {
-        if (!fs.existsSync(DIR)) {
-            fs.mkdirSync(DIR);
+    var errors = [];
+    for (var i = 0; i < PLACES.length; i++) {
+        var file = path.join(PLACES[i], 'backup.json');
+        try {
+            ensureDir(PLACES[i]);
+            fs.writeFileSync(file + '.tmp', JSON.stringify({ savedAt: Date.now(), data: data }));
+            fs.renameSync(file + '.tmp', file);
+            return message.respond({ returnValue: true, savedAt: Date.now(), place: PLACES[i] });
+        } catch (e) {
+            errors.push(e.message);
         }
-        fs.writeFileSync(FILE + '.tmp', JSON.stringify({ savedAt: Date.now(), data: data }));
-        fs.renameSync(FILE + '.tmp', FILE);
-        message.respond({ returnValue: true, savedAt: Date.now() });
-    } catch (e) {
-        message.respond({ returnValue: false, errorText: e.message });
     }
+    message.respond({ returnValue: false, errorText: errors.join('; ') });
 });
 
 service.register('load', function (message) {
-    fs.readFile(FILE, 'utf8', function (err, text) {
+    var file = findBackup();
+    if (!file) {
+        return message.respond({ returnValue: true, found: false });
+    }
+    fs.readFile(file, 'utf8', function (err, text) {
         if (err) {
             return message.respond({ returnValue: true, found: false });
         }

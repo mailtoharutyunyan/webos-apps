@@ -26,8 +26,9 @@ group manager (hide and reorder).
 
 Settings also hold the interface language (Русский, English, Հայերեն), a sleep timer and
 restore from backup. A small service (`service/`) keeps a copy of playlists, folders,
-favourites and settings in `/media/developer/temp/alik`, so updating or reinstalling Alik
-does not lose them; a fresh install restores it automatically.
+favourites and settings next to the service (the jail hides `/media/developer/temp`), so
+updating Alik or installing it over itself keeps them; a fresh install restores them
+automatically. Uninstalling Alik deletes the copy too.
 
 Playback uses [hls.js](https://github.com/video-dev/hls.js) 1.5.20 (Apache-2.0, `app/vendor`).
 The TV runs Chromium 79: no optional chaining, `??` or CSS `inset`.

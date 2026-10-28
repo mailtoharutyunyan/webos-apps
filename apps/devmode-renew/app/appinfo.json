@@ -1,6 +1,6 @@
 {
   "id": "com.arayik.devrenew",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "vendor": "Arayik Harutyunyan",
   "type": "web",
   "main": "index.html",
@@ -9,5 +9,8 @@
   "largeIcon": "largeIcon.png",
   "bgColor": "#17202C",
   "resolution": "1920x1080",
-  "disableBackHistoryAPI": true
+  "disableBackHistoryAPI": true,
+  "iconColor": "#0f1420",
+  "mediumLargeIcon": "mediumLargeIcon.png",
+  "extraLargeIcon": "extraLargeIcon.png"
 }

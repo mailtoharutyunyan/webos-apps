@@ -7,16 +7,16 @@
       "shortDescription": "IPTV for the remote: Armenian channels first, then Russian. Fast channel menu.",
       "manifest": {
         "id": "com.arayik.alik",
-        "version": "3.2.2",
+        "version": "3.2.3",
         "type": "web",
         "title": "Alik TV",
         "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.arayik.alik.png",
         "rootRequired": false,
-        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.arayik.alik_3.2.2_all.ipk",
+        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.arayik.alik_3.2.3_all.ipk",
         "ipkHash": {
-          "sha256": "90f766e3eff4772dd5d8916912cd238239419e06ad72076cd7f29ceed724b708"
+          "sha256": "0ff6ba876c3f21e6cc6b501e6a516f0d80eefe331e7b8fe389849542bad3c3d8"
         },
-        "ipkSize": 173044
+        "ipkSize": 182550
       }
     },
     {
@@ -26,16 +26,16 @@
       "shortDescription": "Renews the Developer Mode session once a week, right on the TV.",
       "manifest": {
         "id": "com.arayik.devrenew",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "type": "web",
         "title": "Dev Mode Renew",
         "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.arayik.devrenew.png",
         "rootRequired": false,
-        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.arayik.devrenew_1.0.0_all.ipk",
+        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.arayik.devrenew_1.0.1_all.ipk",
         "ipkHash": {
-          "sha256": "e676289203bad15ebda069e69250ec8e25f6db32774af8a6cfee589fc44faa51"
+          "sha256": "a23b4570f4e4e90a08578d08e521b35659121256ee8f0ed03c1457d87f86fe1f"
         },
-        "ipkSize": 15188
+        "ipkSize": 22406
       }
     },
     {
@@ -72,9 +72,9 @@
         "rootRequired": false,
         "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/youtube.leanback.v4_0.5.3_all.ipk",
         "ipkHash": {
-          "sha256": "1ede49fddabf9ef61b7fa5f11bc52e91f44248b1617623f5916caccfd4d8182a"
+          "sha256": "9f1e382e04e90b725767d0c7b00f567946b430bb5b3b3cf8f6017da933702d14"
         },
-        "ipkSize": 487350,
+        "ipkSize": 488116,
         "sourceUrl": "https://github.com/webosbrew/youtube-webos"
       }
     }

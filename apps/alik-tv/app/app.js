@@ -1850,8 +1850,9 @@
         if (!tile || screen !== 'home') {
             return;
         }
-        var index = sections[home.rail].items[Number(tile.dataset.tile)];
-        drag = { index: index, active: false, x: event.clientX, y: event.clientY };
+        var from = sections[home.rail];
+        var index = from.items[Number(tile.dataset.tile)];
+        drag = { index: index, from: from, active: false, x: event.clientX, y: event.clientY };
         restartTimer('drag', DRAG_DELAY, function () {
             if (!drag) {
                 return;
@@ -1863,7 +1864,11 @@
             ghost.style.left = drag.x + 'px';
             ghost.style.top = drag.y + 'px';
             ghost.hidden = false;
-            toast('Перетащите на папку в меню слева');
+            // From a folder or favourites the tile can also be thrown away.
+            var removable = !!drag.from.folderId || drag.from.id === 'favourites';
+            $('trash').hidden = !removable;
+            $('trash-label').textContent = drag.from.folderId ? 'Убрать из папки' : 'Убрать из избранного';
+            toast(removable ? 'Перетащите на папку слева или в корзину' : 'Перетащите на папку в меню слева');
         });
     });
 
@@ -1889,6 +1894,7 @@
         if (target) {
             target.classList.add('drop-target');
         }
+        $('trash').classList.toggle('hot', !!(over && over.closest('#trash')));
     });
 
     document.addEventListener('mouseup', function (event) {
@@ -1900,7 +1906,18 @@
             suppressClick = true;
             var over = document.elementFromPoint(event.clientX, event.clientY);
             var target = over && over.closest('.rail-item.folder');
-            if (target) {
+            if (over && over.closest('#trash') && !$('trash').hidden) {
+                var name = channels[drag.index].name;
+                if (drag.from.folderId) {
+                    toggleInFolder(drag.from.folderId, drag.index);
+                    toast('«' + name + '» убран из «' + drag.from.name + '»');
+                } else {
+                    toggleFavourite(drag.index);
+                    renderRail();
+                    renderGrid();
+                    toast('«' + name + '» убран из избранного');
+                }
+            } else if (target) {
                 var section = sections[Number(target.dataset.rail)];
                 var folder = findFolder(section.folderId);
                 if (folder && folder.urls.indexOf(channels[drag.index].url) < 0) {
@@ -1911,6 +1928,8 @@
                 }
             }
             $('ghost').hidden = true;
+            $('trash').hidden = true;
+            $('trash').classList.remove('hot');
             document.body.classList.remove('dragging');
         }
         drag = null;
@@ -2216,7 +2235,7 @@
         [['blue'], 'Настройки / дорожки', 'В меню — настройки; при просмотре — звук и субтитры, если их несколько'],
         [['INFO'], 'Справка и информация', 'Эта страница; во время просмотра — данные канала'],
         [['back'], 'Назад', 'На главном экране предлагает выйти'],
-        [['Magic Remote'], 'Перетаскивание', 'Зажмите плитку и перетащите на папку в меню слева'],
+        [['Magic Remote'], 'Перетаскивание', 'Зажмите плитку: на папку слева — положить, в корзину — убрать из папки'],
         [['Magic Remote'], 'Указка', 'Наведите и нажмите колесо; колесо листает меню. Каналы — в Настройках']
     ];
 

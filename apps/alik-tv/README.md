@@ -19,7 +19,7 @@ group manager (hide and reorder).
 | INFO | Show the channel info |
 | Green | Playlists: add a link, a preset or a country, remove one |
 | Yellow (home) | On a tile: put it into a folder. On a folder in the menu: rename or delete it |
-| Magic Remote | Hold a tile and drag it onto a folder in the menu |
+| Magic Remote | Hold a tile and drag it onto a folder in the menu, or onto the trash to take it out of the open folder |
 | Blue (while watching) | Audio and subtitle tracks, when a channel has several |
 | Settings (blue) | Theme, 18+ content with an optional 4-digit PIN, Magic Remote wheel zapping |
 | Back | Close the menu / exit |

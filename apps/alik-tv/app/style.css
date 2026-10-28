@@ -923,6 +923,40 @@ video {
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
 
+/* Drop zone that removes a dragged tile from the open folder. */
+.trash {
+    position: fixed;
+    right: 80px;
+    bottom: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 240px;
+    height: 200px;
+    border: 4px dashed var(--red);
+    border-radius: 28px;
+    background: var(--veil);
+    color: var(--red);
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    transition: transform 120ms ease-out;
+}
+
+.trash svg {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.trash.hot { transform: scale(1.08); border-style: solid; background: var(--red); color: #fff; }
+
 .dragging .rail-item.folder { box-shadow: inset 0 0 0 3px var(--line); }
 .dragging .rail-item.drop-target { background: var(--apricot); color: var(--apricot-ink); }
 

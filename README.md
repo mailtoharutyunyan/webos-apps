@@ -5,7 +5,7 @@ without root: Developer Mode is enough.
 
 | App | Folder | What it does |
 |---|---|---|
-| Alik TV | `apps/alik-tv` | IPTV and film player for the remote: channel tiles, favourites, your own M3U links |
+| Alik TV | `apps/alik-tv` | IPTV and film player for the remote: tiles with logos and TV guide, folders, own M3U links, 18+ PIN, RU / EN / HY |
 | Dev Mode Renew | `apps/devmode-renew` | Renews the Developer Mode session once a week, right on the TV |
 | Qoder IPTV | `apps/qoder-iptv` | [Qoder IPTV](https://github.com/HCLGitHub/qoder-iptv) M3U/IPTV player, unchanged mirror |
 | YouTube | `apps/youtube-adfree` | [YouTube AdFree](https://github.com/webosbrew/youtube-webos) with the regular YouTube icon |

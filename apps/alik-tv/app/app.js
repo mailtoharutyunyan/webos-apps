@@ -33,7 +33,8 @@
     var CATALOG_PINNED = ['AM', 'RU'];
 
     var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings', folders: 'alik.folders',
-        positions: 'alik.positions', dead: 'alik.dead', groups: 'alik.groups', numbers: 'alik.numbers' };
+        positions: 'alik.positions', dead: 'alik.dead', groups: 'alik.groups', numbers: 'alik.numbers',
+        expanded: 'alik.expanded' };
     var DEAD_FOR = 24 * 3600 * 1000;   // a failed channel is marked for a day
     var DRAG_DELAY = 400;
     var ADULT_GROUP = /18\+|adult|xxx/i;
@@ -166,7 +167,7 @@
     // ---------- Backup ----------
 
     // What a reinstall must not lose. Film positions and dead marks are cheap to rebuild.
-    var BACKED_UP = [STORE.sources, STORE.favourites, STORE.folders, STORE.settings, STORE.groups, STORE.numbers];
+    var BACKED_UP = [STORE.sources, STORE.favourites, STORE.folders, STORE.settings, STORE.groups, STORE.numbers, STORE.expanded];
     var SERVICE = 'luna://com.arayik.alik.service/';
     var lastBackup = 0;
 
@@ -575,7 +576,7 @@
 
     // "Russia: Kids", "Russia: Classic"… become subfolders of one "Russia" row.
     // A parent with a single child stays a plain group.
-    var expanded = {};
+    var expanded = read(STORE.expanded, {});   // which parent folders are open, kept between launches
 
     function nestGroups(groups) {
         var families = {};
@@ -619,6 +620,7 @@
         var section = sections[home.rail];
         var id = section.id;
         expanded[section.name] = !expanded[section.name];
+        write(STORE.expanded, expanded);
         buildSections();
         sections.forEach(function (s, i) {
             if (s.id === id) {

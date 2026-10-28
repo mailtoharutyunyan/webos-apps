@@ -33,7 +33,7 @@
     var CATALOG_PINNED = ['AM', 'RU'];
 
     var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings', folders: 'alik.folders',
-        positions: 'alik.positions', dead: 'alik.dead', groups: 'alik.groups' };
+        positions: 'alik.positions', dead: 'alik.dead', groups: 'alik.groups', numbers: 'alik.numbers' };
     var DEAD_FOR = 24 * 3600 * 1000;   // a failed channel is marked for a day
     var DRAG_DELAY = 400;
     var ADULT_GROUP = /18\+|adult|xxx/i;
@@ -67,6 +67,7 @@
         { id: 'theme', kind: 'choice', title: t('Тема'), text: t('Цвета Alik. ← → или OK — сменить.'), options: THEMES },
         { id: 'adult', title: t('Показывать 18+'), text: t('Включено — добавляется плейлист 18+ и группа «Films 18+». Выключено — скрыто.') },
         { id: 'wheelZap', title: t('Колесо Magic Remote переключает каналы'), text: t('Во время просмотра. Выключено — только CH+ и CH−.') },
+        { id: 'startPlayer', title: t('Запуск сразу в плеере'), text: t('Alik открывается на последнем канале, меню — по OK.') },
         { id: 'hideDead', title: t('Скрыть неработающие каналы'), text: t('Каналы, которые не ответили за последние сутки.') },
         { id: 'sleep', kind: 'choice', title: t('Таймер сна'), text: t('Остановит просмотр через выбранное время.'), options: SLEEP_OPTIONS, session: true },
         { id: 'backup', kind: 'link', title: t('Восстановить из резервной копии'), text: t('Копия плейлистов, папок, избранного и настроек сохраняется сама на ТВ.') },
@@ -88,7 +89,8 @@
         return read(STORE.settings, {})[id] === true;
     }
 
-    var adultUnlocked = false;   // per app start; a PIN locks 18+ again on every launch
+    var adultUnlocked = false;
+    var startedOnce = false;   // "start in the player" applies to the launch, not to later reloads   // per app start; a PIN locks 18+ again on every launch
 
     function pinSet() {
         return /^\d{4}$/.test(read(STORE.settings, {}).pin || '');
@@ -164,7 +166,7 @@
     // ---------- Backup ----------
 
     // What a reinstall must not lose. Film positions and dead marks are cheap to rebuild.
-    var BACKED_UP = [STORE.sources, STORE.favourites, STORE.folders, STORE.settings, STORE.groups];
+    var BACKED_UP = [STORE.sources, STORE.favourites, STORE.folders, STORE.settings, STORE.groups, STORE.numbers];
     var SERVICE = 'luna://com.arayik.alik.service/';
     var lastBackup = 0;
 
@@ -404,7 +406,7 @@
             if (setting('hideDead')) {
                 channels = channels.filter(function (channel) { return !isDead(channel.url); });
             }
-            channels.forEach(function (channel, index) { channel.number = index + 1; });
+            assignNumbers();
             if (!channels.length) {
                 showStatus(t('Не удалось загрузить плейлисты. ') + failed.join('; ') +
                     t('. OK — повторить, зелёная кнопка — изменить плейлисты.'));
@@ -426,7 +428,13 @@
                 showStatus(t('Не загрузились: ') + failed.join('; ') + '.');
                 restartTimer('status', 6000, hideStatus);
             }
-            openHome();
+            if (setting('startPlayer') && !startedOnce) {
+                showScreen('player');
+                showOsd();
+            } else {
+                openHome();
+            }
+            startedOnce = true;
         });
     }
 
@@ -464,6 +472,40 @@
     function showProgress(show) {
         var now = Date.now() / 1000;
         return Math.max(0, Math.min(100, (now - show[0]) / (show[1] - show[0]) * 100));
+    }
+
+    // Your own numbers come first; every other channel takes the next free number in order.
+    function assignNumbers() {
+        var own = read(STORE.numbers, {});
+        var taken = {};
+        channels.forEach(function (channel) {
+            var number = own[channel.url];
+            if (number && !taken[number]) {
+                channel.number = number;
+                taken[number] = true;
+            } else {
+                channel.number = 0;
+            }
+        });
+        var next = 1;
+        channels.forEach(function (channel) {
+            if (!channel.number) {
+                while (taken[next]) {
+                    next++;
+                }
+                channel.number = next;
+                taken[next] = true;
+            }
+        });
+    }
+
+    function indexOfNumber(number) {
+        for (var i = 0; i < channels.length; i++) {
+            if (channels[i].number === number) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     function allIndexes(filter) {
@@ -830,6 +872,7 @@
         ] : [
             [['OK'], t('Меню')],
             [['CH+', 'CH−'], t('Канал')],
+            [['leftright'], t('Список каналов')],
             [['0–9'], t('Номер')],
             [['red'], isFavourite(current) ? t('Убрать из избранного') : t('В избранное')],
             [['yellow'], t('Предыдущий')],
@@ -1738,6 +1781,11 @@
         create.dataset.pick = folders.length;
         create.appendChild(el('span', '', t('＋ Новая папка')));
         list.appendChild(create);
+        var numberRow = el('li', folders.length + 1 === picker.focus ? 'focused' : '');
+        numberRow.dataset.pick = folders.length + 1;
+        numberRow.appendChild(el('span', '', t('Номер канала: ') + channels[picker.channel].number));
+        numberRow.appendChild(el('span', 'check', '#'));
+        list.appendChild(numberRow);
         var focused = list.children[picker.focus];
         if (focused) {
             focused.scrollIntoView({ block: 'nearest' });
@@ -1812,6 +1860,15 @@
             openPrompt(picker.channel);
             return;
         }
+        if (picker.focus === folders.length + 1) {
+            var channelIndex = picker.channel;
+            $('picker').hidden = true;
+            screen = 'home';
+            openPin('number', t('Номер канала'), channels[channelIndex].name + t(' · 1–4 цифры, OK — сохранить, 0 — сбросить'), function (value) {
+                setOwnNumber(channelIndex, value);
+            });
+            return;
+        }
         var folder = folders[picker.focus];
         var added = toggleInFolder(folder.id, picker.channel);
         toast((added ? t('Добавлено в «') : t('Убрано из «')) + folder.name + '»');
@@ -1822,7 +1879,7 @@
         var count = picker.mode === 'folder' ? folderActions().length
             : picker.mode === 'tracks' ? trackRows().length
                 : picker.mode === 'groups' ? groupRows().length
-                    : read(STORE.folders, []).length + 1;
+                    : read(STORE.folders, []).length + 2;
         if (picker.mode === 'groups' && (code === KEY.CH_UP || code === KEY.CH_DOWN)) {
             moveGroup(picker.focus, code === KEY.CH_UP ? -1 : 1);
             return true;
@@ -2114,13 +2171,19 @@
         }
         pin.value += digit;
         renderPin();
-        if (pin.value.length === 4) {
+        if (pin.value.length === 4 && pin.mode !== 'number') {
             setTimeout(finishPin, 150);
         }
     }
 
     function finishPin() {
         var entered = pin.value;
+        if (pin.mode === 'number') {
+            var done = pin.done;
+            closePin();
+            done(entered);
+            return;
+        }
         if (pin.mode === 'check') {
             if (entered === read(STORE.settings, {}).pin) {
                 var done = pin.done;
@@ -2168,6 +2231,8 @@
     function handlePinKey(code) {
         if (code >= 48 && code <= 57) {
             pinDigit(String(code - 48));
+        } else if (code === KEY.OK && pin.mode === 'number' && pin.value) {
+            finishPin();
         } else if (code === KEY.OK) {
             pinInput.focus();
         } else if (code === KEY.BACK) {
@@ -2183,6 +2248,28 @@
             return false;
         }
         return true;
+    }
+
+    function setOwnNumber(index, value) {
+        var own = read(STORE.numbers, {});
+        var url = channels[index].url;
+        var number = parseInt(value, 10);
+        if (!number) {
+            delete own[url];
+            toast(t('Свой номер сброшен'));
+        } else {
+            // A number belongs to one channel: take it from whoever had it.
+            Object.keys(own).forEach(function (key) {
+                if (own[key] === number) {
+                    delete own[key];
+                }
+            });
+            own[url] = number;
+            toast(channels[index].name + ' → ' + number);
+        }
+        write(STORE.numbers, own);
+        assignNumbers();
+        renderGrid();
     }
 
     // ---------- Settings ----------
@@ -2411,7 +2498,7 @@
     var HELP = [
         [['OK'], t('Меню или пауза'), t('На канале открывает главный экран, в фильме — пауза; в меню включает')],
         [['up', 'down'], t('Информация о канале'), t('В меню — движение по плиткам и разделам')],
-        [['left', 'right'], t('Перемотка фильма'), t('10 с, при частых нажатиях 1 и 5 минут; в меню — плитки')],
+        [['left', 'right'], t('Список каналов / перемотка'), t('10 с, при частых нажатиях 1 и 5 минут; в меню — плитки')],
         [['CH+', 'CH−'], t('Переключить канал'), t('В меню листает на целую страницу')],
         [['0–9'], t('Номер канала'), t('Наберите номер, переключение через 1,5 секунды')],
         [['play', 'pause'], t('Пауза и продолжение'), t('Для фильмов')],
@@ -2499,18 +2586,94 @@
             var number = parseInt(digits, 10);
             digits = '';
             $('digits').hidden = true;
-            if (number >= 1 && number <= channels.length) {
-                play(number - 1, allIndexes(function (c) { return c.film === channels[number - 1].film; }));
+            var index = indexOfNumber(number);
+            if (index >= 0) {
+                play(index, allIndexes(function (c) { return c.film === channels[index].film; }));
                 showScreen('player');
                 showOsd();
+            } else {
+                toast(t('Нет канала с номером ') + number);
             }
         });
+    }
+
+    // ---------- Quick channel strip (live TV) ----------
+
+    var strip = { open: false, at: 0 };
+    var STRIP_SIZE = 7;
+
+    function openStrip(delta) {
+        if (!playList.length) {
+            return;
+        }
+        osd.hidden = true;
+        if (!strip.open) {
+            strip = { open: true, at: Math.max(0, playList.indexOf(current)) };
+        }
+        strip.at = (strip.at + delta + playList.length) % playList.length;
+        renderStrip();
+        restartTimer('strip', 6000, closeStrip);
+    }
+
+    function closeStrip() {
+        strip.open = false;
+        $('strip').hidden = true;
+    }
+
+    function renderStrip() {
+        var row = $('strip-row');
+        row.innerHTML = '';
+        var half = Math.floor(STRIP_SIZE / 2);
+        for (var offset = -half; offset <= half; offset++) {
+            var position = (strip.at + offset + playList.length * 3) % playList.length;
+            var channel = channels[playList[position]];
+            var item = el('div', 'strip-item' + (offset === 0 ? ' focused' : '') + (playList[position] === current ? ' playing' : ''));
+            item.dataset.strip = position;
+            var frame = el('div', 'strip-logo');
+            if (channel.logo) {
+                var img = el('img');
+                img.alt = '';
+                img.src = channel.logo;
+                frame.appendChild(img);
+            } else {
+                frame.appendChild(initials(channel));
+            }
+            item.appendChild(frame);
+            item.appendChild(el('span', 'strip-number', String(channel.number)));
+            item.appendChild(el('span', 'strip-name', channel.name));
+            var onAir = nowNext(channel)[0];
+            item.appendChild(el('span', 'strip-now', onAir ? onAir[2] : ''));
+            row.appendChild(item);
+        }
+        $('strip').hidden = false;
+    }
+
+    function handleStripKey(code) {
+        if (code === KEY.LEFT || code === KEY.RIGHT) {
+            openStrip(code === KEY.LEFT ? -1 : 1);
+        } else if (code === KEY.OK) {
+            var index = playList[strip.at];
+            closeStrip();
+            if (index !== current) {
+                play(index);
+            }
+            showOsd();
+        } else if (code === KEY.BACK) {
+            closeStrip();
+        } else {
+            closeStrip();
+            return false;
+        }
+        return true;
     }
 
     // ---------- Player keys ----------
 
     function handlePlayerKey(code) {
         var film = current >= 0 && channels[current].film;
+        if (strip.open && handleStripKey(code)) {
+            return true;
+        }
         if (statusBox.dataset.retry && code === KEY.OK) {
             loadPlaylists();
         } else if (film && code === KEY.OK) {
@@ -2537,7 +2700,9 @@
         } else if (code === KEY.RED) {
             toggleFavourite(current);
             showOsd();
-        } else if (code === KEY.LEFT || code === KEY.RIGHT || code === KEY.INFO) {
+        } else if (code === KEY.LEFT || code === KEY.RIGHT) {
+            openStrip(code === KEY.LEFT ? -1 : 1);
+        } else if (code === KEY.INFO) {
             showOsd();
         } else if (code === KEY.BACK) {
             if (!osd.hidden && !film) {

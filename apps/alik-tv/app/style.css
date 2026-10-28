@@ -334,6 +334,77 @@ video {
     color: var(--apricot);
 }
 
+/* ---------- Quick channel strip ---------- */
+
+.strip {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 40px 80px 48px;
+    background: linear-gradient(0deg, var(--veil) 70%, rgba(0, 0, 0, 0));
+}
+
+.strip-row { display: flex; justify-content: center; }
+
+.strip-item {
+    position: relative;
+    width: 228px;
+    height: 220px;
+    margin: 0 10px;
+    border-radius: 18px;
+    background: var(--panel);
+    transition: transform 120ms ease-out;
+}
+
+.strip-logo {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 204px;
+    height: 110px;
+    border-radius: 12px;
+    background: var(--raised);
+    overflow: hidden;
+}
+
+.strip-logo img { width: 100%; height: 100%; padding: 12px; object-fit: contain; }
+
+.strip-number {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--veil);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.strip-name,
+.strip-now {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.strip-name { top: 134px; font-size: 24px; font-weight: 600; }
+.strip-now { top: 172px; font-size: 20px; color: var(--muted); }
+
+.strip-item.playing { box-shadow: inset 0 0 0 3px var(--apricot); }
+
+.strip-item.focused {
+    transform: scale(1.1);
+    background: var(--apricot);
+    color: var(--apricot-ink);
+    z-index: 2;
+}
+
+.strip-item.focused .strip-now { color: var(--apricot-ink); }
+
 /* ---------- Home ---------- */
 
 /* Home sits over the playing video, so the picture shows through on the right. */

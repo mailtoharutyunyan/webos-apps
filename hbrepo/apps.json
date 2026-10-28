@@ -7,16 +7,16 @@
       "shortDescription": "IPTV for the remote: Armenian channels first, then Russian. Fast channel menu.",
       "manifest": {
         "id": "com.arayik.alik",
-        "version": "3.0.4",
+        "version": "3.1.0",
         "type": "web",
         "title": "Alik TV",
         "iconUri": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/icons/com.arayik.alik.png",
         "rootRequired": false,
-        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.arayik.alik_3.0.4_all.ipk",
+        "ipkUrl": "https://mailtoharutyunyan.github.io/webos-apps/hbrepo/ipk/com.arayik.alik_3.1.0_all.ipk",
         "ipkHash": {
-          "sha256": "555fcb02f5028e89895329f76e5bef00ffca5ad6a39cd2676ca90ac7a8d1f946"
+          "sha256": "8b1c6f9d929d5833f4d610b327d6382bc52864e5dfe0083e46efb20fc8808694"
         },
-        "ipkSize": 171338
+        "ipkSize": 172674
       }
     },
     {

@@ -29,11 +29,28 @@
         { id: 'playlists', kind: 'link', title: 'Плейлисты и каталоги', text: 'Добавить ссылку M3U, готовый плейлист или страну из iptv-org. OK — открыть.' },
         { id: 'theme', kind: 'choice', title: 'Тема', text: 'Цвета Alik. ← → или OK — сменить.', options: THEMES },
         { id: 'adult', title: 'Показывать 18+', text: 'Включено — добавляется плейлист 18+ и группа «Films 18+». Выключено — скрыто.' },
-        { id: 'wheelZap', title: 'Колесо Magic Remote переключает каналы', text: 'Во время просмотра. Выключено — только CH+ и CH−.' }
+        { id: 'wheelZap', title: 'Колесо Magic Remote переключает каналы', text: 'Во время просмотра. Выключено — только CH+ и CH−.' },
+        { id: 'pinSet', kind: 'link', title: 'Задать PIN для 18+', text: '4 цифры. После этого 18+ закрыто при каждом запуске Alik.', when: function () { return !pinSet(); } },
+        { id: 'pinChange', kind: 'link', title: 'Сменить PIN для 18+', text: 'Нужен текущий PIN.', when: pinSet },
+        { id: 'pinRemove', kind: 'link', title: 'Убрать PIN', text: 'Нужен текущий PIN. 18+ снова управляется только переключателем.', when: pinSet }
     ];
+
+    function visibleSettings() {
+        return SETTINGS.filter(function (item) { return !item.when || item.when(); });
+    }
 
     function setting(id) {
         return read(STORE.settings, {})[id] === true;
+    }
+
+    var adultUnlocked = false;   // per app start; a PIN locks 18+ again on every launch
+
+    function pinSet() {
+        return /^\d{4}$/.test(read(STORE.settings, {}).pin || '');
+    }
+
+    function adultVisible() {
+        return setting('adult') && (!pinSet() || adultUnlocked);
     }
 
     function applyTheme() {
@@ -138,6 +155,7 @@
         help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 015 .5c0 1.7-2.5 2-2.5 3.5M12 17h.01',
         play: 'M8 5l11 7-11 7z',
         plus: 'M12 5v14M5 12h14',
+        lock: 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 017 0v3',
         heartfolder: 'M3 7h6l2 2h10v10H3zM12 17l-2.6-2.4a1.6 1.6 0 012.3-2.2l.3.3.3-.3a1.6 1.6 0 012.3 2.2z',
         gear: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-1-3-2 .3-1.4-1.4.3-2-3-1-1 2h-2l-1-2-3 1 .3 2L5.8 7.3 4 7 3 10l2 1v2l-2 1 1 3 2-.3 1.4 1.4-.3 2 3 1 1-2h2l1 2 3-1-.3-2 1.4-1.4 2 .3 1-3-2-1z',
         pause: 'M8 5v14M16 5v14'
@@ -245,7 +263,7 @@
                     channels = channels.concat(result.channels);
                 }
             });
-            if (!setting('adult')) {
+            if (!adultVisible()) {
                 channels = channels.filter(function (channel) { return !channel.adult; });
             }
             channels.forEach(function (channel, index) { channel.number = index + 1; });
@@ -313,6 +331,14 @@
         }
         if (films.length) {
             sections.push({ kind: 'list', id: 'films', name: 'Все фильмы', icon: 'film', items: films });
+        }
+        if (setting('adult') && pinSet() && !adultUnlocked) {
+            sections.push({ kind: 'action', name: 'Открыть 18+', icon: 'lock', action: function () {
+                openPin('check', 'Открыть 18+', 'Введите PIN-код', function () {
+                    adultUnlocked = true;
+                    loadPlaylists();
+                });
+            } });
         }
         var bySource = {};
         var playlists = [];
@@ -952,7 +978,7 @@
     function sourceRows() {
         var saved = read(STORE.sources, []);
         var right = [{ kind: 'heading', text: 'Готовые плейлисты' }];
-        PRESETS.filter(function (preset) { return !preset.adult || setting('adult'); }).forEach(function (preset) {
+        PRESETS.filter(function (preset) { return !preset.adult || adultVisible(); }).forEach(function (preset) {
             right.push({ kind: 'preset', preset: preset, added: saved.some(function (s) { return s.url === preset.url; }) });
         });
         right.push({ kind: 'catalog' });
@@ -1589,14 +1615,127 @@
         drag = null;
     });
 
+    // ---------- PIN ----------
+
+    var pin = { mode: 'check', value: '', first: '', done: null, back: 'settings' };
+    var pinInput = $('pin-input');
+
+    function openPin(mode, title, text, done) {
+        pin = { mode: mode, value: '', first: '', done: done, back: screen };
+        screen = 'pin';
+        $('pin').hidden = false;
+        $('pin-title').textContent = title;
+        $('pin-text').textContent = text;
+        pinInput.value = '';
+        renderPin();
+        setHints($('pin-hints'), [[['0–9'], 'Цифры'], [['OK'], 'Клавиатура'], [['back'], 'Стереть / отмена']]);
+    }
+
+    function setNewPin() {
+        openPin('new', 'Новый PIN', 'Придумайте 4 цифры', null);
+    }
+
+    function renderPin(error) {
+        var dots = $('pin-dots');
+        dots.classList.toggle('error', !!error);
+        Array.prototype.forEach.call(dots.children, function (dot, i) {
+            dot.classList.toggle('filled', i < pin.value.length);
+        });
+    }
+
+    function closePin() {
+        pinInput.blur();
+        $('pin').hidden = true;
+        if (pin.back === 'home') {
+            screen = 'home';
+        } else {
+            showScreen(pin.back);
+        }
+    }
+
+    function pinDigit(digit) {
+        if (pin.value.length >= 4) {
+            return;
+        }
+        pin.value += digit;
+        renderPin();
+        if (pin.value.length === 4) {
+            setTimeout(finishPin, 150);
+        }
+    }
+
+    function finishPin() {
+        var entered = pin.value;
+        if (pin.mode === 'check') {
+            if (entered === read(STORE.settings, {}).pin) {
+                var done = pin.done;
+                closePin();
+                if (done) {
+                    done();
+                }
+            } else {
+                pin.value = '';
+                renderPin(true);
+                $('pin-text').textContent = 'Неверный PIN, попробуйте ещё раз';
+            }
+        } else if (pin.mode === 'new') {
+            pin = { mode: 'repeat', value: '', first: entered, done: null, back: pin.back };
+            $('pin-title').textContent = 'Повторите PIN';
+            $('pin-text').textContent = 'Ещё раз те же 4 цифры';
+            renderPin();
+        } else if (entered === pin.first) {
+            var values = read(STORE.settings, {});
+            values.pin = entered;
+            write(STORE.settings, values);
+            adultUnlocked = true;
+            closePin();
+            toast('PIN сохранён. 18+ будет закрыто при каждом запуске');
+            settingsChanged = true;
+            openSettings(true);
+        } else {
+            pin = { mode: 'new', value: '', first: '', done: null, back: pin.back };
+            $('pin-title').textContent = 'Новый PIN';
+            $('pin-text').textContent = 'Не совпало. Придумайте 4 цифры заново';
+            renderPin(true);
+        }
+    }
+
+    pinInput.addEventListener('input', function () {
+        var digits = pinInput.value.replace(/\D/g, '');
+        pinInput.value = '';
+        digits.split('').forEach(pinDigit);
+    });
+
+    function handlePinKey(code) {
+        if (code >= 48 && code <= 57) {
+            pinDigit(String(code - 48));
+        } else if (code === KEY.OK) {
+            pinInput.focus();
+        } else if (code === KEY.BACK) {
+            if (document.activeElement === pinInput) {
+                pinInput.blur();
+            } else if (pin.value) {
+                pin.value = pin.value.slice(0, -1);
+                renderPin();
+            } else {
+                closePin();
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+
     // ---------- Settings ----------
 
     var settingsFocus = 0;
     var settingsChanged = false;
 
-    function openSettings() {
-        settingsFocus = 0;
-        settingsChanged = false;
+    function openSettings(keepState) {
+        if (!keepState) {
+            settingsFocus = 0;
+            settingsChanged = false;
+        }
         showScreen('settings');
         renderSettings();
         setHints($('settings-hints'), [
@@ -1608,10 +1747,11 @@
     }
 
     function renderSettings() {
+        settingsFocus = Math.min(settingsFocus, visibleSettings().length - 1);
         var values = read(STORE.settings, {});
         var list = $('settings-list');
         list.innerHTML = '';
-        SETTINGS.forEach(function (item, index) {
+        visibleSettings().forEach(function (item, index) {
             var row = el('li', index === settingsFocus ? 'focused' : '');
             row.dataset.setting = index;
             var text = el('div', 'setting-text');
@@ -1653,12 +1793,37 @@
 
     function toggleSetting(index, direction) {
         var values = read(STORE.settings, {});
-        var item = SETTINGS[index];
+        var item = visibleSettings()[index];
         var id = item.id;
         if (item.kind === 'link') {
-            if (!direction) {
-                openSources();
+            if (direction) {
+                return;
             }
+            if (id === 'playlists') {
+                openSources();
+            } else if (id === 'pinSet') {
+                setNewPin();
+            } else if (id === 'pinChange') {
+                openPin('check', 'Сменить PIN', 'Введите текущий PIN', setNewPin);
+            } else if (id === 'pinRemove') {
+                openPin('check', 'Убрать PIN', 'Введите текущий PIN', function () {
+                    var current = read(STORE.settings, {});
+                    delete current.pin;
+                    write(STORE.settings, current);
+                    toast('PIN убран');
+                    settingsChanged = true;
+                    openSettings(true);
+                });
+            }
+            return;
+        }
+        // With a PIN, turning 18+ on needs it.
+        if (id === 'adult' && values.adult !== true && pinSet() && !adultUnlocked) {
+            openPin('check', 'Показывать 18+', 'Введите PIN-код', function () {
+                adultUnlocked = true;
+                showScreen('settings');
+                toggleSetting(index);
+            });
             return;
         }
         if (item.kind === 'choice') {
@@ -1690,7 +1855,7 @@
 
     function handleSettingsKey(code) {
         if (code === KEY.UP || code === KEY.DOWN) {
-            settingsFocus = (settingsFocus + (code === KEY.UP ? -1 : 1) + SETTINGS.length) % SETTINGS.length;
+            settingsFocus = (settingsFocus + (code === KEY.UP ? -1 : 1) + visibleSettings().length) % visibleSettings().length;
             renderSettings();
         } else if (code === KEY.OK) {
             toggleSetting(settingsFocus);
@@ -1869,6 +2034,8 @@
             handled = handleDialogKey(code);
         } else if (screen === 'settings') {
             handled = handleSettingsKey(code);
+        } else if (screen === 'pin') {
+            handled = handlePinKey(code);
         } else if (screen === 'picker') {
             handled = handlePickerKey(code);
         } else if (screen === 'prompt') {

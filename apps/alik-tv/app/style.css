@@ -817,6 +817,28 @@ video {
     font-weight: 600;
 }
 
+.pin-dots { display: flex; justify-content: center; margin-top: 40px; }
+
+.pin-dots span {
+    width: 72px;
+    height: 88px;
+    margin: 0 12px;
+    border: 3px solid var(--line);
+    border-radius: 18px;
+    background: var(--ink);
+}
+
+.pin-dots span.filled {
+    border-color: var(--apricot);
+    background: radial-gradient(circle, var(--apricot) 0 14px, var(--ink) 15px);
+}
+
+.pin-dots.error span { border-color: var(--red); }
+
+/* The real field only feeds the on-screen keyboard; the dots show progress. */
+.pin-input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.pin-hints { justify-content: center; margin-top: 36px; }
+
 /* Tile being dragged with the Magic Remote. */
 .ghost {
     position: fixed;

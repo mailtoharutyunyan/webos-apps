@@ -18,7 +18,7 @@ films from the Internet Archive, all from this repository
 | Green | Playlists: add a link, a preset or a country, remove one |
 | Yellow (home) | On a tile: put it into a folder. On a folder in the menu: rename or delete it |
 | Magic Remote | Hold a tile and drag it onto a folder in the menu |
-| Settings (menu) | Show 18+ content, let the Magic Remote wheel switch channels |
+| Settings (blue) | Theme, 18+ content with an optional 4-digit PIN, Magic Remote wheel zapping |
 | Back | Close the menu / exit |
 
 Playback uses [hls.js](https://github.com/video-dev/hls.js) 1.5.20 (Apache-2.0, `app/vendor`).

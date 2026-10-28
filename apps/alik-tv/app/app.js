@@ -200,11 +200,8 @@
     // On a fresh install (no playlists yet) bring back the last backup, then start.
     function restoreIfEmpty(start) {
         if (window.localStorage.getItem(STORE.sources) !== null) {
-            callService('load', {}, function (result) {
-                if (result.found) {
-                    lastBackup = result.savedAt;
-                }
-            });
+            // Refresh the copy on every start, so it exists even before the first change.
+            restartTimer('backup', 5000, saveBackup);
             start();
             return;
         }

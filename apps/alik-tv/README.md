@@ -4,7 +4,9 @@ A small IPTV player for the LG TV remote. On first start it asks for a playlist:
 any M3U link, a country from the [iptv-org](https://github.com/iptv-org/iptv)
 catalog, the checked Armenian, Russian and movie-channel lists, or public-domain
 films from the Internet Archive, all from this repository
-(`playlists/`, rebuilt daily). Channels of all added playlists are merged into one menu.
+(`playlists/`, rebuilt daily). Channels of all added playlists are merged into one menu. Films continue where they
+stopped, channels that fail are marked for a day, and there is search, folders and a
+group manager (hide and reorder).
 
 | Key | Action |
 |---|---|
@@ -18,6 +20,7 @@ films from the Internet Archive, all from this repository
 | Green | Playlists: add a link, a preset or a country, remove one |
 | Yellow (home) | On a tile: put it into a folder. On a folder in the menu: rename or delete it |
 | Magic Remote | Hold a tile and drag it onto a folder in the menu |
+| Blue (while watching) | Audio and subtitle tracks, when a channel has several |
 | Settings (blue) | Theme, 18+ content with an optional 4-digit PIN, Magic Remote wheel zapping |
 | Back | Close the menu / exit |
 

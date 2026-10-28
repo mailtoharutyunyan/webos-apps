@@ -14,7 +14,9 @@
     var CATALOG_URL = 'https://iptv-org.github.io/api/countries.json';
     var CATALOG_PINNED = ['AM', 'RU'];
 
-    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings', folders: 'alik.folders' };
+    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings', folders: 'alik.folders',
+        positions: 'alik.positions', dead: 'alik.dead', groups: 'alik.groups' };
+    var DEAD_FOR = 24 * 3600 * 1000;   // a failed channel is marked for a day
     var DRAG_DELAY = 400;
     var ADULT_GROUP = /18\+|adult|xxx/i;
 
@@ -30,6 +32,8 @@
         { id: 'theme', kind: 'choice', title: 'Тема', text: 'Цвета Alik. ← → или OK — сменить.', options: THEMES },
         { id: 'adult', title: 'Показывать 18+', text: 'Включено — добавляется плейлист 18+ и группа «Films 18+». Выключено — скрыто.' },
         { id: 'wheelZap', title: 'Колесо Magic Remote переключает каналы', text: 'Во время просмотра. Выключено — только CH+ и CH−.' },
+        { id: 'hideDead', title: 'Скрыть неработающие каналы', text: 'Каналы, которые не ответили за последние сутки.' },
+        { id: 'groups', kind: 'link', title: 'Группы', text: 'Скрыть ненужные группы и поменять порядок.' },
         { id: 'pinSet', kind: 'link', title: 'Задать PIN для 18+', text: '4 цифры. После этого 18+ закрыто при каждом запуске Alik.', when: function () { return !pinSet(); } },
         { id: 'pinChange', kind: 'link', title: 'Сменить PIN для 18+', text: 'Нужен текущий PIN.', when: pinSet },
         { id: 'pinRemove', kind: 'link', title: 'Убрать PIN', text: 'Нужен текущий PIN. 18+ снова управляется только переключателем.', when: pinSet }
@@ -155,6 +159,8 @@
         help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 015 .5c0 1.7-2.5 2-2.5 3.5M12 17h.01',
         play: 'M8 5l11 7-11 7z',
         plus: 'M12 5v14M5 12h14',
+        search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+        tracks: 'M4 6h16M4 12h10M4 18h7M18 14v6M15 17h6',
         lock: 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 017 0v3',
         heartfolder: 'M3 7h6l2 2h10v10H3zM12 17l-2.6-2.4a1.6 1.6 0 012.3-2.2l.3.3.3-.3a1.6 1.6 0 012.3 2.2z',
         gear: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-1-3-2 .3-1.4-1.4.3-2-3-1-1 2h-2l-1-2-3 1 .3 2L5.8 7.3 4 7 3 10l2 1v2l-2 1 1 3 2-.3 1.4 1.4-.3 2 3 1 1-2h2l1 2 3-1-.3-2 1.4-1.4 2 .3 1-3-2-1z',
@@ -266,6 +272,9 @@
             if (!adultVisible()) {
                 channels = channels.filter(function (channel) { return !channel.adult; });
             }
+            if (setting('hideDead')) {
+                channels = channels.filter(function (channel) { return !isDead(channel.url); });
+            }
             channels.forEach(function (channel, index) { channel.number = index + 1; });
             if (!channels.length) {
                 showStatus('Не удалось загрузить плейлисты. ' + failed.join('; ') +
@@ -321,6 +330,10 @@
             { kind: 'list', id: 'favourites', name: 'Избранное', icon: 'star', items: indexesForUrls(read(STORE.favourites, [])) },
             { kind: 'list', id: 'recent', name: 'Недавние', icon: 'clock', items: indexesForUrls(read(STORE.recent, [])) }
         ];
+        sections.splice(0, 0, { kind: 'action', id: 'search-action', name: 'Поиск', icon: 'search', action: function () { openPrompt(-1, null, 'search'); } });
+        if (searchResult) {
+            sections.splice(1, 0, searchResult);
+        }
         sections.push({ kind: 'heading', name: 'Мои папки' });
         read(STORE.folders, []).forEach(function (folder) {
             sections.push({ kind: 'list', id: 'folder:' + folder.id, folderId: folder.id, name: folder.name, icon: 'heartfolder', items: indexesForUrls(folder.urls) });
@@ -354,6 +367,20 @@
             sections = sections.concat(playlists);
         }
         sections.push({ kind: 'heading', name: 'Группы' });
+        var groupPrefs = read(STORE.groups, { hidden: [], order: [] });
+        orderedGroups().forEach(function (group) {
+            if (groupPrefs.hidden.indexOf(group.name) < 0) {
+                sections.push(group);
+            }
+        });
+        sections.push({ kind: 'heading', name: 'Приложение' });
+        sections.push({ kind: 'action', name: 'Плейлисты', icon: 'list', action: openSources });
+        sections.push({ kind: 'action', name: 'Настройки', icon: 'gear', action: openSettings });
+        sections.push({ kind: 'action', name: 'Справка по пульту', icon: 'help', action: openHelp });
+    }
+
+    // All groups in the user's order (new groups go last, in playlist order).
+    function orderedGroups() {
         var byGroup = {};
         var groups = [];
         channels.forEach(function (channel, index) {
@@ -363,11 +390,12 @@
             }
             byGroup[channel.group].items.push(index);
         });
-        sections = sections.concat(groups);
-        sections.push({ kind: 'heading', name: 'Приложение' });
-        sections.push({ kind: 'action', name: 'Плейлисты', icon: 'list', action: openSources });
-        sections.push({ kind: 'action', name: 'Настройки', icon: 'gear', action: openSettings });
-        sections.push({ kind: 'action', name: 'Справка по пульту', icon: 'help', action: openHelp });
+        var order = read(STORE.groups, { hidden: [], order: [] }).order;
+        return groups.sort(function (a, b) {
+            var ia = order.indexOf(a.name);
+            var ib = order.indexOf(b.name);
+            return (ia < 0 ? 1e6 : ia) - (ib < 0 ? 1e6 : ib);
+        });
     }
 
     function refreshPersonalSections() {
@@ -422,6 +450,7 @@
     }
 
     function play(index, list) {
+        savePosition(true);
         if (index !== current) {
             previous = current;
         }
@@ -469,13 +498,69 @@
 
     function noSignal() {
         showStatus('Канал сейчас не отвечает. Переключите кнопками CH+ CH−.');
+        if (current >= 0) {
+            var dead = read(STORE.dead, {});
+            dead[channels[current].url] = Date.now();
+            write(STORE.dead, dead);
+        }
     }
+
+    function isDead(url) {
+        var at = read(STORE.dead, {})[url];
+        return !!at && Date.now() - at < DEAD_FOR;
+    }
+
+    function markAlive(url) {
+        var dead = read(STORE.dead, {});
+        if (dead[url]) {
+            delete dead[url];
+            write(STORE.dead, dead);
+        }
+    }
+
+    // Film positions, so a film continues where it stopped.
+    var lastSaved = 0;
+
+    function savePosition(force) {
+        if (current < 0 || !channels[current].film || !isFinite(video.duration)) {
+            return;
+        }
+        if (!force && Date.now() - lastSaved < 10000) {
+            return;
+        }
+        lastSaved = Date.now();
+        var positions = read(STORE.positions, {});
+        var url = channels[current].url;
+        // Near the end counts as watched: start from the beginning next time.
+        if (video.currentTime < 30 || video.duration - video.currentTime < 120) {
+            delete positions[url];
+        } else {
+            positions[url] = Math.floor(video.currentTime);
+        }
+        write(STORE.positions, positions);
+    }
+
+    video.addEventListener('pause', function () { savePosition(true); });
+    video.addEventListener('loadedmetadata', function () {
+        if (current < 0 || !channels[current].film) {
+            return;
+        }
+        var at = read(STORE.positions, {})[channels[current].url];
+        if (at && at < video.duration - 60) {
+            video.currentTime = at;
+            toast('Продолжаю с ' + clockText(at) + '. С начала — держите ←');
+        }
+    });
 
     video.addEventListener('playing', hideStatus);
     video.addEventListener('timeupdate', function () {
         if (video.currentTime > 0 && !statusBox.dataset.retry) {
             hideStatus();
+            if (current >= 0) {
+                markAlive(channels[current].url);
+            }
         }
+        savePosition(false);
         if (!osd.hidden) {
             updateProgress();
         }
@@ -743,7 +828,8 @@
             var channel = channels[index];
             var row = Math.floor(position / GRID.cols) - home.topRow;
             var col = position % GRID.cols;
-            var tile = el('div', 'tile' + (channel.film ? ' film' : '') + (position === home.tile && home.area === 'grid' ? ' focused' : ''));
+            var tile = el('div', 'tile' + (channel.film ? ' film' : '') + (isDead(channel.url) ? ' dead' : '') +
+                (position === home.tile && home.area === 'grid' ? ' focused' : ''));
             tile.dataset.tile = position;
             tile.style.left = (GRID.inset + col * (GRID.tileW + GRID.gapX)) + 'px';
             tile.style.top = (GRID.inset + row * (GRID.tileH + GRID.gapY)) + 'px';
@@ -770,6 +856,9 @@
             }
             if (index === current) {
                 tile.appendChild(el('span', 'tile-playing', 'Сейчас'));
+            }
+            if (isDead(channel.url)) {
+                tile.appendChild(el('span', 'tile-dead', 'не отвечает'));
             }
             tile.appendChild(el('span', 'tile-name', channel.name));
             grid.appendChild(tile);
@@ -1319,6 +1408,79 @@
         setHints($('picker-hints'), [[['updown'], 'Папка'], [['OK'], 'Положить / убрать'], [['back'], 'Готово']]);
     }
 
+    function groupRows() {
+        var hidden = read(STORE.groups, { hidden: [], order: [] }).hidden;
+        return orderedGroups().map(function (group) {
+            return { name: group.name, text: group.name + ' · ' + group.items.length, on: hidden.indexOf(group.name) < 0 };
+        });
+    }
+
+    function openGroups() {
+        picker = { mode: 'groups', channel: -1, folder: null, focus: 0, confirm: false };
+        screen = 'picker';
+        $('picker').hidden = false;
+        $('picker-title').textContent = 'Группы';
+        $('picker-channel').textContent = '✓ — группа видна в меню';
+        renderPicker();
+        setHints($('picker-hints'), [[['OK'], 'Показать / скрыть'], [['CH+', 'CH−'], 'Выше / ниже'], [['back'], 'Готово']]);
+    }
+
+    function toggleGroup(index) {
+        var prefs = read(STORE.groups, { hidden: [], order: [] });
+        var name = groupRows()[index].name;
+        var at = prefs.hidden.indexOf(name);
+        if (at >= 0) {
+            prefs.hidden.splice(at, 1);
+        } else {
+            prefs.hidden.push(name);
+        }
+        write(STORE.groups, prefs);
+        renderPicker();
+    }
+
+    function moveGroup(index, delta) {
+        var names = groupRows().map(function (row) { return row.name; });
+        var target = index + delta;
+        if (target < 0 || target >= names.length) {
+            return;
+        }
+        var moved = names.splice(index, 1)[0];
+        names.splice(target, 0, moved);
+        var prefs = read(STORE.groups, { hidden: [], order: [] });
+        prefs.order = names;
+        write(STORE.groups, prefs);
+        picker.focus = target;
+        renderPicker();
+    }
+
+    function hasTracks() {
+        return !!hls && (hls.audioTracks.length > 1 || hls.subtitleTracks.length > 0);
+    }
+
+    function trackRows() {
+        var rows = [];
+        hls.audioTracks.forEach(function (track, i) {
+            rows.push({ kind: 'audio', id: i, text: 'Звук: ' + (track.name || track.lang || 'дорожка ' + (i + 1)), on: hls.audioTrack === i });
+        });
+        if (hls.subtitleTracks.length) {
+            rows.push({ kind: 'sub', id: -1, text: 'Субтитры: выключены', on: hls.subtitleTrack === -1 });
+            hls.subtitleTracks.forEach(function (track, i) {
+                rows.push({ kind: 'sub', id: i, text: 'Субтитры: ' + (track.name || track.lang || 'дорожка ' + (i + 1)), on: hls.subtitleTrack === i });
+            });
+        }
+        return rows;
+    }
+
+    function openTracks() {
+        picker = { mode: 'tracks', channel: current, folder: null, focus: 0, confirm: false };
+        screen = 'picker';
+        $('picker').hidden = false;
+        $('picker-title').textContent = 'Звук и субтитры';
+        $('picker-channel').textContent = channels[current].name;
+        renderPicker();
+        setHints($('picker-hints'), [[['updown'], 'Дорожка'], [['OK'], 'Выбрать'], [['back'], 'Закрыть']]);
+    }
+
     function openFolderMenu(folderId) {
         var folder = findFolder(folderId);
         picker = { mode: 'folder', channel: -1, folder: folder, focus: 0, confirm: false };
@@ -1339,6 +1501,23 @@
     }
 
     function renderPicker() {
+        if (picker.mode === 'tracks' || picker.mode === 'groups') {
+            var rows = picker.mode === 'tracks' ? trackRows() : groupRows();
+            var list = $('picker-list');
+            list.innerHTML = '';
+            rows.forEach(function (row, i) {
+                var item = el('li', i === picker.focus ? 'focused' : '');
+                item.dataset.pick = i;
+                item.appendChild(el('span', '', row.text));
+                item.appendChild(el('span', 'check', row.on ? '✓' : ''));
+                list.appendChild(item);
+            });
+            var focusedRow = list.children[picker.focus];
+            if (focusedRow) {
+                focusedRow.scrollIntoView({ block: 'nearest' });
+            }
+            return;
+        }
         if (picker.mode === 'folder') {
             var actions = $('picker-list');
             actions.innerHTML = '';
@@ -1373,6 +1552,15 @@
 
     function closePicker() {
         $('picker').hidden = true;
+        if (picker.mode === 'tracks') {
+            screen = 'player';
+            return;
+        }
+        if (picker.mode === 'groups') {
+            buildSections();
+            openHome();
+            return;
+        }
         screen = 'home';
         renderRail();
         renderGrid();
@@ -1405,6 +1593,21 @@
     }
 
     function choosePicker() {
+        if (picker.mode === 'tracks') {
+            var row = trackRows()[picker.focus];
+            if (row.kind === 'audio') {
+                hls.audioTrack = row.id;
+            } else {
+                hls.subtitleTrack = row.id;
+                hls.subtitleDisplay = row.id >= 0;
+            }
+            setTimeout(renderPicker, 200);
+            return;
+        }
+        if (picker.mode === 'groups') {
+            toggleGroup(picker.focus);
+            return;
+        }
         if (picker.mode === 'folder') {
             chooseFolderAction();
             return;
@@ -1422,7 +1625,14 @@
     }
 
     function handlePickerKey(code) {
-        var count = picker.mode === 'folder' ? folderActions().length : read(STORE.folders, []).length + 1;
+        var count = picker.mode === 'folder' ? folderActions().length
+            : picker.mode === 'tracks' ? trackRows().length
+                : picker.mode === 'groups' ? groupRows().length
+                    : read(STORE.folders, []).length + 1;
+        if (picker.mode === 'groups' && (code === KEY.CH_UP || code === KEY.CH_DOWN)) {
+            moveGroup(picker.focus, code === KEY.CH_UP ? -1 : 1);
+            return true;
+        }
         if (code === KEY.UP || code === KEY.DOWN) {
             picker.focus = (picker.focus + (code === KEY.UP ? -1 : 1) + count) % count;
             picker.confirm = false;
@@ -1438,19 +1648,45 @@
     }
 
     // Prompt for a new folder name; `channelIndex` (or -1) goes straight into it.
-    var promptState = { channel: -1, folder: null, focus: 0 };
+    var promptState = { channel: -1, folder: null, focus: 0, mode: 'folder' };
+    var searchResult = null;
     var promptInput = $('prompt-input');
 
     // `folder` set = rename that folder; otherwise create a new one.
-    function openPrompt(channelIndex, folder) {
-        promptState = { channel: channelIndex, folder: folder || null, focus: 0 };
+    function openPrompt(channelIndex, folder, mode) {
+        promptState = { channel: channelIndex, folder: folder || null, focus: 0, mode: mode || 'folder' };
         screen = 'prompt';
         $('home').hidden = channels.length === 0;
         $('prompt').hidden = false;
-        $('prompt-title').textContent = folder ? 'Переименовать папку' : 'Новая папка';
-        $('prompt-create').textContent = folder ? 'Сохранить' : 'Создать';
+        var search = promptState.mode === 'search';
+        $('prompt-title').textContent = search ? 'Поиск канала или фильма' : folder ? 'Переименовать папку' : 'Новая папка';
+        $('prompt-create').textContent = search ? 'Найти' : folder ? 'Сохранить' : 'Создать';
+        promptInput.placeholder = search ? 'Часть названия, например «Shant»' : 'Например: Любимые фильмы';
         promptInput.value = folder ? folder.name : '';
         markPrompt();
+    }
+
+    function runSearch() {
+        var query = promptInput.value.trim().toLowerCase();
+        if (!query) {
+            toast('Введите часть названия');
+            return;
+        }
+        var items = allIndexes(function (c) { return c.name.toLowerCase().indexOf(query) >= 0; });
+        closePrompt();
+        if (!items.length) {
+            toast('Ничего не найдено по «' + promptInput.value.trim() + '»');
+            return;
+        }
+        searchResult = { kind: 'list', id: 'search', name: 'Найдено: ' + promptInput.value.trim(), icon: 'search', items: items };
+        buildSections();
+        home.rail = 1;
+        home.tile = 0;
+        home.topRow = 0;
+        home.area = 'grid';
+        renderRail();
+        renderGrid();
+        updateHomeHints();
     }
 
     function markPrompt() {
@@ -1469,6 +1705,10 @@
     }
 
     function createFolder() {
+        if (promptState.mode === 'search') {
+            runSearch();
+            return;
+        }
         var name = promptInput.value.trim();
         if (!name) {
             promptState.focus = 0;
@@ -1631,6 +1871,8 @@
         setHints($('pin-hints'), [[['0–9'], 'Цифры'], [['OK'], 'Клавиатура'], [['back'], 'Стереть / отмена']]);
     }
 
+    var pinThen = null;   // runs once a new PIN is saved
+
     function setNewPin() {
         openPin('new', 'Новый PIN', 'Придумайте 4 цифры', null);
     }
@@ -1689,6 +1931,10 @@
             write(STORE.settings, values);
             adultUnlocked = true;
             closePin();
+            if (pinThen) {
+                pinThen();
+                pinThen = null;
+            }
             toast('PIN сохранён. 18+ будет закрыто при каждом запуске');
             settingsChanged = true;
             openSettings(true);
@@ -1801,6 +2047,8 @@
             }
             if (id === 'playlists') {
                 openSources();
+            } else if (id === 'groups') {
+                openGroups();
             } else if (id === 'pinSet') {
                 setNewPin();
             } else if (id === 'pinChange') {
@@ -1818,6 +2066,24 @@
             return;
         }
         // With a PIN, turning 18+ on needs it.
+        if (id === 'adult' && values.adult !== true && !pinSet()) {
+            toast('Сначала задайте PIN: без него 18+ не включается');
+            pinThen = function () {
+                var v = read(STORE.settings, {});
+                v.adult = true;
+                write(STORE.settings, v);
+                settingsChanged = true;
+                PRESETS.forEach(function (preset) {
+                    var saved = read(STORE.sources, []);
+                    if (preset.adult && !saved.some(function (x) { return x.url === preset.url; })) {
+                        saved.push({ name: preset.name, url: preset.url });
+                        write(STORE.sources, saved);
+                    }
+                });
+            };
+            setNewPin();
+            return;
+        }
         if (id === 'adult' && values.adult !== true && pinSet() && !adultUnlocked) {
             openPin('check', 'Показывать 18+', 'Введите PIN-код', function () {
                 adultUnlocked = true;
@@ -1849,7 +2115,7 @@
             write(STORE.sources, saved);
         }
         write(STORE.settings, values);
-        settingsChanged = settingsChanged || id === 'adult';
+        settingsChanged = settingsChanged || id === 'adult' || id === 'hideDead';
         renderSettings();
     }
 
@@ -1886,7 +2152,7 @@
         [['red'], 'Избранное', 'Добавить или убрать канал'],
         [['green'], 'Плейлисты', 'Добавить ссылку, готовый плейлист или страну'],
         [['yellow'], 'Папки / предыдущий', 'На плитке — в папку; на папке — переименовать или удалить; при просмотре — прошлый канал'],
-        [['blue'], 'Настройки', 'Тема, 18+, колесо Magic Remote'],
+        [['blue'], 'Настройки / дорожки', 'В меню — настройки; при просмотре — звук и субтитры, если их несколько'],
         [['INFO'], 'Справка и информация', 'Эта страница; во время просмотра — данные канала'],
         [['back'], 'Назад', 'На главном экране предлагает выйти'],
         [['Magic Remote'], 'Перетаскивание', 'Зажмите плитку и перетащите на папку в меню слева'],
@@ -2050,6 +2316,9 @@
             handled = true;
         } else if (code === KEY.GREEN) {
             openSources();
+            handled = true;
+        } else if (code === KEY.BLUE && screen === 'player' && hasTracks()) {
+            openTracks();
             handled = true;
         } else if (code === KEY.BLUE) {
             openSettings();

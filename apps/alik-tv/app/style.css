@@ -482,6 +482,19 @@ video {
 }
 
 .tile.focused .tile-name { color: var(--apricot-ink); font-weight: 600; }
+.tile.dead .tile-logo { opacity: 0.35; filter: grayscale(1); }
+
+.tile-dead {
+    position: absolute;
+    left: 22px;
+    top: 134px;
+    padding: 3px 12px;
+    border-radius: 10px;
+    background: var(--veil);
+    color: var(--muted);
+    font-size: 20px;
+}
+
 .tile.focused .tile-playing { background: var(--apricot-ink); color: var(--apricot); }
 
 .grid-empty {

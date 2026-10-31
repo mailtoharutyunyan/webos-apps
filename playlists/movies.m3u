@@ -65,7 +65,7 @@ https://jmp2.uk/plu-68e9913c4a666b9054849832.m3u8
 https://jmp2.uk/plu-696e647b07ea70192d49f6a5.m3u8
 #EXTINF:-1 tvg-id="Charge.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/da5bd787683e626b.png" group-title="Movies: English",Charge! (1080p)
 https://fast-channels.sinclairstoryline.com/CHARGE/index.m3u8
-#EXTINF:-1 tvg-id="CINDIETV.br@HD" tvg-logo="" group-title="Movies: English",CINDIE TV (1080p)
+#EXTINF:-1 tvg-id="CINDIETV.br@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ce9d263d35045393.png" group-title="Movies: English",CINDIE TV (1080p)
 https://cc-hqw8u5r1nshjc.akamaized.net/scheduler/scheduleMaster/352.m3u8
 #EXTINF:-1 tvg-id="CineRomantico.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/decc2a2200a5df6e.png" group-title="Movies: English",Cine Romantico (720p)
 https://d1si3n1st4nkgb.cloudfront.net/10502/88886011/hls/master.m3u8?ads.xumo_channelId=88886011
@@ -133,12 +133,8 @@ https://amg01753-narrativeuk-amg01753c2-lg-gb-1832.playouts.now.amagi.tv/playlis
 https://amogonetworx-grjngo-3-dk.samsung.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="HallmarkMoviesMore.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4afa000cd7a8c7b3.png" group-title="Movies: English",Hallmark Movies & More (1080p)
 https://dbrb49pjoymg4.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-ams-aws/master.m3u8?ads.xumo_channelId=99991709
-#EXTINF:-1 tvg-id="HBO.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/43300bfb6346727c.png" group-title="Movies: English",HBO (United States) (720p)
-http://tvsen7.aynascope.net/hbo/index.m3u8
 #EXTINF:-1 tvg-id="HBOAsia.sg@Taiwan" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/acda44389251e13d.png" group-title="Movies: English",HBO Asia Taiwan (1080p)
 http://125.227.210.55:1003/VideoInput/play.ts
-#EXTINF:-1 tvg-id="HBOHits.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b994ea5eb955d557.png" group-title="Movies: English",HBO Hits (720p)
-http://tvsen7.aynascope.net/hbo2/index.m3u8
 #EXTINF:-1 tvg-id="Hit.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/741b0831de2d9dd3.png" group-title="Movies: Russian",Hit HD (1080p)
 http://stream.mcquack.net/363/index.m3u8
 #EXTINF:-1 tvg-id="HorosheeKino.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/10d8b391b37d754a.png" group-title="Movies: Russian",Horoshee Kino (720p)

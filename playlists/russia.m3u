@@ -157,6 +157,8 @@ http://stream.mcquack.net/182/index.m3u8
 http://stream.mcquack.net/129/index.m3u8
 #EXTINF:-1 tvg-id="Friday.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/a650fcc564966f7f.png" group-title="Russia: Entertainment",Friday! (576p)
 http://stream.mcquack.net/181/index.m3u8
+#EXTINF:-1 tvg-id="Gagsnetwork.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/102db296a0513afc.png" group-title="Russia: Comedy",Gagsnetwork (576p)
+http://stream.mcquack.net/458/index.m3u8
 #EXTINF:-1 tvg-id="GlazamiTurista.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/efcae44792296d21.png" group-title="Russia: Travel",Glazami Turista (576i)
 https://stream8.cinerama.uz/1423/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-id="Groznyj.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/e5aa4aa61c03011c.png" group-title="Russia: General",Groznyj

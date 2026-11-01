@@ -3025,7 +3025,9 @@
 
     // ---------- webOS lifecycle ----------
 
-    // Stop streaming while the app is in the background and resume on return.
+    // Stop streaming while the app is in the background. webOS releases the video
+    // pipeline of a background app, and play() alone leaves a frozen frame on return,
+    // so the current channel is loaded again (films continue from the saved position).
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             video.pause();
@@ -3033,14 +3035,17 @@
                 hls.stopLoad();
             }
         } else if (current >= 0) {
-            if (hls) {
-                hls.startLoad();
-            }
-            startVideo();
+            play(current);
         }
     });
 
+    // appinfo.json sets handlesRelaunch, so webOS leaves a relaunched app in the
+    // background until the app asks for the foreground itself.
     document.addEventListener('webOSRelaunch', function () {
+        var system = window.webOSSystem || window.PalmSystem;
+        if (system && system.activate) {
+            system.activate();
+        }
         if (screen === 'player' && current >= 0) {
             showOsd();
         }

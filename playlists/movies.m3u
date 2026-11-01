@@ -133,8 +133,14 @@ https://amg01753-narrativeuk-amg01753c2-lg-gb-1832.playouts.now.amagi.tv/playlis
 https://amogonetworx-grjngo-3-dk.samsung.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="HallmarkMoviesMore.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4afa000cd7a8c7b3.png" group-title="Movies: English",Hallmark Movies & More (1080p)
 https://dbrb49pjoymg4.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-ams-aws/master.m3u8?ads.xumo_channelId=99991709
+#EXTINF:-1 tvg-id="HBOAsia.sg@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/acda44389251e13d.png" group-title="Movies: English",HBO Asia HD (1080p)
+http://202.150.165.66:8088/play/100-HBO/index.m3u8
 #EXTINF:-1 tvg-id="HBOAsia.sg@Taiwan" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/acda44389251e13d.png" group-title="Movies: English",HBO Asia Taiwan (1080p)
 http://125.227.210.55:1003/VideoInput/play.ts
+#EXTINF:-1 tvg-id="HBOHitsAsia.sg@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b9ca9f1e638c192f.png" group-title="Movies: English",HBO Hits Asia HD (1080p)
+http://202.150.165.66:8088/play/102-HBOHits/index.m3u8
+#EXTINF:-1 tvg-id="HBOSignatureAsia.sg@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/218679d4d0b696e4.png" group-title="Movies: English",HBO Signature Asia HD (1080p)
+http://202.150.165.66:8088/play/101-HBOSignature/index.m3u8
 #EXTINF:-1 tvg-id="Hit.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/741b0831de2d9dd3.png" group-title="Movies: Russian",Hit HD (1080p)
 http://stream.mcquack.net/363/index.m3u8
 #EXTINF:-1 tvg-id="HorosheeKino.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/10d8b391b37d754a.png" group-title="Movies: Russian",Horoshee Kino (720p)

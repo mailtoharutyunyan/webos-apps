@@ -272,6 +272,35 @@ def norm(name):
     return re.sub(r'[^0-9a-zа-яёա-ֆ]+', '', name)
 
 
+# Latin letters drawn like Cyrillic ones; some guides mix them into Russian words.
+HOMOGLYPHS = str.maketrans('aceopxyAEKMHOPCTXB', 'асеорхуАЕКМНОРСТХВ')
+CYRILLIC = re.compile('[а-яёА-ЯЁ]')
+
+
+def fix_word(match):
+    """'Пpямой' -> 'Прямой'; words that are mostly Latin, like 'СМNEWS', stay as they are."""
+    word = match.group(0)
+    cyrillic = len(CYRILLIC.findall(word))
+    latin = len(re.findall('[A-Za-z]', word))
+    return word.translate(HOMOGLYPHS) if cyrillic > latin else word
+
+
+def clean_title(title):
+    """Programme title as people write it: no service marks, readable episode numbers."""
+    title = title.replace('⋗', ' ')
+    # "Касл 6 ┊ 22 Истина" -> "Касл 6, серия 22. Истина"
+    def episode(match):
+        word = 'серия' if CYRILLIC.search(match.group(1)) else 'ep.'
+        rest = match.group(3).strip()
+        return f'{match.group(1).rstrip()}, {word} {match.group(2)}' + (f'. {rest}' if rest else '')
+    title = re.sub(r'^(.*?)\s*┊\s*(\d+)\s*(.*)$', episode, title)
+    title = title.replace('┊', ' ')
+    title = re.sub(r'\w+', fix_word, title)
+    title = re.sub(r'\s+', ' ', title).strip()
+    # A lone full stop at the end; "..." stays.
+    return re.sub(r'(?<=[^.])\.$', '', title)
+
+
 def xmltv_time(value):
     """'20261028040000 +0300' -> Unix seconds."""
     stamp = time.strptime(value[:14], '%Y%m%d%H%M%S')
@@ -316,7 +345,7 @@ def read_guide(url, wanted, guide):
                     start = xmltv_time(element.get('start'))
                     stop = xmltv_time(element.get('stop'))
                     if stop > now and start < until:
-                        title = (element.findtext('title') or '').strip()
+                        title = clean_title(element.findtext('title') or '')
                         for tvg_id in ids:
                             guide.setdefault(tvg_id, []).append([start, stop, title])
                 element.clear()

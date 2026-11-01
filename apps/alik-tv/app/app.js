@@ -32,11 +32,10 @@
     var guide = {};
     var CATALOG_PINNED = ['AM', 'RU'];
 
-    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', recent: 'alik.recent', settings: 'alik.settings', folders: 'alik.folders',
+    var STORE = { last: 'alik.lastChannel', sources: 'alik.sources', favourites: 'alik.favourites', settings: 'alik.settings', folders: 'alik.folders',
         positions: 'alik.positions', dead: 'alik.dead', groups: 'alik.groups', numbers: 'alik.numbers',
         expanded: 'alik.expanded' };
     var DEAD_FOR = 24 * 3600 * 1000;   // a failed channel is marked for a day
-    var DRAG_DELAY = 400;
     var ADULT_GROUP = /18\+|adult|xxx/i;
 
     var THEMES = [
@@ -45,16 +44,6 @@
         { id: 'sevan', name: t('Севан'), colours: ['#0b1719', '#3cc6b4'] },
         { id: 'ararat', name: t('Арарат'), colours: ['#eef1f5', '#d9742b'] }
     ];
-
-    var SLEEP_OPTIONS = [
-        { id: 'off', name: t('Выключен'), colours: [] },
-        { id: '30', name: t('30 минут'), colours: [] },
-        { id: '60', name: t('1 час'), colours: [] },
-        { id: '90', name: t('1,5 часа'), colours: [] },
-        { id: '120', name: t('2 часа'), colours: [] }
-    ];
-    var sleepChoice = 'off';
-    var sleepAt = 0;
 
     var LANGUAGES = [
         { id: 'ru', name: 'Русский', colours: [] },
@@ -67,10 +56,8 @@
         { id: 'playlists', kind: 'link', title: t('Плейлисты и каталоги'), text: t('Добавить ссылку M3U, готовый плейлист или страну из iptv-org. OK — открыть.') },
         { id: 'theme', kind: 'choice', title: t('Тема'), text: t('Цвета Alik. ← → или OK — сменить.'), options: THEMES },
         { id: 'adult', title: t('Показывать 18+'), text: t('Включено — добавляется плейлист 18+ и группа «Films 18+». Выключено — скрыто.') },
-        { id: 'wheelZap', title: t('Колесо Magic Remote переключает каналы'), text: t('Во время просмотра. Выключено — только CH+ и CH−.') },
         { id: 'startPlayer', title: t('Запуск сразу в плеере'), text: t('Alik открывается на последнем канале, меню — по OK.') },
         { id: 'hideDead', title: t('Скрыть неработающие каналы'), text: t('Каналы, которые не ответили за последние сутки.') },
-        { id: 'sleep', kind: 'choice', title: t('Таймер сна'), text: t('Остановит просмотр через выбранное время.'), options: SLEEP_OPTIONS, session: true },
         { id: 'backup', kind: 'link', title: t('Восстановить из резервной копии'), text: t('Копия плейлистов, папок, избранного и настроек сохраняется сама на ТВ.') },
         { id: 'groups', kind: 'link', title: t('Группы'), text: t('Скрыть ненужные группы и поменять порядок.') },
         { id: 'unlock', kind: 'link', title: t('Открыть 18+'), text: t('Ввести PIN — 18+ откроется до выхода из Alik.'),
@@ -109,7 +96,6 @@
             document.documentElement.setAttribute('data-theme', theme);
         }
     }
-    var RECENT_LIMIT = 30;
     var OSD_TIMEOUT = 5000;
     var DIGIT_TIMEOUT = 1500;
     // Seeking grows while ← → are pressed in quick succession: 10 s, 1 min, 5 min.
@@ -675,8 +661,6 @@
         sections.forEach(function (section) {
             if (section.id === 'favourites') {
                 section.items = indexesForUrls(read(STORE.favourites, []));
-            } else if (section.id === 'recent') {
-                section.items = indexesForUrls(read(STORE.recent, []));
             } else if (section.folderId) {
                 var folder = findFolder(section.folderId);
                 section.items = folder ? indexesForUrls(folder.urls) : [];
@@ -698,11 +682,15 @@
         statusBox.hidden = true;
     }
 
-    function stopPlayback() {
+    function releaseHls() {
         if (hls) {
             hls.destroy();
             hls = null;
         }
+    }
+
+    function stopPlayback() {
+        releaseHls();
         video.removeAttribute('src');
         video.load();
         current = -1;
@@ -733,15 +721,9 @@
         }
         var channel = channels[index];
         write(STORE.last, channel.url);
-        var recent = read(STORE.recent, []).filter(function (url) { return url !== channel.url; });
-        recent.unshift(channel.url);
-        write(STORE.recent, recent.slice(0, RECENT_LIMIT));
         refreshPersonalSections();
 
-        if (hls) {
-            hls.destroy();
-            hls = null;
-        }
+        releaseHls();
         video.removeAttribute('src');
         showStatus(channel.film ? t('Загружаю фильм…') : t('Подключаюсь к каналу…'));
 
@@ -749,7 +731,16 @@
         if (channel.film || !(window.Hls && Hls.isSupported())) {
             video.src = channel.url;
         } else {
-            hls = new Hls({ maxBufferLength: 20, manifestLoadingMaxRetry: 2, levelLoadingMaxRetry: 2 });
+            hls = new Hls({
+                maxBufferLength: 20,
+                manifestLoadingMaxRetry: 2,
+                levelLoadingMaxRetry: 2,
+                // Start low and let the bitrate rise: hls.js would otherwise begin with the
+                // first quality in the playlist, often 1080p, and wait for its first segment.
+                startLevel: -1,
+                testBandwidth: false,
+                abrEwmaDefaultEstimate: 500000
+            });
             hls.on(Hls.Events.ERROR, function (event, data) {
                 if (!data.fatal) {
                     return;
@@ -1017,7 +1008,7 @@
         // Open on the section and tile of what is playing.
         var target = -1;
         for (var i = 0; i < sections.length && target < 0; i++) {
-            if (sections[i].kind === 'list' && sections[i].id !== 'favourites' && sections[i].id !== 'recent' &&
+            if (sections[i].kind === 'list' && sections[i].id !== 'favourites' &&
                 sections[i].items.indexOf(current) >= 0) {
                 target = i;
             }
@@ -1111,8 +1102,7 @@
             empty.hidden = false;
             empty.textContent = section && section.id === 'favourites'
                 ? t('Здесь будут избранные каналы. На любом канале нажмите красную кнопку.')
-                : section && section.id === 'recent' ? t('Здесь появятся каналы, которые вы смотрели.')
-                    : section && section.kind === 'action' ? t('Нажмите OK, чтобы открыть.') : '';
+                : section && section.kind === 'action' ? t('Нажмите OK, чтобы открыть.') : '';
             return;
         }
         empty.hidden = true;
@@ -1496,12 +1486,10 @@
         $('phone-qr').innerHTML = code.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
         $('phone-url').textContent = url;
         $('phone-card').hidden = false;
-        $('sources-tip').hidden = true;
     }
 
     function hidePhoneCard() {
         $('phone-card').hidden = true;
-        $('sources-tip').hidden = false;
     }
 
     function startPhoneShare() {
@@ -2183,100 +2171,6 @@
         return true;
     }
 
-    // Magic Remote drag and drop: hold a tile, drag it onto a folder in the rail.
-    var drag = null;
-    var suppressClick = false;
-
-    document.addEventListener('mousedown', function (event) {
-        var tile = event.target.closest('[data-tile]');
-        if (!tile || screen !== 'home') {
-            return;
-        }
-        var from = sections[home.rail];
-        var index = from.items[Number(tile.dataset.tile)];
-        drag = { index: index, from: from, active: false, x: event.clientX, y: event.clientY };
-        restartTimer('drag', DRAG_DELAY, function () {
-            if (!drag) {
-                return;
-            }
-            drag.active = true;
-            document.body.classList.add('dragging');
-            var ghost = $('ghost');
-            ghost.textContent = channels[index].name;
-            ghost.style.left = drag.x + 'px';
-            ghost.style.top = drag.y + 'px';
-            ghost.hidden = false;
-            // From a folder or favourites the tile can also be thrown away.
-            var removable = !!drag.from.folderId || drag.from.id === 'favourites';
-            $('trash').hidden = !removable;
-            $('trash-label').textContent = drag.from.folderId ? t('Убрать из папки') : t('Убрать из избранного');
-            toast(removable ? t('Перетащите на папку слева или в корзину') : t('Перетащите на папку в меню слева'));
-        });
-    });
-
-    document.addEventListener('mousemove', function (event) {
-        if (!drag) {
-            return;
-        }
-        drag.x = event.clientX;
-        drag.y = event.clientY;
-        if (!drag.active) {
-            return;
-        }
-        var ghost = $('ghost');
-        ghost.style.left = drag.x + 'px';
-        ghost.style.top = drag.y + 'px';
-        var over = document.elementFromPoint(drag.x, drag.y);
-        var target = over && over.closest('.rail-item.folder');
-        Array.prototype.forEach.call(rail.querySelectorAll('.drop-target'), function (item) {
-            if (item !== target) {
-                item.classList.remove('drop-target');
-            }
-        });
-        if (target) {
-            target.classList.add('drop-target');
-        }
-        $('trash').classList.toggle('hot', !!(over && over.closest('#trash')));
-    });
-
-    document.addEventListener('mouseup', function (event) {
-        clearTimeout(timers.drag);
-        if (!drag) {
-            return;
-        }
-        if (drag.active) {
-            suppressClick = true;
-            var over = document.elementFromPoint(event.clientX, event.clientY);
-            var target = over && over.closest('.rail-item.folder');
-            if (over && over.closest('#trash') && !$('trash').hidden) {
-                var name = channels[drag.index].name;
-                if (drag.from.folderId) {
-                    toggleInFolder(drag.from.folderId, drag.index);
-                    toast('«' + name + t('» убран из «') + drag.from.name + '»');
-                } else {
-                    toggleFavourite(drag.index);
-                    renderRail();
-                    renderGrid();
-                    toast('«' + name + t('» убран из избранного'));
-                }
-            } else if (target) {
-                var section = sections[Number(target.dataset.rail)];
-                var folder = findFolder(section.folderId);
-                if (folder && folder.urls.indexOf(channels[drag.index].url) < 0) {
-                    toggleInFolder(folder.id, drag.index);
-                    toast(t('Добавлено в «') + folder.name + '»');
-                } else if (folder) {
-                    toast(t('Уже в «') + folder.name + '»');
-                }
-            }
-            $('ghost').hidden = true;
-            $('trash').hidden = true;
-            $('trash').classList.remove('hot');
-            document.body.classList.remove('dragging');
-        }
-        drag = null;
-    });
-
     // ---------- PIN ----------
 
     var pin = { mode: 'check', value: '', first: '', done: null, back: 'settings' };
@@ -2465,9 +2359,6 @@
                 choice.appendChild(el('span', 'choice-arrow', '‹'));
                 choice.appendChild(el('span', 'choice-value', item.options[chosen].name));
                 choice.appendChild(el('span', 'choice-arrow', '›'));
-                if (item.session && sleepAt) {
-                    choice.appendChild(el('span', 'choice-arrow', '· ' + Math.ceil((sleepAt - Date.now()) / 60000) + t(' мин')));
-                }
                 var swatches = el('span', 'swatches');
                 item.options[chosen].colours.forEach(function (colour) {
                     var dot = el('span', 'swatch');
@@ -2488,7 +2379,7 @@
     }
 
     function choiceIndex(item, values) {
-        var value = item.session ? sleepChoice : values[item.id];
+        var value = values[item.id];
         var at = 0;
         item.options.forEach(function (option, i) {
             if (option.id === value) {
@@ -2496,25 +2387,6 @@
             }
         });
         return at;
-    }
-
-    function setSleep(choice) {
-        sleepChoice = choice;
-        clearTimeout(timers.sleep);
-        if (choice === 'off') {
-            sleepAt = 0;
-            return;
-        }
-        var minutes = Number(choice);
-        sleepAt = Date.now() + minutes * 60000;
-        restartTimer('sleep', minutes * 60000, function () {
-            video.pause();
-            sleepChoice = 'off';
-            sleepAt = 0;
-            showScreen('player');
-            showStatus(t('Таймер сна: просмотр остановлен. OK — открыть меню.'));
-        });
-        toast(t('Таймер сна: ') + SLEEP_OPTIONS.filter(function (o) { return o.id === choice; })[0].name);
     }
 
     function toggleSetting(index, direction) {
@@ -2589,18 +2461,14 @@
         if (item.kind === 'choice') {
             var size = item.options.length;
             var next = item.options[(choiceIndex(item, values) + (direction || 1) + size) % size].id;
-            if (item.session) {
-                setSleep(next);
-            } else {
-                values[id] = next;
-                write(STORE.settings, values);
-                applyTheme();
-                if (id === 'lang') {
-                    // Constants are already translated, so a restart applies the new language everywhere.
-                    saveBackup();
-                    setTimeout(function () { window.location.reload(); }, 400);
-                    return;
-                }
+            values[id] = next;
+            write(STORE.settings, values);
+            applyTheme();
+            if (id === 'lang') {
+                // Constants are already translated, so a restart applies the new language everywhere.
+                saveBackup();
+                setTimeout(function () { window.location.reload(); }, 400);
+                return;
             }
             renderSettings();
             return;
@@ -2661,8 +2529,7 @@
         [['INFO'], t('Справка и информация'), t('Эта страница; во время просмотра — данные канала')],
         [['back'], t('Назад'), t('На главном экране предлагает выйти')],
         [['OK'], t('Долгое нажатие OK'), t('В папке — убрать канал (жёлтая кнопка вернёт); в других разделах — «В папку»')],
-        [['Magic Remote'], t('Перетаскивание'), t('Зажмите плитку: на папку слева — положить, в корзину — убрать из папки')],
-        [['Magic Remote'], t('Указка'), t('Наведите и нажмите колесо; колесо листает меню. Каналы — в Настройках')]
+        [['Magic Remote'], t('Указка'), t('Наведите и нажмите колесо; колесо листает меню')]
     ];
 
     function openHelp() {
@@ -3308,10 +3175,6 @@
     });
 
     document.addEventListener('click', function (event) {
-        if (suppressClick) {
-            suppressClick = false;
-            return;
-        }
         if (screen === 'picker') {
             var pick = event.target.closest('[data-pick]');
             if (pick) {
@@ -3399,8 +3262,6 @@
             }
         } else if (screen === 'guide') {
             moveGuideRow(down ? 1 : -1);
-        } else if (screen === 'player' && setting('wheelZap')) {
-            step(down ? -1 : 1);
         }
         event.preventDefault();
     }, { passive: false });
@@ -3438,6 +3299,9 @@
         node.textContent = t(node.textContent);
     });
     document.documentElement.lang = LANG;
+
+    // The "Recent" section is gone; drop what it stored.
+    window.localStorage.removeItem('alik.recent');
 
     restoreIfEmpty(function () {
         applyTheme();

@@ -11,8 +11,7 @@ no root needed.
 
 Alik opens the **Playlists** screen. Pick one or more:
 
-- **your own link** to any M3U / M3U8 playlist (typing is easier from a phone with the
-  keyboard of the LG ThinQ app);
+- **your own link** to any M3U / M3U8 playlist (or send it from a phone, see below);
 - a **ready playlist** from this repository, checked every day: Armenia, Russia, movie
   channels (English, Russian, Armenian), classic films and an 18+ vintage-film list
   from the Internet Archive;
@@ -62,9 +61,7 @@ second switches to its channel.
 | INFO | help with all keys | channel info |
 | Back | ask to exit | home screen |
 
-**Magic Remote:** point and press the wheel to open; the wheel scrolls menus. Hold a
-tile and drag it onto a folder in the menu, or onto the bin to take it out of the open
-folder or Favourites.
+**Magic Remote:** point and press the wheel to open; the wheel scrolls menus.
 
 ## Settings (blue key)
 
@@ -77,8 +74,6 @@ folder or Favourites.
 - **Start in the player:** open straight on the last channel.
 - **Hide channels that do not work:** channels that failed in the last 24 hours (they are
   greyed out with "not answering" otherwise).
-- **Sleep timer:** 30 minutes to 2 hours.
-- **Magic Remote wheel switches channels** (off by default).
 - **Restore from backup.**
 
 ## Films

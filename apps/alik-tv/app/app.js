@@ -285,7 +285,8 @@
         lock: 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 017 0v3',
         heartfolder: 'M3 7h6l2 2h10v10H3zM12 17l-2.6-2.4a1.6 1.6 0 012.3-2.2l.3.3.3-.3a1.6 1.6 0 012.3 2.2z',
         gear: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-1-3-2 .3-1.4-1.4.3-2-3-1-1 2h-2l-1-2-3 1 .3 2L5.8 7.3 4 7 3 10l2 1v2l-2 1 1 3 2-.3 1.4 1.4-.3 2 3 1 1-2h2l1 2 3-1-.3-2 1.4-1.4 2 .3 1-3-2-1z',
-        pause: 'M8 5v14M16 5v14'
+        pause: 'M8 5v14M16 5v14',
+        guide: 'M3 5h18v15H3zM3 10h18M9 10v10M15 10v10M8 3v4M16 3v4'
     };
 
     function svg(name) {
@@ -537,9 +538,11 @@
         sections = [
             { kind: 'list', id: 'favourites', name: t('Избранное'), icon: 'star', items: indexesForUrls(read(STORE.favourites, [])) }
         ];
-        sections.splice(0, 0, { kind: 'action', id: 'search-action', name: t('Поиск'), icon: 'search', action: function () { openPrompt(-1, null, 'search'); } });
+        sections.splice(0, 0,
+            { kind: 'action', id: 'search-action', name: t('Поиск'), icon: 'search', action: function () { openPrompt(-1, null, 'search'); } },
+            { kind: 'action', id: 'guide', name: t('Телепрограмма'), icon: 'guide', action: openGuide });
         if (searchResult) {
-            sections.splice(1, 0, searchResult);
+            sections.splice(2, 0, searchResult);
         }
         sections.push({ kind: 'heading', name: t('Мои папки') });
         read(STORE.folders, []).forEach(function (folder) {
@@ -968,6 +971,7 @@
         $('sources').hidden = name !== 'sources';
         $('help').hidden = name !== 'help';
         $('settings').hidden = name !== 'settings';
+        $('guide').hidden = name !== 'guide';
         updateBackdrop();
         $('dialog').hidden = name !== 'dialog';
         if (name !== 'player') {
@@ -2679,6 +2683,291 @@
         }
     }
 
+    // ---------- TV guide ----------
+
+    // Channels with a guide in rows, three hours across; the focus is a programme.
+    // guideView.time is the moment the focus sits on: ▲ ▼ keep it, ◀ ▶ move it.
+    var GUIDE = { rows: 8, span: 3 * 3600, step: 1800, width: 1368 };
+    var guideView = { list: [], row: 0, top: 0, time: 0, start: 0, from: 'home' };
+
+    function floorStep(seconds) {
+        return Math.floor(seconds / GUIDE.step) * GUIDE.step;
+    }
+
+    function nowSeconds() {
+        return Date.now() / 1000;
+    }
+
+    // Programmes from an hour ago on; older ones are of no use without an archive.
+    function guideEarliest() {
+        return floorStep(nowSeconds()) - 2 * GUIDE.step;
+    }
+
+    function guideChannels() {
+        var hidden = read(STORE.groups, { hidden: [], order: [] }).hidden;
+        var seen = {};
+        return allIndexes(function (c) {
+            if (c.film || !c.tvgId || !guide[c.tvgId] || !guide[c.tvgId].length || seen[c.tvgId] || hidden.indexOf(c.group) >= 0) {
+                return false;
+            }
+            seen[c.tvgId] = true;
+            return true;
+        }).sort(function (a, b) { return channels[a].number - channels[b].number; });
+    }
+
+    function guideShows(row) {
+        return guide[channels[guideView.list[row]].tvgId] || [];
+    }
+
+    function showAt(shows, time) {
+        for (var i = 0; i < shows.length; i++) {
+            if (shows[i][0] <= time && time < shows[i][1]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // Guide titles often end with a full stop; "..." is kept.
+    function showTitle(show) {
+        return show[2].replace(/([^.])\.$/, '$1');
+    }
+
+    function dayLabel(seconds) {
+        var date = new Date(seconds * 1000);
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        var day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        var diff = Math.round((day - today) / 86400000);
+        if (diff === 0) {
+            return t('Сегодня');
+        }
+        if (diff === 1) {
+            return t('Завтра');
+        }
+        if (diff === -1) {
+            return t('Вчера');
+        }
+        return ('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2);
+    }
+
+    function openGuide() {
+        guideView.from = screen;
+        guideView.list = guideChannels();
+        guideView.time = nowSeconds();
+        guideView.start = floorStep(guideView.time);
+        var at = guideView.list.indexOf(current);
+        guideView.row = Math.max(0, at);
+        guideView.top = Math.max(0, guideView.row - 3);
+        showScreen('guide');
+        renderGuide();
+        tickGuide();
+    }
+
+    // The "now" line and the on-air marks move once a minute.
+    function tickGuide() {
+        restartTimer('guide', 60000, function () {
+            if (screen === 'guide') {
+                renderGuide();
+                tickGuide();
+            }
+        });
+    }
+
+    function closeGuide() {
+        if (guideView.from === 'player') {
+            showScreen('player');
+            showOsd();
+            return;
+        }
+        showScreen('home');
+        renderRail();
+        renderGrid();
+        updateHomeHints();
+    }
+
+    function renderGuide() {
+        var list = guideView.list;
+        $('guide-board').hidden = !list.length;
+        $('guide-detail').hidden = !list.length;
+        $('guide-empty').hidden = list.length > 0;
+        if (!list.length) {
+            $('guide-empty').textContent = Object.keys(guide).length
+                ? t('Ни у одного канала из ваших плейлистов нет программы.')
+                : t('Программа ещё не загрузилась. Проверьте интернет и откройте снова.');
+            setHints($('guide-hints'), [[['back'], t('Назад')]]);
+            return;
+        }
+        var view = guideView;
+        view.row = Math.max(0, Math.min(list.length - 1, view.row));
+        if (view.row < view.top) {
+            view.top = view.row;
+        } else if (view.row >= view.top + GUIDE.rows) {
+            view.top = view.row - GUIDE.rows + 1;
+        }
+        var start = view.start;
+        var end = start + GUIDE.span;
+        var scale = GUIDE.width / GUIDE.span;
+        var now = nowSeconds();
+
+        var times = $('guide-times');
+        times.innerHTML = '';
+        times.appendChild(el('span', 'guide-day', dayLabel(start)));
+        for (var mark = start; mark < end; mark += GUIDE.step) {
+            var label = el('span', 'guide-time', hhmm(mark));
+            label.style.left = (360 + (mark - start) * scale) + 'px';
+            times.appendChild(label);
+        }
+
+        var rows = $('guide-rows');
+        rows.innerHTML = '';
+        var focused = null;
+        for (var r = view.top; r < Math.min(list.length, view.top + GUIDE.rows); r++) {
+            var channel = channels[list[r]];
+            var row = el('div', 'guide-row' + (r === view.row ? ' active' : '') + (list[r] === current ? ' playing' : ''));
+            var head = el('div', 'guide-channel');
+            head.appendChild(el('span', 'guide-number', String(channel.number)));
+            var logo = el('span', 'guide-logo');
+            if (channel.logo) {
+                var img = document.createElement('img');
+                img.src = channel.logo;
+                img.alt = '';
+                logo.appendChild(img);
+            }
+            head.appendChild(logo);
+            head.appendChild(el('span', 'guide-name', channel.name));
+            row.appendChild(head);
+
+            var line = el('div', 'guide-line');
+            var shows = guideShows(r);
+            var focusIndex = r === view.row ? showAt(shows, view.time) : -1;
+            shows.forEach(function (show, index) {
+                if (show[1] <= start || show[0] >= end) {
+                    return;
+                }
+                var left = Math.max(show[0], start);
+                var right = Math.min(show[1], end);
+                var cell = el('div', 'guide-show');
+                if (show[1] <= now) {
+                    cell.classList.add('past');
+                } else if (show[0] <= now) {
+                    cell.classList.add('on-air');
+                }
+                if (show[0] < start) {
+                    cell.classList.add('cut');
+                }
+                if (index === focusIndex) {
+                    cell.classList.add('focused');
+                    focused = show;
+                }
+                cell.style.left = ((left - start) * scale) + 'px';
+                cell.style.width = Math.max(0, (right - left) * scale - 6) + 'px';
+                cell.dataset.guideRow = r;
+                cell.dataset.show = index;
+                // A sliver at the edge of the window gets no text: it would only show a cut letter.
+                if ((right - left) * scale >= 64) {
+                    cell.appendChild(el('span', 'guide-title', showTitle(show)));
+                    cell.appendChild(el('span', 'guide-at', hhmm(show[0])));
+                }
+                line.appendChild(cell);
+            });
+            row.appendChild(line);
+            rows.appendChild(row);
+        }
+
+        var nowLine = $('guide-now');
+        nowLine.hidden = now < start || now >= end;
+        nowLine.style.left = (360 + (now - start) * scale) + 'px';
+
+        var focusChannel = channels[list[view.row]];
+        $('guide-channel').textContent = focusChannel.number + '  ' + focusChannel.name;
+        $('guide-title').textContent = focused ? showTitle(focused) : t('Нет программы на это время');
+        $('guide-when').textContent = focused ? dayLabel(focused[0]) + ', ' + hhmm(focused[0]) + '–' + hhmm(focused[1]) : '';
+        $('guide-live').hidden = !(focused && focused[0] <= now && now < focused[1]);
+
+        setHints($('guide-hints'), [
+            [['updown'], t('Канал')],
+            [['leftright'], t('Время')],
+            [['CH'], t('Страница')],
+            [['OK'], t('Смотреть канал')],
+            [['back'], t('Назад')]
+        ]);
+    }
+
+    function moveGuideRow(delta) {
+        guideView.row = Math.max(0, Math.min(guideView.list.length - 1, guideView.row + delta));
+        // Moving down from a long programme lands on what runs at the left edge, not hours before.
+        guideView.time = Math.max(guideView.time, guideView.start);
+        renderGuide();
+    }
+
+    function moveGuideTime(direction) {
+        var shows = guideShows(guideView.row);
+        var index = showAt(shows, guideView.time);
+        var target = -1;
+        if (index >= 0) {
+            target = index + direction;
+        } else {
+            for (var i = 0; i < shows.length; i++) {
+                if (direction > 0 && shows[i][0] > guideView.time) {
+                    target = i;
+                    break;
+                }
+                if (direction < 0 && shows[i][1] <= guideView.time) {
+                    target = i;
+                }
+            }
+        }
+        var show = shows[target];
+        if (!show || show[1] <= guideEarliest()) {
+            return;
+        }
+        guideView.time = Math.max(show[0], guideEarliest());
+        if (guideView.time < guideView.start) {
+            guideView.start = floorStep(guideView.time);
+        } else if (guideView.time >= guideView.start + GUIDE.span - GUIDE.step) {
+            guideView.start = floorStep(guideView.time) - GUIDE.step;
+        }
+        renderGuide();
+    }
+
+    function watchFromGuide() {
+        play(guideView.list[guideView.row], allIndexes(function (c) { return !c.film; }));
+        showScreen('player');
+        showOsd();
+    }
+
+    // Magic Remote: the first click focuses a programme, a second one on it switches.
+    function clickGuideShow(row, index) {
+        var show = guideShows(row)[index];
+        if (!show) {
+            return;
+        }
+        if (row === guideView.row && showAt(guideShows(row), guideView.time) === index) {
+            watchFromGuide();
+            return;
+        }
+        guideView.row = row;
+        guideView.time = Math.max(show[0], guideView.start);
+        renderGuide();
+    }
+
+    function handleGuideKey(code) {
+        if (code === KEY.UP) { moveGuideRow(-1); }
+        else if (code === KEY.DOWN) { moveGuideRow(1); }
+        else if (code === KEY.CH_UP) { moveGuideRow(-GUIDE.rows); }
+        else if (code === KEY.CH_DOWN) { moveGuideRow(GUIDE.rows); }
+        else if (code === KEY.LEFT) { moveGuideTime(-1); }
+        else if (code === KEY.RIGHT) { moveGuideTime(1); }
+        else if (code === KEY.OK) {
+            if (guideView.list.length) {
+                watchFromGuide();
+            }
+        } else if (code === KEY.BACK) { closeGuide(); }
+        else { return false; }
+        return true;
+    }
+
     // ---------- Exit dialog ----------
 
     var dialogFocus = 1;
@@ -2952,6 +3241,8 @@
             handled = handlePickerKey(code);
         } else if (screen === 'prompt') {
             handled = handlePromptKey(code);
+        } else if (screen === 'guide') {
+            handled = handleGuideKey(code);
         } else if (screen === 'help') {
             if (code === KEY.BACK || code === KEY.OK || code === KEY.INFO) {
                 closeHelp();
@@ -3047,7 +3338,7 @@
             video.muted = false;
             autoMuted = false;
         }
-        var target = event.target.closest('[data-tile],[data-rail],[data-col],[data-cat],[data-action]');
+        var target = event.target.closest('[data-tile],[data-rail],[data-col],[data-cat],[data-action],[data-show]');
         if (screen === 'player') {
             openHome();
         } else if (screen === 'help') {
@@ -3087,6 +3378,8 @@
             activateSourceRow();
         } else if (screen === 'dialog') {
             handleDialogKey(KEY.OK);
+        } else if (screen === 'guide' && target && target.dataset.show !== undefined) {
+            clickGuideShow(Number(target.dataset.guideRow), Number(target.dataset.show));
         }
     });
 
@@ -3104,6 +3397,8 @@
             } else {
                 moveSources(down ? 1 : -1);
             }
+        } else if (screen === 'guide') {
+            moveGuideRow(down ? 1 : -1);
         } else if (screen === 'player' && setting('wheelZap')) {
             step(down ? -1 : 1);
         }

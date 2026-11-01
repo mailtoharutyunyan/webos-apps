@@ -36,6 +36,16 @@ folders are open is remembered. Groups with one or two channels are folded into
 "Other". On the right: tiles with the channel number, logo, the programme on air and
 its progress.
 
+## TV guide screen
+
+**TV guide** at the top of the menu shows every channel that has a guide, in channel
+number order, three hours across, with a line at the current time. The programme in
+focus is shown large above the grid. ▲ ▼ change the channel, ◀ ▶ go to the previous or
+next programme (up to an hour back and as far ahead as the guide goes), CH± page
+through channels, OK switches to the channel, Back returns to the menu. Hidden groups
+are left out. With the Magic Remote, the first click selects a programme and the
+second switches to its channel.
+
 ## Remote control
 
 | Key | Home screen | While watching |

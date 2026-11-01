@@ -813,6 +813,115 @@ video {
 
 .help-hints { position: absolute; left: 120px; bottom: 48px; }
 
+/* ---------- TV guide ---------- */
+
+.guide-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1080px;
+    padding: 64px 96px 0;
+    background: var(--ink);
+}
+
+.guide-screen[hidden] { display: none; }
+
+/* The focused programme, large, above the board. */
+.guide-detail { height: 196px; margin-top: 28px; }
+.guide-detail[hidden] { display: none; }
+.guide-detail-channel { font-size: 26px; color: var(--muted); white-space: pre; }
+.guide-detail-title {
+    margin-top: 6px;
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.guide-detail-when { display: flex; align-items: center; margin-top: 10px; font-size: 28px; color: var(--muted); }
+.guide-live {
+    margin-right: 16px;
+    padding: 2px 14px;
+    border-radius: 8px;
+    background: var(--apricot);
+    color: var(--apricot-ink);
+    font-size: 22px;
+    font-weight: 600;
+}
+.guide-live[hidden] { display: none; }
+
+.guide-board { position: relative; width: 1728px; }
+.guide-board[hidden] { display: none; }
+
+.guide-times { position: relative; height: 48px; border-bottom: 2px solid var(--line); }
+.guide-day { position: absolute; left: 0; top: 4px; font-size: 26px; font-weight: 600; }
+.guide-time { position: absolute; top: 6px; padding-left: 10px; border-left: 2px solid var(--line); font-size: 24px; color: var(--muted); }
+
+.guide-row { display: flex; height: 72px; padding-top: 8px; }
+
+.guide-channel {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: 360px;
+    padding-right: 20px;
+    color: var(--muted);
+}
+.guide-row.active .guide-channel { color: var(--text); }
+.guide-row.playing .guide-number { color: var(--apricot); }
+.guide-number { flex-shrink: 0; width: 64px; font-size: 24px; }
+.guide-logo { flex-shrink: 0; width: 72px; height: 40px; margin-right: 16px; }
+.guide-logo img { width: 72px; height: 40px; object-fit: contain; }
+.guide-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 26px; }
+
+.guide-line { position: relative; flex-grow: 1; height: 64px; overflow: hidden; }
+
+.guide-show {
+    position: absolute;
+    top: 0;
+    height: 64px;
+    padding: 6px 16px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    overflow: hidden;
+    white-space: nowrap;
+}
+.guide-show.cut { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.guide-show.on-air { background: var(--raised); }
+.guide-show.past { opacity: 0.55; }
+.guide-show.focused { background: var(--apricot); border-color: var(--apricot); color: var(--apricot-ink); opacity: 1; }
+.guide-title { display: block; overflow: hidden; text-overflow: ellipsis; font-size: 24px; line-height: 28px; }
+.guide-at { display: block; font-size: 19px; line-height: 22px; color: var(--muted); }
+.guide-show.focused .guide-at { color: var(--apricot-ink); }
+
+/* Now: a thin apricot line through the board. */
+.guide-now {
+    position: absolute;
+    top: 40px;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--apricot);
+    pointer-events: none;
+}
+.guide-now[hidden] { display: none; }
+.guide-now:before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--apricot);
+}
+
+.guide-empty { margin-top: 120px; max-width: 900px; font-size: 32px; line-height: 1.45; color: var(--muted); }
+.guide-hints { position: absolute; left: 96px; bottom: 40px; }
+
 /* ---------- Settings ---------- */
 
 .settings {

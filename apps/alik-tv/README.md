@@ -18,6 +18,12 @@ Alik opens the **Playlists** screen. Pick one or more:
   from the Internet Archive;
 - a **country** from the [iptv-org](https://github.com/iptv-org/iptv) catalogue.
 
+**From a phone:** while the Playlists screen is open, it shows a QR code. Scan it with
+a phone on the same network, paste the link on the page that opens and send it; the
+playlist appears on the TV at once. The page is served by Alik's own service on port
+8095 (or the next free one up to 8099), under a random path that changes every time the
+screen opens, and the server stops when you leave the screen.
+
 Channels of all playlists are merged into one menu. The same stream in two playlists
 shows once.
 
@@ -91,6 +97,7 @@ tools/release.sh alik-tv      # from the repository root: builds the IPK, update
 ```
 
 Strings: Russian is the key; `app/i18n.js` holds English and Armenian. Playback uses
-[hls.js](https://github.com/video-dev/hls.js) 1.5.20 (Apache-2.0, `app/vendor`). The TV
+[hls.js](https://github.com/video-dev/hls.js) 1.5.20 (Apache-2.0, `app/vendor`); QR codes
+use [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) 1.4.4 (MIT). The TV
 runs Chromium 79 and Node 8: no optional chaining, `??`, CSS `inset`, flex `gap` or
 `aspect-ratio`.

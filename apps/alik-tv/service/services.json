@@ -1,6 +1,6 @@
 {
   "id": "com.arayik.alik.service",
-  "description": "Keeps a backup of Alik settings outside the app folder",
+  "description": "Keeps a backup of Alik settings and takes playlist links from a phone",
   "services": [
     {
       "name": "com.arayik.alik.service"

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<style>
+    :root {
+        --ink: {{ink}};
+        --panel: {{panel}};
+        --line: {{line}};
+        --text: {{text}};
+        --muted: {{muted}};
+        --accent: {{accent}};
+        --accent-ink: {{accentInk}};
+        --red: {{red}};
+    }
+    * { box-sizing: border-box; margin: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        min-height: 100vh;
+        background: var(--ink);
+        color: var(--text);
+        font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 34rem; margin: 0 auto; padding: 28px 20px 40px; }
+    .brand { display: flex; align-items: center; font-size: 22px; font-weight: 700; }
+    /* The same wave as on the TV: "alik" means wave and channel in Armenian. */
+    .mark {
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
+        border-radius: 10px;
+        background:
+            radial-gradient(circle at 50% 50%, var(--text) 0 5px, transparent 6px),
+            radial-gradient(circle at 50% 50%, transparent 0 9px, var(--accent) 10px 13px, transparent 14px),
+            var(--panel);
+    }
+    h1 { margin-top: 36px; font-size: 30px; line-height: 1.2; font-weight: 650; }
+    .intro { margin-top: 10px; color: var(--muted); }
+    .state { margin-top: 24px; padding: 14px 16px; border-radius: 14px; background: var(--panel); }
+    .state.sent { border: 2px solid var(--accent); }
+    .state.error { border: 2px solid var(--red); }
+    form { margin-top: 8px; }
+    label { display: block; margin-top: 22px; font-size: 15px; font-weight: 600; color: var(--muted); }
+    textarea, input {
+        display: block;
+        width: 100%;
+        margin-top: 8px;
+        padding: 14px;
+        border: 2px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel);
+        color: var(--text);
+        font: inherit;
+        outline: none;
+    }
+    textarea { min-height: 7.5em; resize: vertical; word-break: break-all; }
+    textarea:focus, input:focus { border-color: var(--accent); }
+    button {
+        width: 100%;
+        height: 56px;
+        margin-top: 28px;
+        border: 0;
+        border-radius: 14px;
+        background: var(--accent);
+        color: var(--accent-ink);
+        font: inherit;
+        font-size: 18px;
+        font-weight: 650;
+    }
+    button:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
+    button:active { transform: scale(0.98); }
+    @media (prefers-reduced-motion: reduce) { button:active { transform: none; } }
+</style>
+</head>
+<body>
+<main>
+    <div class="brand"><span class="mark"></span>Alik</div>
+    <h1>{{heading}}</h1>
+    <p class="intro">{{intro}}</p>
+    {{state}}
+    <form method="post" action="/{{token}}">
+        <label for="url">{{urlLabel}}</label>
+        <textarea id="url" name="url" required autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://example.com/playlist.m3u">{{url}}</textarea>
+        <label for="name">{{nameLabel}}</label>
+        <input id="name" name="name" maxlength="80" autocomplete="off" value="{{name}}">
+        <button type="submit">{{send}}</button>
+    </form>
+</main>
+</body>
+</html>

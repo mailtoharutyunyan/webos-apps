@@ -973,6 +973,11 @@
         if (name !== 'player') {
             osd.hidden = true;
         }
+        if (name === 'sources') {
+            startPhoneShare();
+        } else {
+            stopPhoneShare();
+        }
     }
 
     // The backdrop shows wherever there is no picture to look at.
@@ -1462,6 +1467,88 @@
             return;
         }
         addSource({ name: nameFromUrl(url), url: url });
+    }
+
+    // ---------- Playlist link from a phone ----------
+
+    // While the Playlists screen is open, the service serves a page on the home
+    // network; the QR code opens it, and links sent from it arrive here.
+    var phoneShare = null;
+
+    function themeColors() {
+        var style = window.getComputedStyle(document.documentElement);
+        var names = { ink: '--ink', panel: '--panel', line: '--line', text: '--text', muted: '--muted', accent: '--apricot', accentInk: '--apricot-ink', red: '--red' };
+        var colors = {};
+        Object.keys(names).forEach(function (key) {
+            colors[key] = style.getPropertyValue(names[key]).trim();
+        });
+        return colors;
+    }
+
+    function showPhoneCard(url) {
+        var code = qrcode(0, 'M');
+        code.addData(url);
+        code.make();
+        $('phone-qr').innerHTML = code.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+        $('phone-url').textContent = url;
+        $('phone-card').hidden = false;
+        $('sources-tip').hidden = true;
+    }
+
+    function hidePhoneCard() {
+        $('phone-card').hidden = true;
+        $('sources-tip').hidden = false;
+    }
+
+    function startPhoneShare() {
+        if (phoneShare || !window.qrcode) {
+            return;
+        }
+        try {
+            phoneShare = new PalmServiceBridge();
+        } catch (e) {
+            phoneShare = null;
+            return;
+        }
+        phoneShare.onservicecallback = function (raw) {
+            var payload;
+            try {
+                payload = JSON.parse(raw);
+            } catch (e) {
+                return;
+            }
+            if (!payload.returnValue) {
+                hidePhoneCard();
+            } else if (payload.url) {
+                showPhoneCard(payload.url);
+            } else if (payload.link && screen === 'sources') {
+                addSource({ name: payload.link.name || nameFromUrl(payload.link.url), url: payload.link.url });
+            }
+        };
+        phoneShare.call(SERVICE + 'share', JSON.stringify({
+            subscribe: true,
+            lang: LANG,
+            colors: themeColors(),
+            texts: {
+                title: t('Плейлист для Alik'),
+                heading: t('Плейлист на телевизор'),
+                intro: t('Вставьте ссылку на M3U-плейлист. Она сразу появится в Alik на телевизоре.'),
+                urlLabel: t('Ссылка на плейлист'),
+                nameLabel: t('Название, если нужно своё'),
+                send: t('Отправить на телевизор'),
+                sent: t('Отправлено на телевизор: '),
+                badUrl: t('Ссылка должна начинаться с http:// или https://'),
+                expired: t('Этот код больше не работает. Откройте «Плейлисты» в Alik и отсканируйте новый.')
+            }
+        }));
+    }
+
+    function stopPhoneShare() {
+        if (phoneShare) {
+            phoneShare.cancel();
+            phoneShare = null;
+        }
+        hidePhoneCard();
     }
 
     function activateSourceRow() {

@@ -730,6 +730,25 @@ video {
 
 .sources-notice { min-height: 40px; margin-top: 16px; font-size: 28px; line-height: 1.4; color: var(--apricot); }
 
+/* QR for sending a playlist link from a phone; the code stays dark on white to scan. */
+.phone-card {
+    display: flex;
+    align-items: center;
+    margin-top: 24px;
+    padding: 24px;
+    border: 2px solid var(--line);
+    border-radius: 18px;
+    background: var(--panel);
+}
+
+.phone-card[hidden] { display: none; }
+.phone-qr { flex-shrink: 0; width: 196px; height: 196px; padding: 10px; border-radius: 12px; background: #fff; }
+.phone-qr svg { display: block; width: 176px; height: 176px; }
+.phone-text { margin-left: 28px; min-width: 0; }
+.phone-title { font-size: 30px; font-weight: 600; }
+.phone-hint { margin-top: 10px; font-size: 24px; line-height: 1.4; color: var(--muted); }
+.phone-url { margin-top: 12px; font-size: 22px; color: var(--muted); word-break: break-all; }
+
 .sources-catalog {
     display: none;
     position: absolute;

@@ -105,13 +105,21 @@
             <div class="brand"><span class="brand-mark"></span>Alik</div>
             <h1 class="sources-title" data-t>Плейлисты</h1>
             <p class="sources-intro" data-t>Добавьте ссылку на свой M3U-плейлист или выберите готовый справа. Каналы всех плейлистов собираются в одно меню.</p>
-            <p class="sources-tip" data-t>Длинную ссылку удобно вставить с телефона: пульт с клавиатурой в приложении LG ThinQ.</p>
+            <p id="sources-tip" class="sources-tip" data-t>Длинную ссылку удобно вставить с телефона: пульт с клавиатурой в приложении LG ThinQ.</p>
             <ul id="source-left" class="source-col">
                 <li id="source-field" class="field" data-row="0">
                     <input id="source-url" type="url" placeholder="https://example.com/playlist.m3u" spellcheck="false" autocomplete="off">
                 </li>
             </ul>
             <p id="source-notice" class="sources-notice" aria-live="polite"></p>
+            <div id="phone-card" class="phone-card" hidden>
+                <div id="phone-qr" class="phone-qr"></div>
+                <div class="phone-text">
+                    <p class="phone-title" data-t>Ссылка с телефона</p>
+                    <p class="phone-hint" data-t>Наведите камеру телефона на код и вставьте ссылку на открывшейся странице. Телефон и телевизор должны быть в одной сети.</p>
+                    <p id="phone-url" class="phone-url"></p>
+                </div>
+            </div>
         </div>
         <div class="sources-right">
             <ul id="source-right" class="source-col"></ul>
@@ -191,6 +199,7 @@
     </div>
 
     <script src="vendor/hls.min.js"></script>
+    <script src="vendor/qrcode.js"></script>
     <script src="i18n.js"></script>
     <script src="app.js"></script>
 </body>

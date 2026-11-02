@@ -70,13 +70,17 @@ https://cc-hqw8u5r1nshjc.akamaized.net/scheduler/scheduleMaster/352.m3u8
 #EXTINF:-1 tvg-id="CineRomantico.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/decc2a2200a5df6e.png" group-title="Movies: English",Cine Romantico (720p)
 https://d1si3n1st4nkgb.cloudfront.net/10502/88886011/hls/master.m3u8?ads.xumo_channelId=88886011
 #EXTINF:-1 tvg-id="CineSony.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f4ed51585ae809e2.png" group-title="Movies: English",Cine Sony (720p)
-https://a-cdn.klowdtv.com/live1/cine_720p/playlist.m3u8
+http://186.148.196.82:8001/play/a0a4
 #EXTINF:-1 tvg-id="Cinema.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b599da4e29d318eb.png" group-title="Movies: Russian",Cinema (Russia) (576p)
 http://flussonic.linkintel.ru/cinema/index.m3u8
+#EXTINF:-1 tvg-id="Cinemax2CentralEurope.hu@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/84738b5e3c8b47fb.png" group-title="Movies: English",Cinemax 2 Central Europe
+http://193.33.39.108:9009/play/a024
 #EXTINF:-1 tvg-id="Cinemax.us@West" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8bccedde61ed6747.png" group-title="Movies: English",Cinemax (United States) West (720p)
 http://23.237.104.106:8080/USA_CINEMAX_WEST/index.m3u8
 #EXTINF:-1 tvg-id="CinemaxAsia.sg@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6f31ba207ab10a65.png" group-title="Movies: English",Cinemax Asia HD (1080p)
 http://125.227.210.55:1001/VideoInput/play.ts
+#EXTINF:-1 tvg-id="CinemaxCentralEurope.hu@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8bccedde61ed6747.png" group-title="Movies: English",Cinemax Central Europe
+http://193.33.39.108:9023/play/a01b
 #EXTINF:-1 tvg-id="CinemaxClassics.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5da9d03772526538.png" group-title="Movies: English",Cinemax Classics (1080p)
 http://23.237.104.106:8080/USA_5STARMAX/index.m3u8
 #EXTINF:-1 tvg-id="CinemaxHits.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6f024be95207f497.png" group-title="Movies: English",Cinemax Hits (1080p)
@@ -133,10 +137,14 @@ https://amg01753-narrativeuk-amg01753c2-lg-gb-1832.playouts.now.amagi.tv/playlis
 https://amogonetworx-grjngo-3-dk.samsung.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="HallmarkMoviesMore.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4afa000cd7a8c7b3.png" group-title="Movies: English",Hallmark Movies & More (1080p)
 https://dbrb49pjoymg4.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-ams-aws/master.m3u8?ads.xumo_channelId=99991709
-#EXTINF:-1 tvg-id="HBOAsia.sg@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/acda44389251e13d.png" group-title="Movies: English",HBO Asia HD (1080p)
+#EXTINF:-1 tvg-id="HBO.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/43300bfb6346727c.png" group-title="Movies: English",HBO (United States) (720p)
+http://tvsen7.aynascope.net/hbo/index.m3u8
+#EXTINF:-1 tvg-id="HBOAsia.sg@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/096d020e2c86af78.png" group-title="Movies: English",HBO Asia HD (1080p)
 http://202.150.165.66:8088/play/100-HBO/index.m3u8
-#EXTINF:-1 tvg-id="HBOAsia.sg@Taiwan" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/acda44389251e13d.png" group-title="Movies: English",HBO Asia Taiwan (1080p)
+#EXTINF:-1 tvg-id="HBOAsia.sg@Taiwan" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/096d020e2c86af78.png" group-title="Movies: English",HBO Asia Taiwan (1080p)
 http://125.227.210.55:1003/VideoInput/play.ts
+#EXTINF:-1 tvg-id="HBOHits.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b994ea5eb955d557.png" group-title="Movies: English",HBO Hits (720p)
+http://tvsen7.aynascope.net/hbo2/index.m3u8
 #EXTINF:-1 tvg-id="HBOHitsAsia.sg@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b9ca9f1e638c192f.png" group-title="Movies: English",HBO Hits Asia HD (1080p)
 http://202.150.165.66:8088/play/102-HBOHits/index.m3u8
 #EXTINF:-1 tvg-id="HBOSignatureAsia.sg@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/218679d4d0b696e4.png" group-title="Movies: English",HBO Signature Asia HD (1080p)

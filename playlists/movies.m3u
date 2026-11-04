@@ -17,8 +17,6 @@ https://jmp2.uk/plu-5f4d86f519358a00072b978e.m3u8
 https://mediaserver.abnvideos.com/streams/abnbiblemovies.m3u8
 #EXTINF:-1 tvg-id="AlloCine.cm@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/506ddecc1cfbe0d4.png" group-title="Movies: English",Allo Cine (1080p)
 https://d1yl6bf4hrzbr0.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-5km3zs4zs9sp0/allo.m3u8
-#EXTINF:-1 tvg-id="AMC.us@EastHD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/06ea2471e1a40eef.png" group-title="Movies: English",AMC (United States) (720p)
-http://23.239.31.26:8989/amc/index.m3u8
 #EXTINF:-1 tvg-id="AMCEurope.uk@CzechRepublic" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/06ea2471e1a40eef.png" group-title="Movies: English",AMC Europe Czech Republic
 http://88.212.7.14/live/test_amc_25p/playlist.m3u8
 #EXTINF:-1 tvg-id="AMCEurope.uk@Hungary" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/06ea2471e1a40eef.png" group-title="Movies: English",AMC Europe Hungary
@@ -411,8 +409,6 @@ http://stream.mcquack.net/75/index.m3u8
 https://stream.smotrim.ru/hls/fasttv03/playlist_3.m3u8
 #EXTINF:-1 tvg-id="SonyMovies.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/9d8fa44b8f118655.png" group-title="Movies: English",Sony Movies (United States) (720p)
 https://a-cdn.klowdtv.com/live1/smc_720p/playlist.m3u8
-#EXTINF:-1 tvg-id="StarChannel.bg@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/cb0303c93a68c52f.png" group-title="Movies: English",Star Channel (Bulgaria)
-http://213.91.179.28:8000/play/a0c9
 #EXTINF:-1 tvg-id="StarCinema.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5ef972657837402a.png" group-title="Movies: Russian",Star Cinema
 https://dash2.antik.sk/live/test_star_cinema_atktv/playlist.m3u8
 #EXTINF:-1 tvg-id="StarFamily.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/461bd5ed925cd0b9.png" group-title="Movies: Russian",Star Family (1080p)
@@ -451,8 +447,6 @@ https://jmp2.uk/plu-664e640a0120f40008be4582.m3u8
 http://178.134.1.158:8081/TVXXI/index.m3u8
 #EXTINF:-1 tvg-id="TV21International.ru@SD" tvg-logo="" group-title="Movies: Russian",TV 21 International (576p)
 http://stream.mcquack.net/152/index.m3u8
-#EXTINF:-1 tvg-id="TV1000RussianKinoGlobal.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4f318cb057e43146.png" group-title="Movies: Russian",TV1000 Russian Kino Global
-http://213.91.179.28:8000/play/a0bx
 #EXTINF:-1 tvg-id="TVLandDrama.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/3499e2566a5e9589.png" group-title="Movies: English",TV Land Drama
 https://jmp2.uk/plu-5d40bebc5e3d2750a2239d7e.m3u8
 #EXTINF:-1 tvg-id="TVSDriveInMovie.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/bada574a5fba5655.png" group-title="Movies: English",TVS Drive In Movie (360p)

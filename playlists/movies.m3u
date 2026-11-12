@@ -177,8 +177,8 @@ http://stream.mcquack.net/64/index.m3u8
 http://stream.mcquack.net/170/index.m3u8
 #EXTINF:-1 tvg-id="Kinoseriya.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f5d732b816249c5d.png" group-title="Movies: Russian",Kinoseriya (576p)
 https://fs.uplink.kz/kinoseria/mono.m3u8?token=onlinetv
-#EXTINF:-1 tvg-id="Kinouzhas.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5e6e925ea372a8bd.png" group-title="Movies: Russian",Kinouzhas (576p)
-http://stream.mcquack.net/278/index.m3u8
+#EXTINF:-1 tvg-id="Kinouzhas.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5e6e925ea372a8bd.png" group-title="Movies: Russian",Kinouzhas (1080p)
+http://s1.merlive.am/Kinoujas/index.m3u8
 #EXTINF:-1 tvg-id="MadeInHollywood.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ae6c68aad8153793.png" group-title="Movies: English",Made In Hollywood (720p)
 https://connection3-ent-nz.samsung.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="MagnificentMoviesNetwork.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/81bb319a8b2b04cc.png" group-title="Movies: English",Magnificent Movies Network
@@ -197,6 +197,8 @@ https://jmp2.uk/plu-63048147b09fd60007847a08.m3u8
 https://jmp2.uk/plu-63047bd6b0726b000795341d.m3u8
 #EXTINF:-1 tvg-id="MoviesAction.sa@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7ae3bd9b0ca6e74c.png" group-title="Movies: English",Movies Action (1080p)
 https://shd-amg-fast.edgenextcdn.net/tx011/playlist.m3u8
+#EXTINF:-1 tvg-id="MoviesNow.in@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ca86c429339086e2.png" group-title="Movies: English",Movies Now HD (576p)
+http://27.124.71.27/Movies_Now/index.m3u8
 #EXTINF:-1 tvg-id="MoviesThriller.sa@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/bf281443604b8ef1.png" group-title="Movies: English",Movies Thriller (1080p)
 https://shd-amg-fast.edgenextcdn.net/tx012/playlist.m3u8
 #EXTINF:-1 tvg-id="Movies.us@KPVMLD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/664a38c9dd36e444.png" group-title="Movies: English",Movies! KPVM-LD (480p)
@@ -397,14 +399,18 @@ https://jmp2.uk/plu-6086d3f420fc8500075f8dbf.m3u8
 http://stream.mcquack.net/208/index.m3u8
 #EXTINF:-1 tvg-id="RusskiyDetektiv.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/1af7cca28fb82ce4.png" group-title="Movies: Russian",Russkiy Detektiv (576p)
 http://stream.mcquack.net/204/index.m3u8
+#EXTINF:-1 tvg-id="ScaresbyShudder.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/0978997bfed8684f.png" group-title="Movies: English",Scares by Shudder (1080p)
+https://wurlrainbowmedia.global.transmit.live/hls/68c49e4709574e8405506cb3/v1/amc_scaresbyshudder_1/lg_us/latest/main/hls/playlist.m3u8
 #EXTINF:-1 tvg-id="Shokiruyushchee.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/10591a345d726976.png" group-title="Movies: Russian",Shokiruyushchee HD (1080p)
 http://stream.mcquack.net/75/index.m3u8
 #EXTINF:-1 tvg-id="Smotrim100Klassika.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7984afb9d94c4408.png" group-title="Movies: Russian",Smotrim 100% Klassika (720p)
 https://stream.smotrim.ru/hls/fasttv03/playlist_3.m3u8
 #EXTINF:-1 tvg-id="SonyMovies.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/9d8fa44b8f118655.png" group-title="Movies: English",Sony Movies (United States) (720p)
 https://a-cdn.klowdtv.com/live1/smc_720p/playlist.m3u8
-#EXTINF:-1 tvg-id="StarCinema.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5ef972657837402a.png" group-title="Movies: Russian",Star Cinema
-https://dash2.antik.sk/live/test_star_cinema_atktv/playlist.m3u8
+#EXTINF:-1 tvg-id="StarChannel.bg@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/cb0303c93a68c52f.png" group-title="Movies: English",Star Channel (Bulgaria)
+http://213.91.179.28:8000/play/a0c9
+#EXTINF:-1 tvg-id="StarCinema.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5ef972657837402a.png" group-title="Movies: Russian",Star Cinema (576p)
+http://s1.merlive.am/starsinema/index.m3u8
 #EXTINF:-1 tvg-id="StarFamily.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/461bd5ed925cd0b9.png" group-title="Movies: Russian",Star Family (1080p)
 https://dash2.antik.sk/live/test_star_family_atktv/playlist.m3u8
 #EXTINF:-1 tvg-id="StarTrekMovies.se@SE" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/d2cc5386699683ec.png" group-title="Movies: English",Star Trek Movies
@@ -441,6 +447,8 @@ https://jmp2.uk/plu-664e640a0120f40008be4582.m3u8
 http://178.134.1.158:8081/TVXXI/index.m3u8
 #EXTINF:-1 tvg-id="TV21International.ru@SD" tvg-logo="" group-title="Movies: Russian",TV 21 International (576p)
 http://46.53.200.153:7777/play/TV-21M/index.m3u8
+#EXTINF:-1 tvg-id="TV1000RussianKinoGlobal.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4f318cb057e43146.png" group-title="Movies: Russian",TV1000 Russian Kino Global
+http://213.91.179.28:8000/play/a0bx
 #EXTINF:-1 tvg-id="TVLandDrama.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/3499e2566a5e9589.png" group-title="Movies: English",TV Land Drama
 https://jmp2.uk/plu-5d40bebc5e3d2750a2239d7e.m3u8
 #EXTINF:-1 tvg-id="TVSDriveInMovie.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/bada574a5fba5655.png" group-title="Movies: English",TVS Drive In Movie (360p)

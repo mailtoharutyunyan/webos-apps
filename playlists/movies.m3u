@@ -37,8 +37,6 @@ https://amogonetworx-artflix-1-nl.samsung.wurl.tv/playlist.m3u8
 http://88.212.15.50/live/test_black/playlist.m3u8
 #EXTINF:-1 tvg-id="AXNBlack.us@Hungary" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ae078296be532ab4.png" group-title="Movies: English",AXN Black (United States) Hungary (576p)
 http://141.94.193.53/axn_black/index.m3u8
-#EXTINF:-1 tvg-id="AXNCEE.es@Hungary" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2b87ffb6d3c069cb.png" group-title="Movies: English",AXN CEE
-http://88.212.15.50/live/axn_hun/index.m3u8
 #EXTINF:-1 tvg-id="AXNCEE.es@Romania" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2b87ffb6d3c069cb.png" group-title="Movies: English",AXN CEE Romania
 https://cronos.mangora1.cfd/axy/usergend3h5jkc9rnd.m3u8
 #EXTINF:-1 tvg-id="AXNCrime.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/490e616a7780bd10.png" group-title="Movies: English",AXN Crime
@@ -119,6 +117,8 @@ http://88.212.7.14/live/fb_premium_hungary/index.m3u8
 https://webtvstream.bhtelecom.ba/filmbox_stars.m3u8
 #EXTINF:-1 tvg-id="FILMBOXPlusLoveCrime.pl@Romania" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4ee4e300db6a17bd.png" group-title="Movies: English",FILMBOX+ Love & Crime Romania
 https://nosignal1.antenaplay.ro/hls/fb-love-and-crime-sd/index.m3u8
+#EXTINF:-1 tvg-id="FilmUADrama.ua@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/c7a2a50ac9c3e749.png" group-title="Movies: Russian",FilmUADrama
+https://dash2.antik.sk/live/test_film_drama_atktv/playlist.m3u8
 #EXTINF:-1 tvg-id="FlicksofFury.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5bec1d39f74d7150.png" group-title="Movies: English",Flicks of Fury
 https://jmp2.uk/plu-58e55b14ad8e9c364d55f717.m3u8
 #EXTINF:-1 tvg-id="FrightFlix.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8d849fbdea4dddc4.png" group-title="Movies: English",FrightFlix (720p)

@@ -7,6 +7,8 @@ http://stream.mcquack.net/123/index.m3u8
 http://stream.mcquack.net/175/index.m3u8
 #EXTINF:-1 tvg-id="ATV.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/bdb3da1e77779bd8.png" group-title="Armenia",ATV (Armenia) (1080p)
 http://stream.mcquack.net/36/index.m3u8
+#EXTINF:-1 tvg-id="FastSports.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ebac081b7bdde2b9.png" group-title="Armenia",Fast Sports (1080p)
+http://s7.merlive.am/Fastsports/index.m3u8
 #EXTINF:-1 tvg-id="FirstChannelNews.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/88c9d51ddfd3ae81.png" group-title="Armenia",First Channel News (1080p)
 https://amtvusdvr.tulix.tv/am3abr/index.m3u8
 #EXTINF:-1 tvg-id="KentronTV.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ec402958bc4a2f0c.png" group-title="Armenia",Kentron TV (1080p)

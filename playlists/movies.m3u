@@ -33,8 +33,6 @@ https://stream-cdn-iad.vaughnsoft.net/play/live_a_neflix01.flv
 http://stream.mcquack.net/123/index.m3u8
 #EXTINF:-1 tvg-id="ARTFLIXMovieClassics.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/0869abe6c9c77627.png" group-title="Movies: English",ARTFLIX Movie Classics (720p)
 https://amogonetworx-artflix-1-nl.samsung.wurl.tv/playlist.m3u8
-#EXTINF:-1 tvg-id="AXN.es@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2b87ffb6d3c069cb.png" group-title="Movies: English",AXN (Spain)
-http://sultanios.alwaysdata.net/vavo.php?ID=4238619703
 #EXTINF:-1 tvg-id="AXNBlack.us@CzechRepublic" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ae078296be532ab4.png" group-title="Movies: English",AXN Black (United States) Czech Republic
 http://88.212.15.50/live/test_black/playlist.m3u8
 #EXTINF:-1 tvg-id="AXNBlack.us@Hungary" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ae078296be532ab4.png" group-title="Movies: English",AXN Black (United States) Hungary (576p)
@@ -89,6 +87,8 @@ https://jmp2.uk/plu-61f33318210549000806a530.m3u8
 https://jmp2.uk/plu-561c5b0dada51f8004c4d855.m3u8
 #EXTINF:-1 tvg-id="Domkino.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ce992684f60561a7.png" group-title="Movies: Russian",Dom kino (576p)
 http://88.212.15.50/live/test_dom_kino/playlist.m3u8
+#EXTINF:-1 tvg-id="Domkino.ru@International" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ce992684f60561a7.png" group-title="Movies: Russian",Dom kino International (576p)
+https://fs.uplink.kz/dom_kino/mono.m3u8?token=onlinetv
 #EXTINF:-1 tvg-id="DomkinoPremium.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f3021a86a45c193e.png" group-title="Movies: Russian",Dom kino Premium HD (1080p)
 http://stream.mcquack.net/108/index.m3u8
 #EXTINF:-1 tvg-id="Dorama.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/728a10a592801505.png" group-title="Movies: Russian",Dorama (576p)
@@ -163,12 +163,16 @@ http://stream.mcquack.net/395/index.m3u8
 http://stream.mcquack.net/465/index.m3u8
 #EXTINF:-1 tvg-id="KinoTV.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f56eccc0c5a6a634.png" group-title="Movies: Russian",Kino TV HD (1080p)
 http://176.118.197.101/KinoTvHD/playlist.m3u8
+#EXTINF:-1 tvg-id="KinoBoevik.kz@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7687cc8641811568.png" group-title="Movies: Russian",KinoBoevik (1080p)
+https://fs.uplink.kz/kinoboevik/mono.m3u8?token=onlinetv
 #EXTINF:-1 tvg-id="KinoHit.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/444efc7c96cd4dc7.png" group-title="Movies: Russian",KinoHit (576p)
 http://stream.mcquack.net/126/index.m3u8
 #EXTINF:-1 tvg-id="Kinomix.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6165d735da923d8d.png" group-title="Movies: Russian",Kinomix (576p)
 http://93.170.254.17/Kinomiks/index.m3u8
 #EXTINF:-1 tvg-id="Kinopokaz.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ede821d3932b083e.png" group-title="Movies: Russian",Kinopokaz (576p)
 http://stream.mcquack.net/64/index.m3u8
+#EXTINF:-1 tvg-id="Kinopremyera.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/dd023cff183eb8ed.png" group-title="Movies: Russian",Kinopremyera (1080p)
+https://fs.uplink.kz/kinopremiera_hd/mono.m3u8?token=onlinetv
 #EXTINF:-1 tvg-id="Kinosemja.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ba245ffb326ae96e.png" group-title="Movies: Russian",Kinosemja (576p)
 http://stream.mcquack.net/170/index.m3u8
 #EXTINF:-1 tvg-id="Kinoseriya.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f5d732b816249c5d.png" group-title="Movies: Russian",Kinoseriya (576p)
@@ -189,6 +193,8 @@ https://jmp2.uk/plu-6304854ac6073d0007259fe1.m3u8
 https://jmp2.uk/plu-63048147b09fd60007847a08.m3u8
 #EXTINF:-1 tvg-id="MerryChristmasfromViafree.se@NO" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/30f2f3f16e963220.png" group-title="Movies: English",Merry Christmas from Viafree NO
 https://jmp2.uk/plu-63047bd6b0726b000795341d.m3u8
+#EXTINF:-1 tvg-id="Mirovoekino.kz@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/3b1c659a11e9db6b.png" group-title="Movies: Russian",Mirovoe kino (1080p)
+https://fs.uplink.kz/mirovoe_kino/mono.m3u8?token=onlinetv
 #EXTINF:-1 tvg-id="MoviesAction.sa@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7ae3bd9b0ca6e74c.png" group-title="Movies: English",Movies Action (1080p)
 https://shd-amg-fast.edgenextcdn.net/tx011/playlist.m3u8
 #EXTINF:-1 tvg-id="MoviesNow.in@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ca86c429339086e2.png" group-title="Movies: English",Movies Now HD (576p)
@@ -373,8 +379,6 @@ https://jmp2.uk/plu-68c01732b3900870ec74766f.m3u8
 https://jmp2.uk/plu-68c01785b3900870ec7480e4.m3u8
 #EXTINF:-1 tvg-id="Premialnoe.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8f31d7a589619bae.png" group-title="Movies: Russian",Premialnoe HD (1080p)
 http://stream.mcquack.net/421/index.m3u8
-#EXTINF:-1 tvg-id="RakutenTVActionMovies.es@UK" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/293bf622d1eb15c1.png" group-title="Movies: English",Rakuten TV Action Movies UK (1080p)
-https://54045f0c40fd442c8b06df076aaf1e85.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6065/master.m3u8
 #EXTINF:-1 tvg-id="RakutenTVComedyMovies.es@UK" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/293bf622d1eb15c1.png" group-title="Movies: English",Rakuten TV Comedy Movies UK (1080p)
 https://9be783d652cd4b099cf63e1dc134c4a3.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6181/master.m3u8
 #EXTINF:-1 tvg-id="RakutenTVDramaMovies.es@UK" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/293bf622d1eb15c1.png" group-title="Movies: English",Rakuten TV Drama Movies UK (1080p)
@@ -427,6 +431,8 @@ https://jmp2.uk/plu-693addd62bf6cf7414c4b2fc.m3u8
 https://jmp2.uk/plu-634dacf51d90320007fcd5fa.m3u8
 #EXTINF:-1 tvg-id="STARTAir.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7ddbefa268b8269a.png" group-title="Movies: Russian",START Air (1080p)
 http://176.118.197.101/START_AIR/index.m3u8
+#EXTINF:-1 tvg-id="STARTWorld.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ecc74b528daaaf2c.png" group-title="Movies: Russian",START World (576p)
+https://fs.uplink.kz/start_world/mono.m3u8?token=onlinetv
 #EXTINF:-1 tvg-id="SYFY.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f58e5bc7400773af.png" group-title="Movies: English",SYFY (720p)
 http://23.237.104.106:8080/USA_SYFY/index.m3u8
 #EXTINF:-1 tvg-id="TheTwilightZone.se@SE" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7f085988b0d412bb.png" group-title="Movies: English",The Twilight Zone

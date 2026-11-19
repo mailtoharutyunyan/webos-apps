@@ -17,8 +17,6 @@ http://livestream.usatv.com/hls/master-iUSATVLIVENET.m3u8
 https://streamer1.connectto.com/AABC_WEB_1201/index.m3u8
 #EXTINF:-1 tvg-id="LuysTV.tr@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ab4e886474b56cb3.png" group-title="Armenia",Luys TV (1080p)
 https://b01c02nl.mediatriple.net/videoonlylive/mtpayqrfkgirxelive/broadcast_5e91c5ac96898.smil/playlist.m3u8
-#EXTINF:-1 tvg-id="OTV.lb@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/1af4b996acba43b1.png" group-title="Armenia",OTV (Lebanon) (1080p)
-https://otv.hibridcdn.net/otv/tv_abr/playlist.m3u8
 #EXTINF:-1 tvg-id="ShantTV.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/a0b25bc1117b960b.png" group-title="Armenia",Shant TV (1080p)
 http://stream.mcquack.net/37/index.m3u8
 #EXTINF:-1 tvg-id="YerkirMedia.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/bd7bb4d70f73335c.png" group-title="Armenia",Yerkir Media (1080p)

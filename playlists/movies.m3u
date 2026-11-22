@@ -143,8 +143,6 @@ https://jmp2.uk/plu-5db0ad56edc89300090d2ebb.m3u8
 http://176.118.197.101/KinoTvHD/playlist.m3u8
 #EXTINF:-1 tvg-id="KinoBoevik.kz@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7687cc8641811568.png" group-title="Movies: Russian",KinoBoevik (1080p)
 https://fs.uplink.kz/kinoboevik/mono.m3u8?token=onlinetv
-#EXTINF:-1 tvg-id="Kinomix.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6165d735da923d8d.png" group-title="Movies: Russian",Kinomix (576p)
-http://93.170.254.17/Kinomiks/index.m3u8
 #EXTINF:-1 tvg-id="Kinopremyera.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/dd023cff183eb8ed.png" group-title="Movies: Russian",Kinopremyera (1080p)
 https://fs.uplink.kz/kinopremiera_hd/mono.m3u8?token=onlinetv
 #EXTINF:-1 tvg-id="Kinoseriya.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f5d732b816249c5d.png" group-title="Movies: Russian",Kinoseriya (576p)
@@ -167,16 +165,8 @@ https://jmp2.uk/plu-63048147b09fd60007847a08.m3u8
 https://jmp2.uk/plu-63047bd6b0726b000795341d.m3u8
 #EXTINF:-1 tvg-id="Mirovoekino.kz@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/3b1c659a11e9db6b.png" group-title="Movies: Russian",Mirovoe kino (1080p)
 https://fs.uplink.kz/mirovoe_kino/mono.m3u8?token=onlinetv
-#EXTINF:-1 tvg-id="MNX.in@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/9f882d16a488d163.png" group-title="Movies: English",MNX (576p)
-http://116.90.120.149:8000/play/a11e/index.m3u8
-#EXTINF:-1 tvg-id="MNX.in@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5664ef99b08bb205.png" group-title="Movies: English",MNX HD (1080p)
-http://116.90.120.149:8000/play/a11m/index.m3u8
 #EXTINF:-1 tvg-id="MoviesAction.sa@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7ae3bd9b0ca6e74c.png" group-title="Movies: English",Movies Action (1080p)
 https://shd-amg-fast.edgenextcdn.net/tx011/playlist.m3u8
-#EXTINF:-1 tvg-id="MoviesNow.in@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ca86c429339086e2.png" group-title="Movies: English",Movies Now HD (1080p)
-http://116.90.120.149:8000/play/a11f/index.m3u8
-#EXTINF:-1 tvg-id="MoviesNowPlus.in@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2e2af66d2a68e762.png" group-title="Movies: English",Movies Now + (1080p)
-http://116.90.120.149:8000/play/a11k/index.m3u8
 #EXTINF:-1 tvg-id="MoviesThriller.sa@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/bf281443604b8ef1.png" group-title="Movies: English",Movies Thriller (1080p)
 https://shd-amg-fast.edgenextcdn.net/tx012/playlist.m3u8
 #EXTINF:-1 tvg-id="Movies.us@KPVMLD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/664a38c9dd36e444.png" group-title="Movies: English",Movies! KPVM-LD (480p)
@@ -339,18 +329,12 @@ https://stream.smotrim.ru/hls2/fasttv07/playlist_3.m3u8
 https://stream.smotrim.ru/hls2/fasttv03/playlist_3.m3u8
 #EXTINF:-1 tvg-id="SonyMovies.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/9d8fa44b8f118655.png" group-title="Movies: English",Sony Movies (United States) (720p)
 https://a-cdn.klowdtv.com/live1/smc_720p/playlist.m3u8
-#EXTINF:-1 tvg-id="SonyPix.in@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f2cc51a3556fe96d.png" group-title="Movies: English",Sony Pix HD (1080p)
-http://116.90.120.149:8000/play/a138/index.m3u8
 #EXTINF:-1 tvg-id="StarAction.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4a771690d43ff6c2.png" group-title="Movies: English",Star Action (720p)
 http://85.237.89.159:3342/ar-s/STAR-Action-HD/index.m3u8
 #EXTINF:-1 tvg-id="StarChannel.bg@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/cb0303c93a68c52f.png" group-title="Movies: English",Star Channel (Bulgaria)
 http://213.91.179.28:8000/play/a0c9
 #EXTINF:-1 tvg-id="StarFamily.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/461bd5ed925cd0b9.png" group-title="Movies: Russian",Star Family (1080p)
 https://dash2.antik.sk/live/test_star_family_atktv/playlist.m3u8
-#EXTINF:-1 tvg-id="StarMovies.in@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/fb2199f4b1499289.png" group-title="Movies: English",Star Movies (India) HD (1080p)
-http://116.90.120.149:8000/play/a13a/index.m3u8
-#EXTINF:-1 tvg-id="StarMoviesSelect.in@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8ce3c3624397af8e.png" group-title="Movies: English",Star Movies Select HD (1080p)
-http://116.90.120.149:8000/play/a139/index.m3u8
 #EXTINF:-1 tvg-id="StarTrekMovies.se@SE" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/d2cc5386699683ec.png" group-title="Movies: English",Star Trek Movies
 https://jmp2.uk/plu-6400c2a6cb41a40008dbe5bc.m3u8
 #EXTINF:-1 tvg-id="StarTrekMovies.se@DK" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/d2cc5386699683ec.png" group-title="Movies: English",Star Trek Movies DK

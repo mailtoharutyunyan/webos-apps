@@ -13,14 +13,8 @@ https://cdn-evacoder-tv.facecast.io/evacoder_hls_hi/CkxfR1xNUAJwTgtXTBZTAJli/ind
 https://live-vgtrksmotrim.cdnvideo.ru/vgtrksmotrim/smotrim-live-03-srt.smil/playlist.m3u8
 #EXTINF:-1 tvg-id="555.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/577720e75e51b9ed.png" group-title="Russia: General",555 (720p)
 http://trk555.tv:8888/live
-#EXTINF:-1 tvg-id="black.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/eadec9771274a444.png" group-title="Russia: Entertainment",.black (576p)
-http://116.90.120.149:8000/play/a0s4/index.m3u8
-#EXTINF:-1 tvg-id="black.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/eadec9771274a444.png" group-title="Russia: Entertainment",.black HD (1080p)
-http://116.90.120.149:8000/play/a0ac/index.m3u8
 #EXTINF:-1 tvg-id="red.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/114361a5f1a541c6.png" group-title="Russia: Entertainment",.red HD (1080p)
 http://178.134.1.158:8081/red/index.m3u8
-#EXTINF:-1 tvg-id="scifi.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/eb656428317fbe45.png" group-title="Russia: Science",.sci-fi (576p)
-http://116.90.120.149:8000/play/a0ao/index.m3u8
 #EXTINF:-1 tvg-id="AISTTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/883a80ab619081df.png" group-title="Russia: General",AIST TV (1080p)
 http://live2-aisttv.cdnvideo.ru/aisttv2/aisttv.sdp/playlist.m3u8
 #EXTINF:-1 tvg-id="AngelTV.in@Russian" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/813c1402477e5111.png" group-title="Russia: Religious",Angel TV Russian (720p)
@@ -75,8 +69,6 @@ https://bl.rutube.ru/livestream/c9e26bf5c003fd8d477200065ca1a05f/index.m3u8?e=20
 https://12channel.bonus-tv.ru/cdn/12channel/playlist.m3u8
 #EXTINF:-1 tvg-id="CurrentTimeTV.cz@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5924366107b4a10f.png" group-title="Russia: News",Current Time TV (1080p)
 https://rfe-ingest.akamaized.net/hls/live/2033043/tvmc05/master.m3u8
-#EXTINF:-1 tvg-id="DaVinci.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/53aac6dc03b61678.png" group-title="Russia: Education",Da Vinci (576p)
-http://116.90.120.149:8000/play/a0s6/index.m3u8
 #EXTINF:-1 tvg-id="Dagestan.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/76c1a3b4e509ec52.png" group-title="Russia: Other",Dagestan (1080p)
 https://dagestan.mediacdn.ru/cdn/dagestan/playlist.m3u8
 #EXTINF:-1 tvg-id="DanceHits80.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f584183865d2fb71.png" group-title="Russia: Music",DanceHits80
@@ -155,14 +147,10 @@ https://fs.uplink.kz/istoriya/mono.m3u8?token=onlinetv
 http://igi-hls.cdnvideo.ru/igi/igi_tcode/playlist.m3u8
 #EXTINF:-1 tvg-id="KinoTV.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f56eccc0c5a6a634.png" group-title="Russia: Movies",Kino TV HD (1080p)
 http://176.118.197.101/KinoTvHD/playlist.m3u8
-#EXTINF:-1 tvg-id="Kinomix.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6165d735da923d8d.png" group-title="Russia: Movies",Kinomix (576p)
-http://93.170.254.17/Kinomiks/index.m3u8
 #EXTINF:-1 tvg-id="Kinopremyera.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/dd023cff183eb8ed.png" group-title="Russia: Movies",Kinopremyera (1080p)
 https://fs.uplink.kz/kinopremiera_hd/mono.m3u8?token=onlinetv
 #EXTINF:-1 tvg-id="Kinoseriya.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f5d732b816249c5d.png" group-title="Russia: Movies",Kinoseriya (576p)
 https://fs.uplink.kz/kinoseria/mono.m3u8?token=onlinetv
-#EXTINF:-1 tvg-id="KNMusicTV.az@SD" tvg-logo="" group-title="Russia: Music",KN Music TV
-https://cdn4.yayin.com.tr/kntv/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-id="Komedia.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/404cde068ae17d1f.png" group-title="Russia: Comedy",Komedia (576p)
 http://176.118.197.101/Komediya/index.m3u8
 #EXTINF:-1 tvg-id="KrikTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/91c2bbc19888298d.png" group-title="Russia: News",Krik-TV (1080p)

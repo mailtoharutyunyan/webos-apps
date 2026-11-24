@@ -13,8 +13,6 @@ https://jmp2.uk/plu-5f4d878d3d19b30007d2e782.m3u8
 https://jmp2.uk/plu-5ca525b650be2571e3943c63.m3u8
 #EXTINF:-1 tvg-id="90sThrowback.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/d565655d7d4ece4b.png" group-title="Movies: English",90s Throwback
 https://jmp2.uk/plu-5f4d86f519358a00072b978e.m3u8
-#EXTINF:-1 tvg-id="312Kino.kg@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/3c4cf4c9e928c8ef.png" group-title="Movies: Russian",312 Kino (406p)
-http://176.126.166.43:1935/live/312kino/playlist.m3u8
 #EXTINF:-1 tvg-id="ABNBibleMoviesChannel.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7c62fd221e2d7662.png" group-title="Movies: English",ABN Bible Movies Channel (720p)
 https://mediaserver.abnvideos.com/streams/abnbiblemovies.m3u8
 #EXTINF:-1 tvg-id="AlloCine.cm@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/506ddecc1cfbe0d4.png" group-title="Movies: English",Allo Cine (1080p)
@@ -33,8 +31,6 @@ https://stream-cdn-iad.vaughnsoft.net/play/live_a_neflix01.flv
 https://amogonetworx-artflix-1-nl.samsung.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="AXNBlack.us@CzechRepublic" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ae078296be532ab4.png" group-title="Movies: English",AXN Black (United States) Czech Republic
 http://88.212.15.50/live/test_black/playlist.m3u8
-#EXTINF:-1 tvg-id="AXNBlack.us@Hungary" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ae078296be532ab4.png" group-title="Movies: English",AXN Black (United States) Hungary (576p)
-http://141.94.193.53/axn_black/index.m3u8
 #EXTINF:-1 tvg-id="AXNCEE.es@Hungary" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2b87ffb6d3c069cb.png" group-title="Movies: English",AXN CEE
 http://88.212.15.50/live/axn_hun/index.m3u8
 #EXTINF:-1 tvg-id="AXNCEE.es@Romania" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2b87ffb6d3c069cb.png" group-title="Movies: English",AXN CEE Romania
@@ -69,10 +65,16 @@ http://186.148.196.82:8001/play/a0a4
 https://stream8.cinerama.uz/1227/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-id="Cinemax2CentralEurope.hu@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/84738b5e3c8b47fb.png" group-title="Movies: English",Cinemax 2 Central Europe
 http://193.33.39.108:9009/play/a024
+#EXTINF:-1 tvg-id="Cinemax.us@West" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8bccedde61ed6747.png" group-title="Movies: English",Cinemax (United States) West (720p)
+http://23.237.104.106:8080/USA_CINEMAX_WEST/index.m3u8
 #EXTINF:-1 tvg-id="CinemaxAsia.sg@Taiwan" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6f31ba207ab10a65.png" group-title="Movies: English",Cinemax Asia Taiwan (1080p)
 http://125.227.210.55:1001/VideoInput/play.ts
 #EXTINF:-1 tvg-id="CinemaxCentralEurope.hu@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8bccedde61ed6747.png" group-title="Movies: English",Cinemax Central Europe
 http://193.33.39.108:9023/play/a01b
+#EXTINF:-1 tvg-id="CinemaxClassics.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5da9d03772526538.png" group-title="Movies: English",Cinemax Classics (1080p)
+http://23.237.104.106:8080/USA_5STARMAX/index.m3u8
+#EXTINF:-1 tvg-id="CinemaxHits.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6f024be95207f497.png" group-title="Movies: English",Cinemax Hits (1080p)
+http://23.237.104.106:8080/USA_MOREMAX/index.m3u8
 #EXTINF:-1 tvg-id="ClassicMovieWesterns.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8faf086aabc906c5.png" group-title="Movies: English",Classic Movie Westerns
 https://jmp2.uk/plu-61f33318210549000806a530.m3u8
 #EXTINF:-1 tvg-id="ClassicMoviesChannel.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/d7697b7232a7b8f5.png" group-title="Movies: English",Classic Movies Channel
@@ -127,6 +129,8 @@ https://dbrb49pjoymg4.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae04
 http://125.227.210.55:1003/VideoInput/play.ts
 #EXTINF:-1 tvg-id="HorosheeKino.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/10d8b391b37d754a.png" group-title="Movies: Russian",Horoshee Kino (720p)
 https://live-rian.cdnvideo.ru/rian/rus-radio/playlist.m3u8
+#EXTINF:-1 tvg-id="IFC.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/e07168b97011f1d7.png" group-title="Movies: English",IFC (1080p)
+http://23.237.104.106:8080/USA_IFC/index.m3u8
 #EXTINF:-1 tvg-id="iFilmEnglish.ir@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7e0b7c87877ae995.png" group-title="Movies: English",iFilm English
 https://live.presstv.co.uk/hls/ifilmen.m3u8
 #EXTINF:-1 tvg-id="IllusionPlus.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ef4e16c8c89d41a3.png" group-title="Movies: Russian",Illusion+ (576p)
@@ -211,6 +215,8 @@ https://a-cdn.klowdtv.com/live2/nost_720p/playlist.m3u8
 https://d3o593mz1glx8d.cloudfront.net/OuterSphere_US.m3u8
 #EXTINF:-1 tvg-id="ParamountMovieChannel.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ef2e799b1af0f2a0.png" group-title="Movies: English",Paramount Movie Channel
 https://jmp2.uk/plu-5cb0cae7a461406ffe3f5213.m3u8
+#EXTINF:-1 tvg-id="ParamountNetwork.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/c49f7396c7b3585a.png" group-title="Movies: English",Paramount Network (United States) (1080p)
+http://23.237.104.106:8080/USA_PARAMOUNT_NETWORK/index.m3u8
 #EXTINF:-1 tvg-id="ParamountPlusPicks.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/5b665d9bd5037b67.png" group-title="Movies: English",Paramount+ Picks
 https://jmp2.uk/plu-5ff8c708653d080007361b14.m3u8
 #EXTINF:-1 tvg-id="PlutoClassicMovieWesterns.us@CA" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2635c37eb3de0204.png" group-title="Movies: English",Pluto Classic Movie Westerns
@@ -357,6 +363,8 @@ https://jmp2.uk/plu-693addd62bf6cf7414c4b2fc.m3u8
 https://jmp2.uk/plu-634dacf51d90320007fcd5fa.m3u8
 #EXTINF:-1 tvg-id="STARTAir.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7ddbefa268b8269a.png" group-title="Movies: Russian",START Air (1080p)
 http://176.118.197.101/START_AIR/index.m3u8
+#EXTINF:-1 tvg-id="SYFY.us@East" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f58e5bc7400773af.png" group-title="Movies: English",SYFY (720p)
+http://23.237.104.106:8080/USA_SYFY/index.m3u8
 #EXTINF:-1 tvg-id="TheTwilightZone.se@SE" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7f085988b0d412bb.png" group-title="Movies: English",The Twilight Zone
 https://jmp2.uk/plu-6512d6c92ce8e40008bd5c81.m3u8
 #EXTINF:-1 tvg-id="TheTwilightZone.se@DK" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7f085988b0d412bb.png" group-title="Movies: English",The Twilight Zone DK

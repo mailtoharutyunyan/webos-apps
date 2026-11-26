@@ -23,14 +23,14 @@ http://88.212.7.14/live/test_amc_25p/playlist.m3u8
 http://88.212.7.14/live/amc_hun/index.m3u8
 #EXTINF:-1 tvg-id="AMCThrillers.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/54be3356a02664b4.png" group-title="Movies: English",AMC Thrillers (1080p)
 https://amc-rushbyamc-1-us.vizio.wurl.tv/playlist.m3u8
-#EXTINF:-1 tvg-id="AmericanHorrors.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/619a93380fdeef28.png" group-title="Movies: English",American Horrors (480p)
-http://107.167.7.162:8081/playlist/amhor/playlist.m3u8
 #EXTINF:-1 tvg-id="AneflixLive.us@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/cd506dae0984adf0.png" group-title="Movies: English",Aneflix Live (720p)
 https://stream-cdn-iad.vaughnsoft.net/play/live_a_neflix01.flv
 #EXTINF:-1 tvg-id="ARTFLIXMovieClassics.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/0869abe6c9c77627.png" group-title="Movies: English",ARTFLIX Movie Classics (720p)
 https://amogonetworx-artflix-1-nl.samsung.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="AXNBlack.us@CzechRepublic" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ae078296be532ab4.png" group-title="Movies: English",AXN Black (United States) Czech Republic
 http://88.212.15.50/live/test_black/playlist.m3u8
+#EXTINF:-1 tvg-id="AXNBlack.us@Hungary" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ae078296be532ab4.png" group-title="Movies: English",AXN Black (United States) Hungary (576p)
+http://141.94.193.53/axn_black/index.m3u8
 #EXTINF:-1 tvg-id="AXNCEE.es@Hungary" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2b87ffb6d3c069cb.png" group-title="Movies: English",AXN CEE
 http://88.212.15.50/live/axn_hun/index.m3u8
 #EXTINF:-1 tvg-id="AXNCEE.es@Romania" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2b87ffb6d3c069cb.png" group-title="Movies: English",AXN CEE Romania
@@ -195,8 +195,6 @@ https://op-group1-densxvisionhd-1.dens.tv/h/h18/index.m3u8
 https://appletree-mytimeuk-rakuten.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="MyTimeMovieNetworkEast.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/578c588d4f329922.png" group-title="Movies: English",MyTime Movie Network East (1080p)
 https://appletree-mytimeau-samsung.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-id="NashKinopokaz.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/55a53ed722f98ebe.png" group-title="Movies: Russian",Nash Kinopokaz HD (576p)
-http://46.53.200.153:7777/play/SRT_Nash_kinopokaz/index.m3u8
 #EXTINF:-1 tvg-id="NasheNovoeKino.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8206482cd6e57a59.png" group-title="Movies: Russian",Nashe Novoe Kino (1080p)
 https://stream8.cinerama.uz/1051/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-id="NEWKMOVIES.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/a026aaac79b98f7e.png" group-title="Movies: English",NEW K.MOVIES (1080p)
@@ -375,8 +373,6 @@ https://jmp2.uk/plu-6512d3a0bdcb19000799cc82.m3u8
 https://jmp2.uk/plu-664e640a0120f40008be4582.m3u8
 #EXTINF:-1 tvg-id="TV21.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ef1adbcbff021502.png" group-title="Movies: Russian",TV 21 (576p)
 http://178.134.1.158:8081/TVXXI/index.m3u8
-#EXTINF:-1 tvg-id="TV21International.ru@SD" tvg-logo="" group-title="Movies: Russian",TV 21 International (576p)
-http://46.53.200.153:7777/play/TV-21M/index.m3u8
 #EXTINF:-1 tvg-id="TV1000RussianKinoGlobal.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4f318cb057e43146.png" group-title="Movies: Russian",TV1000 Russian Kino Global
 http://213.91.179.28:8000/play/a0bx
 #EXTINF:-1 tvg-id="TVLandDrama.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/3499e2566a5e9589.png" group-title="Movies: English",TV Land Drama
@@ -403,18 +399,12 @@ http://777905.live.tvstitch.com/playlist.m3u8?master=249&source=aHR0cDovLzE3Ni4x
 http://777905.live.tvstitch.com/playlist.m3u8?master=102&source=aHR0cDovLzE3Ni4xMjIuMTAzLjI0MTo3MDAwL2NoNDgvdHJhY2tzLXYxYTEvbW9uby5tM3U4P2xpdmU9MSZpcD0xNzguMTM2LjQyLjIyMCZpZD05NDg4NjUmc2VjcmV0PW4xdTd1aTA2JnNzbD0xJjIxeW89MCZlPTE3OTA1OTk5NDcmc3Q9N3ROblpCZy02WTBka1RuekRIZjU0QQ==
 #EXTINF:-1 tvg-id="ViasatSerial.ua@HD" tvg-logo="" group-title="Movies: Russian",Viasat Serial
 http://777905.live.tvstitch.com/playlist.m3u8?master=599&source=aHR0cDovLzE3Ni4xMjIuMTAzLjI0MTo3MDAwL2NoNDUvdHJhY2tzLXYyYTEvbW9uby5tM3U4P2xpdmU9MSZpcD0xNzguMTM2LjQyLjIyMCZpZD05NDg4NjUmc2VjcmV0PW4xdTd1aTA2JnNzbD0xJjIxeW89MCZlPTE3OTA2MDExNzAmc3Q9VS12czVHQmhOdF9WQXJ4bHVYVzR2dw==
-#EXTINF:-1 tvg-id="vijuTV1000.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ad62f7fa186d6944.png" group-title="Movies: Russian",viju TV1000 (576p)
-http://46.53.200.153:7777/play/TV_1000/index.m3u8
 #EXTINF:-1 tvg-id="vijuTV1000action.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/40fc4fdbb012a786.png" group-title="Movies: Russian",viju TV1000 action (1080p)
 https://stream8.cinerama.uz/1225/tracks-v1a1/mono.m3u8
-#EXTINF:-1 tvg-id="vijuTV1000novella.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/bc438e7e072403b8.png" group-title="Movies: Russian",viju TV1000 novella HD (1080p)
-http://46.53.200.153:7777/play/VIJU_TV_1000_novella/index.m3u8
 #EXTINF:-1 tvg-id="vijuTV1000russkoe.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/20c92b4cdbf198e4.png" group-title="Movies: Russian",viju TV1000 russkoe (1080p)
 https://stream8.cinerama.uz/1058/tracks-v1a1/mono.m3u8
-#EXTINF:-1 tvg-id="vijuPlusMegahit.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f28f5c8b48b49543.png" group-title="Movies: Russian",viju+ Megahit HD (1080p)
-http://46.53.200.153:7777/play/Viju_Megahit_HD/index.m3u8
-#EXTINF:-1 tvg-id="vijuPlusPremiere.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f939a6a36632d1fc.png" group-title="Movies: Russian",viju+ Premiere HD (1080p)
-http://46.53.200.153:7777/play/Viju_Premiere/index.m3u8
+#EXTINF:-1 tvg-id="WarnerTV.ro@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/73393a2f249657fe.png" group-title="Movies: English",Warner TV (Romania) (576i)
+http://91.235.165.117:8001/play/a08h/index.m3u8
 #EXTINF:-1 tvg-id="WarnerTVAsia.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/73393a2f249657fe.png" group-title="Movies: English",Warner TV Asia (720p)
 https://cdn4.skygo.mn/live/disk1/Warner/HLSv3-FTA/Warner.m3u8
 #EXTINF:-1 tvg-id="WatchitScream.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/d0da996421f682f4.png" group-title="Movies: English",Watch it Scream! (720p)

@@ -15,6 +15,10 @@ https://edge-tv-ll.facecast.io/evacoder_hls_hi/UBZfFgtKB1JwTwoDERNQVGGs/index.m3
 http://trk555.tv:8888/live
 #EXTINF:-1 tvg-id="red.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/114361a5f1a541c6.png" group-title="Russia: Entertainment",.red HD (1080p)
 http://178.134.1.158:8081/red/index.m3u8
+#EXTINF:-1 tvg-id="scifi.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/eb656428317fbe45.png" group-title="Russia: Science",.sci-fi (576p)
+http://s7.merlive.am/Sci-Fi/index.m3u8
+#EXTINF:-1 tvg-id="A1.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/96f87f2f7357878b.png" group-title="Russia: Music",A1 (576p)
+http://s7.merlive.am/Amedia1/index.m3u8
 #EXTINF:-1 tvg-id="AISTTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/883a80ab619081df.png" group-title="Russia: General",AIST TV (1080p)
 http://live2-aisttv.cdnvideo.ru/aisttv2/aisttv.sdp/playlist.m3u8
 #EXTINF:-1 tvg-id="AngelTV.in@Russian" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/813c1402477e5111.png" group-title="Russia: Religious",Angel TV Russian (720p)
@@ -33,6 +37,8 @@ https://streaming.astrakhan.ru/astrakhanrusporthd/playlist.m3u8
 https://streaming.astrakhan.ru/astrakhanrulivehd/playlist.m3u8
 #EXTINF:-1 tvg-id="AutoPlus.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/969816f07d1d129d.png" group-title="Russia: Auto",Auto Plus (1080p)
 https://stream8.cinerama.uz/1036/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="Avto24.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b89fbad12614d53b.png" group-title="Russia: Auto",Avto24 (576p)
+http://s7.merlive.am/avto24/index.m3u8
 #EXTINF:-1 tvg-id="BabyTime.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/10636ce0bd968e1a.png" group-title="Russia: Kids",Baby Time (576p)
 http://178.134.1.158:8081/babytime/index.m3u8
 #EXTINF:-1 tvg-id="Balabol.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/99dab89ecb3032c4.png" group-title="Russia: Series",Balabol (1080p)
@@ -51,10 +57,14 @@ http://178.134.1.158:8081/BRIDGE/index.m3u8
 http://178.134.1.158:8081/BRIDGEROCK/index.m3u8
 #EXTINF:-1 tvg-id="BST.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/11ee9ebe0d4d3868.png" group-title="Russia: Other",BST (1080p)
 http://bst.bratsk.ru/hls/bst2/index.m3u8
+#EXTINF:-1 tvg-id="Carousel.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/0f4550e60f2708b9.png" group-title="Russia: Kids",Carousel (1080p)
+http://s7.merlive.am/Karusel/index.m3u8
 #EXTINF:-1 tvg-id="Carousel.ru@Plus4" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/0f4550e60f2708b9.png" group-title="Russia: Kids",Carousel +4 (720p)
 http://185.37.150.46/Karusel/index.m3u8
 #EXTINF:-1 tvg-id="CartoonClassics.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/eb9d8979382e4cfc.png" group-title="Russia: Kids",Cartoon Classics (Russia)
 http://88.218.242.237:8001/Cartoon_Classics
+#EXTINF:-1 tvg-id="CartoonNetworkCEE.uk@Russia" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2b275d6c36140f98.png" group-title="Russia: Animation",Cartoon Network CEE Russia (576p)
+http://s7.merlive.am/CartoonNetwork/index.m3u8
 #EXTINF:-1 tvg-id="Channel4.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/cb25301030d798a0.png" group-title="Russia: General",Channel 4 (Russia) (1080p)
 https://river-3-370.rtbcdn.ru/stream/genetta-316.m9.rutube.ru/60Ro5OWl7WWOswbVMQlqFw/1795975765/c6f66b644424c117f41e48062719ceed/576p_stream.m3u8
 #EXTINF:-1 tvg-id="Channel5.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/1acac649314531ea.png" group-title="Russia: General",Channel 5 (Russia) (576p)
@@ -111,12 +121,16 @@ http://fashionlive.mediacdn.ru/cdn/fashiontv/playlist.m3u8
 http://rtmp.one.by:1300
 #EXTINF:-1 tvg-id="FirstMusicChannelRussia.by@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2c5935df9fdab180.png" group-title="Russia: Music",First Music Channel Russia (1080p)
 http://rtmp.one.by:2300
+#EXTINF:-1 tvg-id="FONMusic.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b29f4cfb460a0833.png" group-title="Russia: Music",FON Music (576p)
+http://s7.merlive.am/TNTMusic/index.m3u8
 #EXTINF:-1 tvg-id="FONTV.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/9e80759e880acedf.png" group-title="Russia: Sports",FON TV (1080p)
 https://fonstreams.mediacdn.ru/stream/fontvclear/playlist.m3u8
 #EXTINF:-1 tvg-id="Friday.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/a650fcc564966f7f.png" group-title="Russia: Entertainment",Friday! (576p)
 http://31.148.5.241/kanal_16/index.m3u8
-#EXTINF:-1 tvg-id="GlazamiTurista.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/efcae44792296d21.png" group-title="Russia: Travel",Glazami Turista (576i)
-https://stream8.cinerama.uz/1423/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="Gagsnetwork.us@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/102db296a0513afc.png" group-title="Russia: Comedy",Gagsnetwork (576p)
+http://s7.merlive.am/gagsnetwork/index.m3u8
+#EXTINF:-1 tvg-id="GlazamiTurista.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/efcae44792296d21.png" group-title="Russia: Travel",Glazami Turista (1080p)
+http://s7.merlive.am/glazamituristahd/index.m3u8
 #EXTINF:-1 tvg-id="Groznyj.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/e5aa4aa61c03011c.png" group-title="Russia: General",Groznyj (720p)
 https://balancer.facecast.io/evacoder_hls_hi/UUMLQVAYVlZyH14GRENQVV0G/2/720-3.m3u8
 #EXTINF:-1 tvg-id="GuberniaSamara.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7ad64a180055320d.png" group-title="Russia: General",Gubernia Samara (576p)
@@ -137,26 +151,44 @@ https://stream8.cinerama.uz/1060/tracks-v1a1/mono.m3u8
 https://ingushetia.mediacdn.ru/cdn/ingushetia/playlist.m3u8
 #EXTINF:-1 tvg-id="Istoki.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/55fb618f2d5c516b.png" group-title="Russia: General",Istoki (1080p)
 https://istoki.tv/live/stream1/playlist.m3u8
+#EXTINF:-1 tvg-id="Istoriya.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/30b62c6d68774218.png" group-title="Russia: Documentary",Istoriya (576p)
+http://s7.merlive.am/History2/index.m3u8
 #EXTINF:-1 tvg-id="Izvestia.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/25208a4afa6d6126.png" group-title="Russia: News",Izvestia (1080p)
 http://igi-hls.cdnvideo.ru/igi/igi_tcode/playlist.m3u8
+#EXTINF:-1 tvg-id="Kineko.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/480bbdbdf8e2367f.png" group-title="Russia: Movies",Kineko HD (1080p)
+http://s7.merlive.am/kineko/index.m3u8
 #EXTINF:-1 tvg-id="KinoTV.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f56eccc0c5a6a634.png" group-title="Russia: Movies",Kino TV HD (1080p)
 http://176.118.197.101/KinoTvHD/playlist.m3u8
 #EXTINF:-1 tvg-id="KinoHit.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/444efc7c96cd4dc7.png" group-title="Russia: Movies",KinoHit (1080p)
 https://stream8.cinerama.uz/1055/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="Kinokomedija.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/0ad897c20fa4a3d1.png" group-title="Russia: Comedy",Kinokomedija (576p)
+http://s7.merlive.am/Kinokomedia/index.m3u8
 #EXTINF:-1 tvg-id="Kinomix.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6165d735da923d8d.png" group-title="Russia: Movies",Kinomix (576p)
 http://93.170.254.17/Kinomiks/index.m3u8
+#EXTINF:-1 tvg-id="Kinomix.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/6165d735da923d8d.png" group-title="Russia: Movies",Kinomix HD (1080p)
+http://s7.merlive.am/Kinomix/index.m3u8
 #EXTINF:-1 tvg-id="Kinopokaz.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ede821d3932b083e.png" group-title="Russia: Movies",Kinopokaz (1080p)
 https://stream8.cinerama.uz/1057/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="Kinopremyera.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/dd023cff183eb8ed.png" group-title="Russia: Movies",Kinopremyera (1080p)
+http://s7.merlive.am/Kinopremera/index.m3u8
+#EXTINF:-1 tvg-id="Kinosemja.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ba245ffb326ae96e.png" group-title="Russia: Movies",Kinosemja (576p)
+http://s7.merlive.am/Kinosemya/index.m3u8
 #EXTINF:-1 tvg-id="Kinoseriya.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f5d732b816249c5d.png" group-title="Russia: Movies",Kinoseriya (576p)
-https://fs.uplink.kz/kinoseria/mono.m3u8?token=onlinetv
+http://s7.merlive.am/Kinoseria/index.m3u8
 #EXTINF:-1 tvg-id="Kinosvidanie.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/f640fa3505eed3eb.png" group-title="Russia: Movies",Kinosvidanie (1080p)
 https://stream8.cinerama.uz/1203/tracks-v1a1/mono.m3u8
-#EXTINF:-1 tvg-id="KNMusicTV.az@SD" tvg-logo="" group-title="Russia: Music",KN Music TV (1080p)
-https://cdn4.yayin.com.tr/kntv/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="KlukvaTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2383de20b7f43072.png" group-title="Russia: Entertainment",Klukva TV (1080p)
+https://klukva.mediacdn.ru/cdn/klukva/playlist.m3u8
 #EXTINF:-1 tvg-id="Komedia.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/404cde068ae17d1f.png" group-title="Russia: Comedy",Komedia (576p)
 http://176.118.197.101/Komediya/index.m3u8
+#EXTINF:-1 tvg-id="KongressTV.ru@SD" tvg-logo="" group-title="Russia: General",Kongress TV (1080p)
+https://live-3.otcnet.ru/congresstv/index.m3u8
 #EXTINF:-1 tvg-id="KrikTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/91c2bbc19888298d.png" group-title="Russia: News",Krik-TV (1080p)
 http://cdn-01.bonus-tv.ru/kriktv_edge/playlist.m3u8
+#EXTINF:-1 tvg-id="Ktoestkto.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/c195d421030a574d.png" group-title="Russia: Education",Kto est kto (576p)
+http://s7.merlive.am/ktoestkto/index.m3u8
+#EXTINF:-1 tvg-id="KTOKUDA.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8de5054b7704a6e9.png" group-title="Russia: General",KTOKUDA (576p)
+http://s7.merlive.am/ktokuda/index.m3u8
 #EXTINF:-1 tvg-id="KulinarTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7bab6313359bee67.png" group-title="Russia: Cooking",Kulinar TV (576p)
 https://api.alpaca.t62a.com/hls/9110/stream0.m3u8
 #EXTINF:-1 tvg-id="KurajTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b97e6935eef0dae2.png" group-title="Russia: General",Kuraj-TV (576p)
@@ -193,6 +225,8 @@ https://stream.smotrim.ru/hls/givc8/playlist.m3u8?entity=channel&id=798&sign=378
 https://stream.smotrim.ru/hls2/doverie/playlist_3.m3u8
 #EXTINF:-1 tvg-id="Moymir.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ba8067247e1cb712.png" group-title="Russia: Shop",Moy mir (720p)
 https://moymir.ru/hls/onair.m3u8
+#EXTINF:-1 tvg-id="Mult.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/670a1ec107f3cab0.png" group-title="Russia: Kids",Mult HD (576p)
+http://s7.merlive.am/Mult/index.m3u8
 #EXTINF:-1 tvg-id="MuzSoyuz.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/189f30b1ced52c9a.png" group-title="Russia: Music",Muz Soyuz (576p)
 https://hls-tvsoyuz.cdnvideo.ru/tvsoyuz2/muzsoyuz.6fw0-58xp-acts-esy0/playlist.m3u8
 #EXTINF:-1 tvg-id="MuzTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/4fb4e984ebd8a8e0.png" group-title="Russia: Music",Muz-TV (1080p)
@@ -205,10 +239,14 @@ https://stream8.cinerama.uz/1201/tracks-v1a1/mono.m3u8
 http://185.23.80.23:8080/NANO_HD/index.m3u8
 #EXTINF:-1 tvg-id="NashaTema.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/899337680b1c8e14.png" group-title="Russia: Outdoor",Nasha Tema (1080p)
 https://fonbet.mediacdn.ru/live/nashatema/playlist.m3u8
+#EXTINF:-1 tvg-id="NasheLubimoeKino.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8089e6dd13dd412c.png" group-title="Russia: Movies",Nashe Lubimoe Kino (576p)
+http://s7.merlive.am/lubimoekino/index.m3u8
 #EXTINF:-1 tvg-id="NasheNovoeKino.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8206482cd6e57a59.png" group-title="Russia: Movies",Nashe Novoe Kino (1080p)
 https://stream8.cinerama.uz/1051/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-id="Nevskiy.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b3a950dac78b635b.png" group-title="Russia: Series",Nevskiy (1080p)
 https://cdn-dvr.ntv.ru/Nevskiy/index.m3u8
+#EXTINF:-1 tvg-id="Nickelodeon.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/c71bcc11cad199a1.png" group-title="Russia: Kids",Nickelodeon (Russia) (576p)
+http://s7.merlive.am/Nickelodeon/index.m3u8
 #EXTINF:-1 tvg-id="Nostalgia.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/1c82cebf0b79c5a0.png" group-title="Russia: Classic",Nostalgia (Russia) (576p)
 http://176.118.197.101/Nostalgiya/index.m3u8
 #EXTINF:-1 tvg-id="NTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/e2a3842ff34ffa5d.png" group-title="Russia: General",NTV (Russia) (1080p)
@@ -223,6 +261,8 @@ https://cdn.ntv.ru/ntv4/playlist.m3u8
 https://cdn.ntv.ru/ntv7/playlist.m3u8
 #EXTINF:-1 tvg-id="NTVLaw.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2feb1e5211796413.png" group-title="Russia: Other",NTV Law (576p)
 https://cdn.ntv.ru/th_pravo/playlist.m3u8
+#EXTINF:-1 tvg-id="NTVStilzhizn.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/74a34915ae4e8572.png" group-title="Russia: Lifestyle",NTV Stil zhizn (576p)
+http://s7.merlive.am/ntvstil/index.m3u8
 #EXTINF:-1 tvg-id="NTVStyle.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/923e64ae4229e3f6.png" group-title="Russia: Lifestyle",NTV Style (576p)
 https://cdn.ntv.ru/th_style/playlist.m3u8
 #EXTINF:-1 tvg-id="NTVVitrina.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/8c50ef0525697668.png" group-title="Russia: General",NTV Vitrina (720p)
@@ -329,12 +369,16 @@ https://stream8.cinerama.uz/1407/tracks-v1a1/mono.m3u8
 https://bsttv.bonus-tv.ru/cdn/salyam/playlist.m3u8
 #EXTINF:-1 tvg-id="SanktPeterburg.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/33a72cb05a01cdeb.png" group-title="Russia: Other",Sankt-Peterburg HD (720p)
 https://stream.smotrim.ru/hls2/ext_spbtv/playlist_5.m3u8
+#EXTINF:-1 tvg-id="Sarafan.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/482e9619570a6d67.png" group-title="Russia: Other",Sarafan (576p)
+http://s7.merlive.am/Sarafan/index.m3u8
 #EXTINF:-1 tvg-id="Sever.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/82c478dc0123660a.png" group-title="Russia: Other",Sever (1080p)
 https://2vko9pchwon.a.trbcdn.net/livemaster/8ilgc_cw63ucn03p.smil/playlist.m3u8
 #EXTINF:-1 tvg-id="Shef.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/c38afd714786129d.png" group-title="Russia: Series",Shef (1080p)
 https://cdn-dvr.ntv.ru/Shef/index.m3u8
 #EXTINF:-1 tvg-id="ShoppingLive.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/b623b1ad6ece7716.png" group-title="Russia: Shop",Shopping Live (720p)
 https://nonmirya7cc.a.trbcdn.net/livemaster/tzrz5_sazlypl5ot.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="ShotTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/daca074e739a26ea.png" group-title="Russia: Movies",Shot TV (576p)
+http://s7.merlive.am/SHOTTV/index.m3u8
 #EXTINF:-1 tvg-id="Skorayapomoshch.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/00af74f8b608d73a.png" group-title="Russia: Series",Skoraya pomoshch (1080p)
 https://cdn-dvr.ntv.ru/Skoraja_pomosh/index.m3u8
 #EXTINF:-1 tvg-id="Smotrim100Detskoe.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/c0d8ad5bb65336d4.png" group-title="Russia: Kids",Smotrim 100% Detskoe (1080p)
@@ -391,6 +435,8 @@ https://stream8.cinerama.uz/1037/tracks-v1a1/mono.m3u8
 https://bsttv.bonus-tv.ru/cdn/tamyr/playlist.m3u8
 #EXTINF:-1 tvg-id="Tavriya.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/08e748a6241f5c93.png" group-title="Russia: General",Tavriya (576p)
 https://streaming.televizor-24-tochka.ru/live/24.m3u8
+#EXTINF:-1 tvg-id="TaynyGalaktiki.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/1ed208a1cb0ac617.png" group-title="Russia: Documentary",Tayny Galaktiki (576p)
+http://s7.merlive.am/tainigalaktiki/index.m3u8
 #EXTINF:-1 tvg-id="TeleDom.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/9663ba70b0d1128c.png" group-title="Russia: Other",TeleDom
 https://iam-profi.ru/hls-live/livepkgr/_definst_/liveevent/td720.m3u8
 #EXTINF:-1 tvg-id="TelekanalKrasnodar.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/25b4107d8a013490.png" group-title="Russia: General",Telekanal Krasnodar (1080p)
@@ -403,12 +449,18 @@ http://31.148.5.241/kanal_19/index.m3u8
 https://stream8.cinerama.uz/1062/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-id="TNVTatarstan.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ff8b077a4bce419b.png" group-title="Russia: Other",TNV-Tatarstan (720p)
 https://user91229.clients-cdnnow.ru/hls/user91229_1.m3u8
+#EXTINF:-1 tvg-id="Tochkaotryva.ru@SD" tvg-logo="" group-title="Russia: Other",Tochka otryva (576p)
+http://s7.merlive.am/tochkaotriva/index.m3u8
+#EXTINF:-1 tvg-id="Tochkarf.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/c69cf94039ee93be.png" group-title="Russia: Documentary",Tochka.rf (1080p)
+http://s7.merlive.am/HDLife/index.m3u8
 #EXTINF:-1 tvg-id="Tolk.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/9d5cb4c054ab9a02.png" group-title="Russia: News",Tolk (720p)
 http://live-tolknews.cdnvideo.ru/tolknews/stream/playlist.m3u8
 #EXTINF:-1 tvg-id="Tonus.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2e4722462c626f2a.png" group-title="Russia: Other",Tonus (576p)
 http://194.143.148.28:8080/Mir24/index.m3u8
 #EXTINF:-1 tvg-id="Tooku.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/47483fc151c1326a.png" group-title="Russia: Animation",Tooku (1080p)
 http://live-saha.cdnvideo.ru/saha/tooky/playlist.m3u8
+#EXTINF:-1 tvg-id="TopSecret.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7dcb1e69631d315b.png" group-title="Russia: Documentary",Top Secret (576p)
+http://s7.merlive.am/sovershennosekretno/index.m3u8
 #EXTINF:-1 tvg-id="TraceSportStars.fr@Russia" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/dcce961ec840aa5c.png" group-title="Russia: Sports",Trace Sport Stars Russia (720p)
 https://stream8.cinerama.uz/1274/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-id="TV21.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ef1adbcbff021502.png" group-title="Russia: Movies",TV 21 (576p)
@@ -466,7 +518,7 @@ https://cdn4.skygo.mn/live/disk1/Vremya/HLSv3-FTA/Vremya.m3u8
 #EXTINF:-1 tvg-id="YaPervyy.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/2a229efa3d95cb43.png" group-title="Russia: General",YaPervyy (1080p)
 https://yaroslavl.mediacdn.ru/cdn/pervyaroslavsk/playlist.m3u8
 #EXTINF:-1 tvg-id="Yuvelirochka.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/30f1adc1a6384138.png" group-title="Russia: Shop",Yuvelirochka (576p)
-https://live-uvelirochka.cdnvideo.ru/uvelirochka/uvelirochka_720p3/playlist.m3u8
+http://s7.merlive.am/uvelirochka/index.m3u8
 #EXTINF:-1 tvg-id="ZaTV.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/41b802cc095b27de.png" group-title="Russia: General",Za! TV (576p)
 https://streaming.televizor-24-tochka.ru/live/25.m3u8
 #EXTINF:-1 tvg-id="ZagorodnayaZhizn.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/c94ac0daf03a74b2.png" group-title="Russia: Other",Zagorodnaya Zhizn (1080p)
@@ -475,6 +527,10 @@ https://stream8.cinerama.uz/1044/tracks-v1a1/mono.m3u8
 https://stream8.cinerama.uz/1428/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-id="ZhivayaPlaneta.ru@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ad9a6be888f971ae.png" group-title="Russia: Other",Zhivaya Planeta (576p)
 https://stream8.cinerama.uz/1250/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="Zoopark.ru@SD" tvg-logo="" group-title="Russia: Other",Zoopark (576p)
+http://s7.merlive.am/zoopark/index.m3u8
+#EXTINF:-1 tvg-id="Zvezda.ru@Plus4" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/707acc1fa0bc12e8.png" group-title="Russia: General",Zvezda +4 (576p)
+http://s7.merlive.am/Zvezda/index.m3u8
 #EXTINF:-1 tvg-id="Zvezda.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/707acc1fa0bc12e8.png" group-title="Russia: General",Zvezda HD (1080p)
 https://tvzvezda.bonus-tv.ru/cdn/tvzvezda/playlist.m3u8
 #EXTINF:-1 tvg-id="ZvezdaPlus.ru@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/7dd23c65a7c4444d.png" group-title="Russia: Other",Zvezda Plus HD (1080p)

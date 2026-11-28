@@ -1,6 +1,8 @@
 #EXTM3U
 #EXTINF:-1 tvg-id="Armenia2.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/9810ada06256406c.png" group-title="Armenia",Armenia 2 (1080p)
 https://amtv.tulixcdn.com/amtv3/am3abr/index.m3u8
+#EXTINF:-1 tvg-id="FastSports1.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/ebac081b7bdde2b9.png" group-title="Armenia",Fast Sports 1 (1080p)
+http://s7.merlive.am/Fastsports/index.m3u8
 #EXTINF:-1 tvg-id="FirstChannelNews.am@SD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/88c9d51ddfd3ae81.png" group-title="Armenia",First Channel News (1080p)
 https://amtvusdvr.tulix.tv/am3abr/index.m3u8
 #EXTINF:-1 tvg-id="KIIOLD101.us@HD" tvg-logo="https://mailtoharutyunyan.github.io/webos-apps/playlists/logos/0d313acc48622687.png" group-title="Armenia",KIIO-LD 10.1
